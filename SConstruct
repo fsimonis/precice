@@ -232,7 +232,8 @@ if env["python"]:
     env.AppendUnique(LIBPATH = [pythonLib])
     checkAdd(lib = pythonLib, header = "Python.h")
     # Check for numpy header needs python header first to compile
-    checkAdd( header = ['Python.h', 'numpy/arrayobject.h'], usage = "NumPy")
+    checkAdd(header = 'Python.h', usage = "Python")
+    checkAdd(header = 'numpy/arrayobject.h', usage = "NumPy")
 else:
     buildpath += "-nopython"
     env.Append(CPPDEFINES = ['PRECICE_NO_PYTHON'])
