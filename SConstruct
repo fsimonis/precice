@@ -4,58 +4,27 @@ import sys
 
 import sysconfig
 
-try:
-    import numpy as np
-except ImportError:
-    pass
-
 ##################################################################### FUNCTIONS
-
-def checkHeader(header, usage, conf):
-    if type(header) is list:
-        for h in header:
-            checkHeader(h, usage, conf)
-    else:
-        if not conf.CheckCXXHeader(header):
-            print("ERROR: Header '" + header + "'" + usage + "not found!")
-            Exit(1)
-
-
-def checkLib(lib, usage, conf):
-    if type(lib) is list:
-        for l in lib:
-            checkHeader(l, usage, conf)
-    else:
-        if not conf.CheckLib(lib, autoadd=0, language="C++"):
-            print("ERROR: Library '" + lib + "'" + usage + "not found!")
-            Exit(1)
-
-
-def checkLibAndHeader(lib, header, usage, conf):
-    if type(lib) is list:
-        for l in lib:
-            checkLibAndHeader(l, header, usage, conf)
-    elif type(header) is list:
-        for h in header:
-            checkLibAndHeader(lib, h, usage, conf)
-    else:
-        if not conf.CheckLibWithHeader(lib, header = header, autoadd=0, language="C++"):
-            print("ERROR: Library '" + lib + "' or header '" + header + "'" + usage + "not found.")
-            Exit(1)
-
 
 def checkAdd(lib = None, header = None, usage = ""):
     """ Checks for a library and/or header and appends it to env if not already appended. """
 
     usage = " (needed for " + usage + ") " if usage else ""
     if lib and header:
-        checkLibAndHeader(lib, header, usage, conf)
+        if not conf.CheckLibWithHeader(lib, header = header, autoadd=0, language="C++"):
+            print("ERROR: Library '" + lib + "' or header '" + header + "'" + usage + "not found.")
+            Exit(1)
         conf.env.AppendUnique(LIBS = [lib])
     elif lib:
-        checkLib(lib, usage, conf)
+        if not conf.CheckLib(lib, autoadd=0, language="C++"):
+            print("ERROR: Library '" + lib + "'" + usage + "not found!")
+            Exit(1)
         conf.env.AppendUnique(LIBS = [lib])
     elif header:
-        checkHeader(header, usage, conf)
+        if not conf.CheckCXXHeader(header):
+            print("ERROR: Header '" + header + "'" + usage + "not found!")
+            Exit(1)
+
 
 
 def print_options(vars):
@@ -250,7 +219,7 @@ if env["python"]:
     pythonLibDefault = 'python'+str(sys.version_info.major)+'.'+str(sys.version_info.minor)
     pythonLibPathDefault = sysconfig.get_config_var('LIBDIR')
     pythonIncPathDefault = sysconfig.get_path('include', scheme=installation_scheme)
-    numpyIncPathDefault = np.get_include() + '/'
+    numpyIncPathDefault = sysconfig.get_path('include', scheme=installation_scheme)
 
     pythonLib = checkset_var('PRECICE_PYTHON_LIB', pythonLibDefault)
     pythonLibPath = checkset_var('PRECICE_PYTHON_LIB_PATH', pythonLibPathDefault)
