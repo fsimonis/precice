@@ -250,7 +250,7 @@ if env["python"]:
     pythonLibDefault = 'python'+str(sys.version_info.major)+'.'+str(sys.version_info.minor)
     pythonLibPathDefault = sysconfig.get_config_var('LIBDIR')
     pythonIncPathDefault = sysconfig.get_path('include', scheme=installation_scheme)
-    numpyIncPathDefault = np.get_include()
+    numpyIncPathDefault = np.get_include() + '/'
 
     pythonLib = checkset_var('PRECICE_PYTHON_LIB', pythonLibDefault)
     pythonLibPath = checkset_var('PRECICE_PYTHON_LIB_PATH', pythonLibPathDefault)
