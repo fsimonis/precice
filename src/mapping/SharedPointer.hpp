@@ -2,8 +2,10 @@
 
 #include <memory>
 
-namespace precice {
-namespace mapping {
+namespace precice
+{
+namespace mapping
+{
 
 class Mapping;
 class MappingConfiguration;
@@ -11,4 +13,5 @@ class MappingConfiguration;
 using PtrMapping              = std::shared_ptr<Mapping>;
 using PtrMappingConfiguration = std::shared_ptr<MappingConfiguration>;
 
-}} // namespace precice, mapping
+} // namespace mapping
+} // namespace precice

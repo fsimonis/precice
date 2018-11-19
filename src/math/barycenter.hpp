@@ -1,8 +1,8 @@
 #pragma once
 
+#include "math/geometry.hpp"
 #include <Eigen/Core>
 #include <Eigen/Dense>
-#include "math/geometry.hpp"
 
 namespace precice
 {
@@ -12,7 +12,8 @@ namespace barycenter
 {
 
 /// The result of calculating the barycentric coordinates.
-struct BarycentricCoordsAndProjected {
+struct BarycentricCoordsAndProjected
+{
   /// A vector of the n coefficients for n vertices
   Eigen::VectorXd barycentricCoords;
   /// The projected location vertex
@@ -28,7 +29,8 @@ struct BarycentricCoordsAndProjected {
  *
  * @note Methodology of book "Computational Geometry", Joseph O' Rourke, Chapter 7.2
  */
-BarycentricCoordsAndProjected calcBarycentricCoordsForEdge(
+BarycentricCoordsAndProjected
+calcBarycentricCoordsForEdge(
     const Eigen::VectorXd &edgeA,
     const Eigen::VectorXd &edgeB,
     const Eigen::VectorXd &edgeNormal,
@@ -48,7 +50,8 @@ BarycentricCoordsAndProjected calcBarycentricCoordsForEdge(
  * with the barycentric coordinates method and real projection into 2D, instead
  * of outprojecting one coordinate
  */
-BarycentricCoordsAndProjected calcBarycentricCoordsForTriangle(
+BarycentricCoordsAndProjected
+calcBarycentricCoordsForTriangle(
     const Eigen::VectorXd &a,
     const Eigen::VectorXd &b,
     const Eigen::VectorXd &c,
@@ -67,7 +70,8 @@ BarycentricCoordsAndProjected calcBarycentricCoordsForTriangle(
  *
  *   @todo: Interpolation on quads is currently not implemented
  */
-BarycentricCoordsAndProjected calcBarycentricCoordsForQuad(
+BarycentricCoordsAndProjected
+calcBarycentricCoordsForQuad(
     const Eigen::VectorXd &a,
     const Eigen::VectorXd &b,
     const Eigen::VectorXd &c,

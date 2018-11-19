@@ -8,14 +8,16 @@ namespace precice
 {
 namespace com
 {
-class MPIRequest : public Request
+class MPIRequest: public Request
 {
 public:
   explicit MPIRequest(MPI_Request request);
 
-  bool test() override;
+  bool
+  test() override;
 
-  void wait() override;
+  void
+  wait() override;
 
 private:
   MPI_Request _request;

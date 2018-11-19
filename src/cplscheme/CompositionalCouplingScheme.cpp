@@ -1,23 +1,25 @@
 #include "CompositionalCouplingScheme.hpp"
 #include "Constants.hpp"
-#include <limits>
 #include "utils/assertion.hpp"
+#include <limits>
 
-namespace precice {
-namespace cplscheme {
+namespace precice
+{
+namespace cplscheme
+{
 
-void CompositionalCouplingScheme:: addCouplingScheme
-(
-  PtrCouplingScheme couplingScheme )
+void
+CompositionalCouplingScheme::addCouplingScheme(
+    PtrCouplingScheme couplingScheme)
 {
   TRACE();
   _couplingSchemes.emplace_back(couplingScheme);
 }
 
-void CompositionalCouplingScheme:: initialize
-(
-  double startTime,
-  int    startTimestep )
+void
+CompositionalCouplingScheme::initialize(
+    double startTime,
+    int    startTimestep)
 {
   TRACE(startTime, startTimestep);
   for (Scheme scheme : _couplingSchemes) {
@@ -26,7 +28,8 @@ void CompositionalCouplingScheme:: initialize
   determineActiveCouplingSchemes();
 }
 
-bool CompositionalCouplingScheme:: isInitialized() const
+bool
+CompositionalCouplingScheme::isInitialized() const
 {
   TRACE();
   bool isInitialized = true;
@@ -37,7 +40,8 @@ bool CompositionalCouplingScheme:: isInitialized() const
   return isInitialized;
 }
 
-void CompositionalCouplingScheme:: initializeData()
+void
+CompositionalCouplingScheme::initializeData()
 {
   TRACE();
   for (Scheme scheme : _couplingSchemes) {
@@ -45,10 +49,11 @@ void CompositionalCouplingScheme:: initializeData()
   }
 }
 
-void CompositionalCouplingScheme:: addComputedTime(double timeToAdd)
+void
+CompositionalCouplingScheme::addComputedTime(double timeToAdd)
 {
   TRACE(timeToAdd);
-  for (SchemesIt it = _activeSchemesBegin; it != _activeSchemesEnd; it++){
+  for (SchemesIt it = _activeSchemesBegin; it != _activeSchemesEnd; it++) {
     if (not it->onHold) {
       it->scheme->addComputedTime(timeToAdd);
     }
@@ -56,12 +61,13 @@ void CompositionalCouplingScheme:: addComputedTime(double timeToAdd)
   _lastAddedTime += timeToAdd;
 }
 
-void CompositionalCouplingScheme:: advance()
+void
+CompositionalCouplingScheme::advance()
 {
   TRACE();
   bool moreSchemesToHandle = false;
   do {
-    for (SchemesIt it = _activeSchemesBegin; it != _activeSchemesEnd; it++){
+    for (SchemesIt it = _activeSchemesBegin; it != _activeSchemesEnd; it++) {
       if (not it->onHold) {
         it->scheme->advance();
       }
@@ -77,7 +83,8 @@ void CompositionalCouplingScheme:: advance()
   _lastAddedTime = 0.0;
 }
 
-void CompositionalCouplingScheme:: finalize()
+void
+CompositionalCouplingScheme::finalize()
 {
   TRACE();
   for (Scheme scheme : _couplingSchemes) {
@@ -107,7 +114,8 @@ void CompositionalCouplingScheme:: finalize()
 //  return isUsed;
 //}
 
-std::vector<std::string> CompositionalCouplingScheme:: getCouplingPartners() const
+std::vector<std::string>
+CompositionalCouplingScheme::getCouplingPartners() const
 {
   TRACE();
   std::vector<std::string> partners;
@@ -119,11 +127,12 @@ std::vector<std::string> CompositionalCouplingScheme:: getCouplingPartners() con
   return partners;
 }
 
-bool CompositionalCouplingScheme::willDataBeExchanged(double lastSolverTimestepLength) const
+bool
+CompositionalCouplingScheme::willDataBeExchanged(double lastSolverTimestepLength) const
 {
   TRACE(lastSolverTimestepLength);
   bool willBeExchanged = false;
-  for (SchemesIt it = _activeSchemesBegin; it != _activeSchemesEnd; it++){
+  for (SchemesIt it = _activeSchemesBegin; it != _activeSchemesEnd; it++) {
     if (not it->onHold) {
       willBeExchanged |= it->scheme->willDataBeExchanged(lastSolverTimestepLength);
     }
@@ -132,12 +141,13 @@ bool CompositionalCouplingScheme::willDataBeExchanged(double lastSolverTimestepL
   return willBeExchanged;
 }
 
-bool CompositionalCouplingScheme:: hasDataBeenExchanged() const
+bool
+CompositionalCouplingScheme::hasDataBeenExchanged() const
 {
   TRACE();
   bool hasBeenExchanged = false;
   // Question: Does it suffice to only check the active ones?
-  for (SchemesIt it = _activeSchemesBegin; it != _activeSchemesEnd; it++){
+  for (SchemesIt it = _activeSchemesBegin; it != _activeSchemesEnd; it++) {
     if (not it->onHold) {
       hasBeenExchanged |= it->scheme->hasDataBeenExchanged();
     }
@@ -146,7 +156,8 @@ bool CompositionalCouplingScheme:: hasDataBeenExchanged() const
   return hasBeenExchanged;
 }
 
-double CompositionalCouplingScheme:: getTime() const
+double
+CompositionalCouplingScheme::getTime() const
 {
   TRACE();
   double time = std::numeric_limits<double>::max();
@@ -159,7 +170,8 @@ double CompositionalCouplingScheme:: getTime() const
   return time;
 }
 
-int CompositionalCouplingScheme:: getTimesteps() const
+int
+CompositionalCouplingScheme::getTimesteps() const
 {
   TRACE();
   int timesteps = std::numeric_limits<int>::max();
@@ -172,7 +184,8 @@ int CompositionalCouplingScheme:: getTimesteps() const
   return timesteps;
 }
 
-double CompositionalCouplingScheme:: getMaxTime() const
+double
+CompositionalCouplingScheme::getMaxTime() const
 {
   TRACE();
   double maxTime = 0.0;
@@ -183,7 +196,8 @@ double CompositionalCouplingScheme:: getMaxTime() const
   return maxTime;
 }
 
-int CompositionalCouplingScheme:: getMaxTimesteps() const
+int
+CompositionalCouplingScheme::getMaxTimesteps() const
 {
   TRACE();
   int maxTimesteps = 0;
@@ -204,7 +218,8 @@ int CompositionalCouplingScheme:: getMaxTimesteps() const
 //  return isSubiterating;
 //}
 
-bool CompositionalCouplingScheme:: hasTimestepLength() const
+bool
+CompositionalCouplingScheme::hasTimestepLength() const
 {
   TRACE();
   bool hasIt = false;
@@ -215,12 +230,13 @@ bool CompositionalCouplingScheme:: hasTimestepLength() const
   return hasIt;
 }
 
-double CompositionalCouplingScheme:: getTimestepLength() const
+double
+CompositionalCouplingScheme::getTimestepLength() const
 {
   TRACE();
   double timestepLength = std::numeric_limits<double>::max();
   for (Scheme scheme : _couplingSchemes) {
-    if (scheme.scheme->getTimestepLength() < timestepLength){
+    if (scheme.scheme->getTimestepLength() < timestepLength) {
       timestepLength = scheme.scheme->getTimestepLength();
     }
   }
@@ -228,13 +244,14 @@ double CompositionalCouplingScheme:: getTimestepLength() const
   return timestepLength;
 }
 
-double CompositionalCouplingScheme:: getThisTimestepRemainder() const
+double
+CompositionalCouplingScheme::getThisTimestepRemainder() const
 {
   TRACE();
   double maxRemainder = 0.0;
   for (Scheme scheme : _couplingSchemes) {
-    if (not scheme.onHold){
-      if (scheme.scheme->getThisTimestepRemainder() > maxRemainder){
+    if (not scheme.onHold) {
+      if (scheme.scheme->getThisTimestepRemainder() > maxRemainder) {
         maxRemainder = scheme.scheme->getThisTimestepRemainder();
       }
     }
@@ -243,7 +260,8 @@ double CompositionalCouplingScheme:: getThisTimestepRemainder() const
   return maxRemainder;
 }
 
-double CompositionalCouplingScheme:: getComputedTimestepPart() const
+double
+CompositionalCouplingScheme::getComputedTimestepPart() const
 {
   TRACE();
   double timestepPart = std::numeric_limits<double>::max();
@@ -256,7 +274,8 @@ double CompositionalCouplingScheme:: getComputedTimestepPart() const
   return timestepPart;
 }
 
-double CompositionalCouplingScheme:: getNextTimestepMaxLength() const
+double
+CompositionalCouplingScheme::getNextTimestepMaxLength() const
 {
   TRACE();
   double maxLength = std::numeric_limits<double>::max();
@@ -269,7 +288,8 @@ double CompositionalCouplingScheme:: getNextTimestepMaxLength() const
   return maxLength;
 }
 
-bool CompositionalCouplingScheme:: isCouplingOngoing() const
+bool
+CompositionalCouplingScheme::isCouplingOngoing() const
 {
   TRACE();
   bool isOngoing = false;
@@ -280,7 +300,8 @@ bool CompositionalCouplingScheme:: isCouplingOngoing() const
   return isOngoing;
 }
 
-bool CompositionalCouplingScheme:: isCouplingTimestepComplete() const
+bool
+CompositionalCouplingScheme::isCouplingTimestepComplete() const
 {
   TRACE();
   bool isComplete = true;
@@ -291,9 +312,9 @@ bool CompositionalCouplingScheme:: isCouplingTimestepComplete() const
   return isComplete;
 }
 
-bool CompositionalCouplingScheme:: isActionRequired
-(
-  const std::string& actionName) const
+bool
+CompositionalCouplingScheme::isActionRequired(
+    const std::string &actionName) const
 {
   TRACE(actionName);
   bool isRequired = false;
@@ -306,9 +327,9 @@ bool CompositionalCouplingScheme:: isActionRequired
   return isRequired;
 }
 
-void CompositionalCouplingScheme:: performedAction
-(
-  const std::string& actionName)
+void
+CompositionalCouplingScheme::performedAction(
+    const std::string &actionName)
 {
   TRACE(actionName);
   for (Scheme scheme : _couplingSchemes) {
@@ -318,10 +339,9 @@ void CompositionalCouplingScheme:: performedAction
   }
 }
 
-
-void CompositionalCouplingScheme:: requireAction
-(
-  const std::string& actionName )
+void
+CompositionalCouplingScheme::requireAction(
+    const std::string &actionName)
 {
   TRACE(actionName);
   for (Scheme scheme : _couplingSchemes) {
@@ -329,12 +349,13 @@ void CompositionalCouplingScheme:: requireAction
   }
 }
 
-std::string CompositionalCouplingScheme:: printCouplingState() const
+std::string
+CompositionalCouplingScheme::printCouplingState() const
 {
-  std::string state;
+  std::string              state;
   std::vector<std::string> partners;
   for (Scheme scheme : _couplingSchemes) {
-    if (not state.empty()){
+    if (not state.empty()) {
       state += "\n";
     }
     partners = scheme.scheme->getCouplingPartners();
@@ -345,10 +366,10 @@ std::string CompositionalCouplingScheme:: printCouplingState() const
   return state;
 }
 
-void CompositionalCouplingScheme:: sendState
-(
-  com::PtrCommunication communication,
-  int                   rankReceiver )
+void
+CompositionalCouplingScheme::sendState(
+    com::PtrCommunication communication,
+    int                   rankReceiver)
 {
   TRACE();
   for (Scheme scheme : _couplingSchemes) {
@@ -356,10 +377,10 @@ void CompositionalCouplingScheme:: sendState
   }
 }
 
-void CompositionalCouplingScheme:: receiveState
-(
-  com::PtrCommunication communication,
-  int                   rankSender )
+void
+CompositionalCouplingScheme::receiveState(
+    com::PtrCommunication communication,
+    int                   rankSender)
 {
   TRACE();
   for (Scheme scheme : _couplingSchemes) {
@@ -367,19 +388,20 @@ void CompositionalCouplingScheme:: receiveState
   }
 }
 
-bool CompositionalCouplingScheme:: determineActiveCouplingSchemes()
+bool
+CompositionalCouplingScheme::determineActiveCouplingSchemes()
 {
   TRACE();
-  bool newActiveSchemes = false;
-  std::string writeCheckpoint = constants::actionWriteIterationCheckpoint();
-  std::string readCheckpoint = constants::actionReadIterationCheckpoint();
-  if (_activeSchemesBegin == _activeSchemesEnd){
+  bool        newActiveSchemes = false;
+  std::string writeCheckpoint  = constants::actionWriteIterationCheckpoint();
+  std::string readCheckpoint   = constants::actionReadIterationCheckpoint();
+  if (_activeSchemesBegin == _activeSchemesEnd) {
     DEBUG("Case After Init");
     // First call after initialization of all coupling schemes. All coupling
     // schemes are set active up to (but not including) the first explicit
     // scheme after an implicit scheme.
     _activeSchemesBegin = _couplingSchemes.begin();
-    _activeSchemesEnd = _couplingSchemes.begin();
+    _activeSchemesEnd   = _couplingSchemes.begin();
     advanceActiveCouplingSchemes();
     newActiveSchemes = true;
   }
@@ -392,7 +414,7 @@ bool CompositionalCouplingScheme:: determineActiveCouplingSchemes()
     // is determined.
 
     // Remove preceding explicit schemes
-    while (_activeSchemesBegin != _activeSchemesEnd){
+    while (_activeSchemesBegin != _activeSchemesEnd) {
       bool explicitScheme = true;
       explicitScheme &= not _activeSchemesBegin->scheme->isActionRequired(writeCheckpoint);
       explicitScheme &= not _activeSchemesBegin->scheme->isActionRequired(readCheckpoint);
@@ -407,33 +429,31 @@ bool CompositionalCouplingScheme:: determineActiveCouplingSchemes()
 
     // Check implicit schemes for convergence and remove if converged
     bool converged = true;
-    for (SchemesIt it=_activeSchemesBegin; it != _activeSchemesEnd; it++){
-      if (it->scheme->isActionRequired(readCheckpoint)){
+    for (SchemesIt it = _activeSchemesBegin; it != _activeSchemesEnd; it++) {
+      if (it->scheme->isActionRequired(readCheckpoint)) {
         converged = false;
         DEBUG("Non converged implicit scheme");
       }
-      else if (it->scheme->isActionRequired(writeCheckpoint)
-               || not it->scheme->isCouplingOngoing())
-      {
+      else if (it->scheme->isActionRequired(writeCheckpoint) || not it->scheme->isCouplingOngoing()) {
         it->onHold = true;
         DEBUG("Put converged/finished implicit scheme on hold");
       }
     }
     if (converged) {
       DEBUG("Active implicit schemes converged");
-      for (SchemesIt it=_activeSchemesBegin; it != _activeSchemesEnd; it++){
+      for (SchemesIt it = _activeSchemesBegin; it != _activeSchemesEnd; it++) {
         it->onHold = false;
       }
       _activeSchemesBegin = _activeSchemesEnd;
     }
 
     // Determine next set of active schemes if current is empty
-    if (_activeSchemesBegin == _activeSchemesEnd){
-      if (_activeSchemesBegin == _couplingSchemes.end()){
+    if (_activeSchemesBegin == _activeSchemesEnd) {
+      if (_activeSchemesBegin == _couplingSchemes.end()) {
         DEBUG("Through with all coupling schemes");
         // All coupling schemes are through
         _activeSchemesBegin = _couplingSchemes.begin();
-        _activeSchemesEnd = _couplingSchemes.begin();
+        _activeSchemesEnd   = _couplingSchemes.begin();
         advanceActiveCouplingSchemes();
         // newActiveSchemes stays false, since the current it/dt is complete
       }
@@ -448,17 +468,18 @@ bool CompositionalCouplingScheme:: determineActiveCouplingSchemes()
   return newActiveSchemes;
 }
 
-void CompositionalCouplingScheme:: advanceActiveCouplingSchemes()
+void
+CompositionalCouplingScheme::advanceActiveCouplingSchemes()
 {
   TRACE();
   std::string writeCheckpoint = constants::actionWriteIterationCheckpoint();
-  bool iterating = false;
-  while (_activeSchemesEnd != _couplingSchemes.end()){
-    if (_activeSchemesEnd->scheme->isActionRequired(writeCheckpoint)){
+  bool        iterating       = false;
+  while (_activeSchemesEnd != _couplingSchemes.end()) {
+    if (_activeSchemesEnd->scheme->isActionRequired(writeCheckpoint)) {
       DEBUG("Found implicit scheme");
       iterating = true;
     }
-    if (iterating && (not _activeSchemesEnd->scheme->isActionRequired(writeCheckpoint))){
+    if (iterating && (not _activeSchemesEnd->scheme->isActionRequired(writeCheckpoint))) {
       DEBUG("Found explicit scheme after implicit scheme");
       break;
     }
@@ -468,7 +489,8 @@ void CompositionalCouplingScheme:: advanceActiveCouplingSchemes()
   assertion(_activeSchemesBegin != _activeSchemesEnd);
 }
 
-}} // namespace precice, cplscheme
+} // namespace cplscheme
+} // namespace precice
 
 //#include "CompositionalCouplingScheme.hpp"
 //#include "Constants.hpp"
@@ -1002,4 +1024,3 @@ void CompositionalCouplingScheme:: advanceActiveCouplingSchemes()
 //}
 //
 //}} // namespace precice, cplscheme
-

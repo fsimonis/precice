@@ -29,7 +29,8 @@ public:
   virtual ~ConvergenceMeasure() {}
 
   /// To be called when a new meas. series (iteration process) starts.
-  virtual void newMeasurementSeries() = 0;
+  virtual void
+  newMeasurementSeries() = 0;
 
   /**
    * @brief Performs convergence measurement.
@@ -37,23 +38,27 @@ public:
    * @param[in] oldValues Old iterate values.
    * @param[in] newValues New iterate values.
    */
-  virtual void measure(
+  virtual void
+  measure(
       const Eigen::VectorXd &oldValues,
       const Eigen::VectorXd &newValues,
       const Eigen::VectorXd &designSpecification) = 0;
 
   /// Returns true, if the last measurement indicates convergence.
-  virtual bool isConvergence() const = 0;
+  virtual bool
+  isConvergence() const = 0;
 
   /// Adds current convergence information to output stream.
-  virtual std::string printState() = 0;
+  virtual std::string
+  printState() = 0;
 
   /// Returns the l2-norm of the coupling residuum
-  virtual double getNormResidual()
+  virtual double
+  getNormResidual()
   {
     return 0;
   }
 };
-}
-}
-} // namespace precice, cplscheme, impl
+} // namespace impl
+} // namespace cplscheme
+} // namespace precice

@@ -18,10 +18,11 @@ namespace precice
 namespace action
 {
 
-class ScaleByAreaAction : public Action
+class ScaleByAreaAction: public Action
 {
 public:
-  enum Scaling {
+  enum Scaling
+  {
     /// Divides the data by the area of neighboring edges/triangles.
     SCALING_DIVIDE_BY_AREA,
     /// Multiplies the data by the area of neighboring edges/triangles.
@@ -48,7 +49,8 @@ public:
    * At the moment, only a division of a property value by the associated area
    * of the neighboring edges (2D) is possible.
    */
-  virtual void performAction(
+  virtual void
+  performAction(
       double time,
       double dt,
       double computedPartFullDt,

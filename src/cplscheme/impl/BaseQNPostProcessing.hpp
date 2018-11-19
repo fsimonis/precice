@@ -1,13 +1,13 @@
 #pragma once
 
-#include <Eigen/Core>
-#include <deque>
-#include <fstream>
-#include <sstream>
 #include "PostProcessing.hpp"
 #include "Preconditioner.hpp"
 #include "QRFactorization.hpp"
 #include "logging/Logger.hpp"
+#include <Eigen/Core>
+#include <deque>
+#include <fstream>
+#include <sstream>
 
 /* ****************************************************************************
  * 
@@ -55,10 +55,9 @@ namespace impl
  * @brief Base Class for quasi-Newton post processing schemes
  * 
  */
-class BaseQNPostProcessing : public PostProcessing
+class BaseQNPostProcessing: public PostProcessing
 {
 public:
-
   BaseQNPostProcessing(
       double            initialRelaxation,
       bool              forceInitialRelaxation,
@@ -85,7 +84,8 @@ public:
   /**
     * @brief Returns all IQN involved data IDs.
     */
-  virtual std::vector<int> getDataIDs() const
+  virtual std::vector<int>
+  getDataIDs() const
   {
     return _dataIDs;
   }
@@ -93,14 +93,16 @@ public:
   /**
     * @brief Initializes the post-processing.
     */
-  virtual void initialize(DataMap &cplData);
+  virtual void
+  initialize(DataMap &cplData);
 
   /**
     * @brief Performs one post-processing step.
     *
     * Has to be called after every implicit coupling iteration.
     */
-  virtual void performPostProcessing(DataMap &cplData);
+  virtual void
+  performPostProcessing(DataMap &cplData);
 
   /**
     * @brief Marks a iteration sequence as converged.
@@ -108,7 +110,8 @@ public:
     * Since convergence measurements are done outside the post-processing, this
     * method has to be used to signalize convergence to the post-processing.
     */
-  virtual void iterationsConverged(DataMap &cplData);
+  virtual void
+  iterationsConverged(DataMap &cplData);
 
   /**
     * @brief sets the design specification we want to meet for the objective function,
@@ -116,30 +119,36 @@ public:
     *     Usually we want to solve for a fixed-point of H, thus solving for argmin_x ||R(x)||
     *     with q=0.
     */
-  virtual void setDesignSpecification(Eigen::VectorXd &q);
+  virtual void
+  setDesignSpecification(Eigen::VectorXd &q);
 
   /**
     * @brief Returns the design specification for the optimization problem.
     *        Information needed to measure the convergence.
     *        In case of manifold mapping it also returns the design specification
     *        for the surrogate model which is updated in every iteration.
-    */ /// @todo: change to call by ref when Eigen is used.
-  virtual std::map<int, Eigen::VectorXd> getDesignSpecification(DataMap &cplData);
+    */
+  /// @todo: change to call by ref when Eigen is used.
+  virtual std::map<int, Eigen::VectorXd>
+  getDesignSpecification(DataMap &cplData);
 
   /**
     * @brief Exports the current state of the post-processing to a file.
     */
-  virtual void exportState(io::TXTWriter &writer);
+  virtual void
+  exportState(io::TXTWriter &writer);
 
   /**
     * @brief Imports the last exported state of the post-processing from file.
     *
     * Is empty at the moment!!!
     */
-  virtual void importState(io::TXTReader &reader);
+  virtual void
+  importState(io::TXTReader &reader);
 
   // delete this:
-  virtual int getDeletedColumns();
+  virtual int
+  getDeletedColumns();
 
 protected:
   logging::Logger _log{"cplscheme::impl::BaseQNPostProcessing"};
@@ -243,8 +252,10 @@ protected:
     *  constructed and we have no information about the number of cols. This info
     *  is needed for master-slave communication. Number of its =! _cols in general.
     */
-  int getLSSystemCols();
-  int getLSSystemRows();
+  int
+  getLSSystemCols();
+  int
+  getLSSystemRows();
 
   /**
      * @brief Marks a iteration sequence as converged.
@@ -252,31 +263,40 @@ protected:
      * called by the iterationsConverged() method in the BaseQNPostProcessing class
      * handles the postprocessing sepcific action after the convergence of one iteration
      */
-  virtual void specializedIterationsConverged(DataMap &cplData) = 0;
+  virtual void
+  specializedIterationsConverged(DataMap &cplData) = 0;
 
   /// Updates the V, W matrices (as well as the matrices for the secondary data)
-  virtual void updateDifferenceMatrices(DataMap &cplData);
+  virtual void
+  updateDifferenceMatrices(DataMap &cplData);
 
   /// Concatenates all coupling data involved in the QN system in a single vector
-  virtual void concatenateCouplingData(DataMap &cplData);
+  virtual void
+  concatenateCouplingData(DataMap &cplData);
 
   /// Splits up QN system vector back into the coupling data
-  virtual void splitCouplingData(DataMap &cplData);
+  virtual void
+  splitCouplingData(DataMap &cplData);
 
   /// Applies the filter method for the least-squares system, defined in the configuration
-  virtual void applyFilter();
+  virtual void
+  applyFilter();
 
   /// Computes underrelaxation for the secondary data
-  virtual void computeUnderrelaxationSecondaryData(DataMap &cplData) = 0;
+  virtual void
+  computeUnderrelaxationSecondaryData(DataMap &cplData) = 0;
 
   /// Computes the quasi-Newton update using the specified pp scheme (MVQN, IQNILS)
-  virtual void computeQNUpdate(DataMap &cplData, Eigen::VectorXd &xUpdate) = 0;
+  virtual void
+  computeQNUpdate(DataMap &cplData, Eigen::VectorXd &xUpdate) = 0;
 
   /// Removes one iteration from V,W matrices and adapts _matrixCols.
-  virtual void removeMatrixColumn(int columnIndex);
+  virtual void
+  removeMatrixColumn(int columnIndex);
 
   /// Wwrites info to the _infostream (also in parallel)
-  void writeInfo(std::string s, bool allProcs = false);
+  void
+  writeInfo(std::string s, bool allProcs = false);
 
   int its = 0, tSteps = 0;
 
@@ -309,6 +329,6 @@ private:
   /// Additional debugging info, is not important for computation:
   int _nbDelCols = 0;
 };
-}
-}
-} // namespace precice, cplscheme, impl
+} // namespace impl
+} // namespace cplscheme
+} // namespace precice

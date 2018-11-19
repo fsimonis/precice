@@ -6,12 +6,13 @@ namespace precice
 {
 namespace m2n
 {
-class GatherScatterComFactory : public DistributedComFactory
+class GatherScatterComFactory: public DistributedComFactory
 {
 public:
   GatherScatterComFactory(com::PtrCommunication masterCom);
 
-  DistributedCommunication::SharedPointer newDistributedCommunication(
+  DistributedCommunication::SharedPointer
+  newDistributedCommunication(
       mesh::PtrMesh mesh);
 
 private:

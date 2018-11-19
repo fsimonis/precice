@@ -10,7 +10,7 @@ namespace action
 {
 
 /// Computes the curvature of a mesh geometry.
-class ComputeCurvatureAction : public Action
+class ComputeCurvatureAction: public Action
 {
 public:
   /// Constructor. Curvature values are stored in scalar data with given ID.
@@ -23,7 +23,8 @@ public:
   virtual ~ComputeCurvatureAction() {}
 
   /// Computes the curvature of the mesh geometry.
-  virtual void performAction(
+  virtual void
+  performAction(
       double time,
       double dt,
       double computedPartFullDt,

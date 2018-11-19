@@ -1,9 +1,9 @@
 #pragma once
 
-#include <Eigen/Core>
-#include <vector>
 #include "../SharedPointer.hpp"
 #include "utils/assertion.hpp"
+#include <Eigen/Core>
+#include <vector>
 
 namespace precice
 {
@@ -25,17 +25,18 @@ class Preconditioner
 {
 public:
   Preconditioner(int maxNonConstTimesteps)
-    : _maxNonConstTimesteps(maxNonConstTimesteps)
+      : _maxNonConstTimesteps(maxNonConstTimesteps)
   {}
-      
+
   /// Destructor, empty.
   virtual ~Preconditioner() {}
-  
+
   /**
    * @brief initialize the preconditioner
    * @param size of the pp system (e.g. rows of V)
    */
-  virtual void initialize(std::vector<size_t> & svs)
+  virtual void
+  initialize(std::vector<size_t> &svs)
   {
     TRACE();
 
@@ -55,7 +56,8 @@ public:
    * @brief Apply preconditioner to matrix
    * @param transpose: false = from left, true = from right
    */
-  void apply(Eigen::MatrixXd &M, bool transpose)
+  void
+  apply(Eigen::MatrixXd &M, bool transpose)
   {
     TRACE();
     if (transpose) {
@@ -65,7 +67,8 @@ public:
           M(j, i) *= _weights[i];
         }
       }
-    } else {
+    }
+    else {
       assertion(M.rows() == (int) _weights.size(), M.rows(), (int) _weights.size());
       for (int i = 0; i < M.cols(); i++) {
         for (int j = 0; j < M.rows(); j++) {
@@ -79,7 +82,8 @@ public:
    * @brief Apply inverse preconditioner to matrix
    * @param transpose: false = from left, true = from right
    */
-  void revert(Eigen::MatrixXd &M, bool transpose)
+  void
+  revert(Eigen::MatrixXd &M, bool transpose)
   {
     TRACE();
     //assertion(_needsGlobalWeights);
@@ -90,7 +94,8 @@ public:
           M(j, i) *= _invWeights[i];
         }
       }
-    } else {
+    }
+    else {
       assertion(M.rows() == (int) _invWeights.size(), M.rows(), (int) _invWeights.size());
       for (int i = 0; i < M.cols(); i++) {
         for (int j = 0; j < M.rows(); j++) {
@@ -101,7 +106,8 @@ public:
   }
 
   /// To transform physical values to balanced values. Matrix version
-  void apply(Eigen::MatrixXd &M)
+  void
+  apply(Eigen::MatrixXd &M)
   {
     TRACE();
     assertion(M.rows() == (int) _weights.size(), M.rows(), (int) _weights.size());
@@ -115,7 +121,8 @@ public:
   }
 
   /// To transform physical values to balanced values. Vector version
-  void apply(Eigen::VectorXd &v)
+  void
+  apply(Eigen::VectorXd &v)
   {
     TRACE();
 
@@ -128,7 +135,8 @@ public:
   }
 
   /// To transform balanced values back to physical values. Matrix version
-  void revert(Eigen::MatrixXd &M)
+  void
+  revert(Eigen::MatrixXd &M)
   {
     TRACE();
 
@@ -143,7 +151,8 @@ public:
   }
 
   /// To transform balanced values back to physical values. Vector version
-  void revert(Eigen::VectorXd &v)
+  void
+  revert(Eigen::VectorXd &v)
   {
     TRACE();
 
@@ -160,7 +169,8 @@ public:
    *
    * @param[in] timestepComplete True if this FSI iteration also completed a timestep
    */
-  void update(bool timestepComplete, const Eigen::VectorXd &oldValues, const Eigen::VectorXd &res)
+  void
+  update(bool timestepComplete, const Eigen::VectorXd &oldValues, const Eigen::VectorXd &res)
   {
     TRACE(_nbNonConstTimesteps, _freezed);
 
@@ -180,24 +190,28 @@ public:
   }
 
   /// returns true if a QR decomposition from scratch is necessary
-  bool requireNewQR()
+  bool
+  requireNewQR()
   {
     TRACE(_requireNewQR);
     return _requireNewQR;
   }
 
   /// to tell the preconditioner that QR-decomposition has been recomputed
-  void newQRfulfilled()
+  void
+  newQRfulfilled()
   {
     _requireNewQR = false;
   }
 
-  std::vector<double> &getWeights()
+  std::vector<double> &
+  getWeights()
   {
     return _weights;
   }
 
-  bool isConst()
+  bool
+  isConst()
   {
     return _freezed;
   }
@@ -231,11 +245,12 @@ protected:
    *
    * @param[in] timestepComplete True if this FSI iteration also completed a timestep
    */
-  virtual void _update_(bool timestepComplete, const Eigen::VectorXd &oldValues, const Eigen::VectorXd &res) = 0;
+  virtual void
+  _update_(bool timestepComplete, const Eigen::VectorXd &oldValues, const Eigen::VectorXd &res) = 0;
 
 private:
   logging::Logger _log{"cplscheme::Preconditioner"};
 };
-}
-}
-} // namespace precice, cplscheme, impl
+} // namespace impl
+} // namespace cplscheme
+} // namespace precice

@@ -79,7 +79,8 @@ PostProcessingConfiguration::PostProcessingConfiguration(
   assertion(meshConfig.get() != nullptr);
 }
 
-void PostProcessingConfiguration::connectTags(xml::XMLTag &parent)
+void
+PostProcessingConfiguration::connectTags(xml::XMLTag &parent)
 {
   using namespace xml;
 
@@ -141,17 +142,20 @@ void PostProcessingConfiguration::connectTags(xml::XMLTag &parent)
   }
 }
 
-impl::PtrPostProcessing PostProcessingConfiguration::getPostProcessing()
+impl::PtrPostProcessing
+PostProcessingConfiguration::getPostProcessing()
 {
   return _postProcessing;
 }
 
-PtrPostProcessingConfiguration PostProcessingConfiguration::getCoarseModelOptimizationConfig()
+PtrPostProcessingConfiguration
+PostProcessingConfiguration::getCoarseModelOptimizationConfig()
 {
   return _coarseModelOptimizationConfig;
 }
 
-void PostProcessingConfiguration::xmlTagCallback(
+void
+PostProcessingConfiguration::xmlTagCallback(
     xml::XMLTag &callingTag)
 {
   TRACE(callingTag.getFullName());
@@ -165,7 +169,8 @@ void PostProcessingConfiguration::xmlTagCallback(
 
   if (callingTag.getName() == TAG_RELAX) {
     _config.relaxationFactor = callingTag.getDoubleAttributeValue(ATTR_VALUE);
-  } else if (callingTag.getName() == TAG_DATA) {
+  }
+  else if (callingTag.getName() == TAG_DATA) {
     std::string dataName = callingTag.getStringAttributeValue(ATTR_NAME);
     _meshName            = callingTag.getStringAttributeValue(ATTR_MESH);
     double scaling       = 1.0;
@@ -192,32 +197,42 @@ void PostProcessingConfiguration::xmlTagCallback(
       throw stream.str();
     }
     _neededMeshes.push_back(_meshName);
-  } else if (callingTag.getName() == TAG_INIT_RELAX) {
+  }
+  else if (callingTag.getName() == TAG_INIT_RELAX) {
     _config.relaxationFactor       = callingTag.getDoubleAttributeValue(ATTR_VALUE);
     _config.forceInitialRelaxation = callingTag.getBooleanAttributeValue(ATTR_ENFORCE);
-  } else if (callingTag.getName() == TAG_MAX_USED_ITERATIONS) {
+  }
+  else if (callingTag.getName() == TAG_MAX_USED_ITERATIONS) {
     _config.maxIterationsUsed = callingTag.getIntAttributeValue(ATTR_VALUE);
-  } else if (callingTag.getName() == TAG_TIMESTEPS_REUSED) {
+  }
+  else if (callingTag.getName() == TAG_TIMESTEPS_REUSED) {
     _config.timestepsReused = callingTag.getIntAttributeValue(ATTR_VALUE);
-  } else if (callingTag.getName() == TAG_FILTER) {
+  }
+  else if (callingTag.getName() == TAG_FILTER) {
     auto f = callingTag.getStringAttributeValue(ATTR_TYPE);
     if (f == VALUE_QR1FILTER) {
       _config.filter = impl::PostProcessing::QR1FILTER;
-    } else if (f == VALUE_QR1_ABSFILTER) {
+    }
+    else if (f == VALUE_QR1_ABSFILTER) {
       _config.filter = impl::PostProcessing::QR1FILTER_ABS;
-    } else if (f == VALUE_QR2FILTER) {
+    }
+    else if (f == VALUE_QR2FILTER) {
       _config.filter = impl::PostProcessing::QR2FILTER;
-    } else {
+    }
+    else {
       assertion(false);
     }
     _config.singularityLimit = callingTag.getDoubleAttributeValue(ATTR_SINGULARITYLIMIT);
-  } else if (callingTag.getName() == TAG_ESTIMATEJACOBIAN) {
+  }
+  else if (callingTag.getName() == TAG_ESTIMATEJACOBIAN) {
     if (_config.type == VALUE_ManifoldMapping)
       _config.estimateJacobian = callingTag.getBooleanAttributeValue(ATTR_VALUE);
-  } else if (callingTag.getName() == TAG_PRECONDITIONER) {
+  }
+  else if (callingTag.getName() == TAG_PRECONDITIONER) {
     _config.preconditionerType       = callingTag.getStringAttributeValue(ATTR_TYPE);
     _config.precond_nbNonConstTSteps = callingTag.getIntAttributeValue(ATTR_PRECOND_NONCONST_TIMESTEPS);
-  } else if (callingTag.getName() == TAG_IMVJRESTART) {
+  }
+  else if (callingTag.getName() == TAG_IMVJRESTART) {
 
     if (_config.alwaysBuildJacobian)
       ERROR("IMVJ can not be in restart mode while parameter always-build-jacobian is set true.");
@@ -227,17 +242,22 @@ void PostProcessingConfiguration::xmlTagCallback(
     auto f                = callingTag.getStringAttributeValue(ATTR_TYPE);
     if (f == VALUE_NO_RESTART) {
       _config.imvjRestartType = impl::MVQNPostProcessing::NO_RESTART;
-    } else if (f == VALUE_ZERO_RESTART) {
+    }
+    else if (f == VALUE_ZERO_RESTART) {
       _config.imvjRestartType = impl::MVQNPostProcessing::RS_ZERO;
-    } else if (f == VALUE_LS_RESTART) {
+    }
+    else if (f == VALUE_LS_RESTART) {
       _config.imvjRSLS_reustedTimesteps = callingTag.getIntAttributeValue(ATTR_RSLS_REUSEDTSTEPS);
       _config.imvjRestartType           = impl::MVQNPostProcessing::RS_LS;
-    } else if (f == VALUE_SVD_RESTART) {
+    }
+    else if (f == VALUE_SVD_RESTART) {
       _config.imvjRSSVD_truncationEps = callingTag.getDoubleAttributeValue(ATTR_RSSVD_TRUNCATIONEPS);
       _config.imvjRestartType         = impl::MVQNPostProcessing::RS_SVD;
-    } else if (f == VALUE_SLIDE_RESTART) {
+    }
+    else if (f == VALUE_SLIDE_RESTART) {
       _config.imvjRestartType = impl::MVQNPostProcessing::RS_SLIDE;
-    } else {
+    }
+    else {
       _config.imvjChunkSize = 0;
       assertion(false);
     }
@@ -247,7 +267,8 @@ void PostProcessingConfiguration::xmlTagCallback(
   }
 }
 
-void PostProcessingConfiguration::xmlEndTagCallback(
+void
+PostProcessingConfiguration::xmlEndTagCallback(
     xml::XMLTag &callingTag)
 {
   TRACE(callingTag.getName());
@@ -267,13 +288,17 @@ void PostProcessingConfiguration::xmlEndTagCallback(
           factors.push_back(_config.scalings[id]);
         }
         _preconditioner = impl::PtrPreconditioner(new impl::ConstantPreconditioner(factors));
-      } else if (_config.preconditionerType == VALUE_VALUE_PRECONDITIONER) {
+      }
+      else if (_config.preconditionerType == VALUE_VALUE_PRECONDITIONER) {
         _preconditioner = impl::PtrPreconditioner(new impl::ValuePreconditioner(_config.precond_nbNonConstTSteps));
-      } else if (_config.preconditionerType == VALUE_RESIDUAL_PRECONDITIONER) {
+      }
+      else if (_config.preconditionerType == VALUE_RESIDUAL_PRECONDITIONER) {
         _preconditioner = impl::PtrPreconditioner(new impl::ResidualPreconditioner(_config.precond_nbNonConstTSteps));
-      } else if (_config.preconditionerType == VALUE_RESIDUAL_SUM_PRECONDITIONER) {
+      }
+      else if (_config.preconditionerType == VALUE_RESIDUAL_SUM_PRECONDITIONER) {
         _preconditioner = impl::PtrPreconditioner(new impl::ResidualSumPreconditioner(_config.precond_nbNonConstTSteps));
-      } else {
+      }
+      else {
         // no preconditioner defined
         std::vector<double> factors;
         for (int id = 0; id < (int) _config.dataIDs.size(); ++id) {
@@ -287,15 +312,18 @@ void PostProcessingConfiguration::xmlEndTagCallback(
       _postProcessing = impl::PtrPostProcessing(
           new impl::ConstantRelaxationPostProcessing(
               _config.relaxationFactor, _config.dataIDs));
-    } else if (callingTag.getName() == VALUE_AITKEN) {
+    }
+    else if (callingTag.getName() == VALUE_AITKEN) {
       _postProcessing = impl::PtrPostProcessing(
           new impl::AitkenPostProcessing(
               _config.relaxationFactor, _config.dataIDs));
-    } else if (callingTag.getName() == VALUE_HIERARCHICAL_AITKEN) {
+    }
+    else if (callingTag.getName() == VALUE_HIERARCHICAL_AITKEN) {
       _postProcessing = impl::PtrPostProcessing(
           new impl::HierarchicalAitkenPostProcessing(
               _config.relaxationFactor, _config.dataIDs));
-    } else if (callingTag.getName() == VALUE_IQNILS) {
+    }
+    else if (callingTag.getName() == VALUE_IQNILS) {
       _postProcessing = impl::PtrPostProcessing(
           new impl::IQNILSPostProcessing(
               _config.relaxationFactor,
@@ -305,7 +333,8 @@ void PostProcessingConfiguration::xmlEndTagCallback(
               _config.filter, _config.singularityLimit,
               _config.dataIDs,
               _preconditioner));
-    } else if (callingTag.getName() == VALUE_MVQN) {
+    }
+    else if (callingTag.getName() == VALUE_MVQN) {
 #ifndef PRECICE_NO_MPI
       _postProcessing = impl::PtrPostProcessing(
           new impl::MVQNPostProcessing(
@@ -324,7 +353,8 @@ void PostProcessingConfiguration::xmlEndTagCallback(
 #else
       ERROR("Post processing IQN-IMVJ only works if preCICE is compiled with MPI");
 #endif
-    } else if (callingTag.getName() == VALUE_ManifoldMapping) {
+    }
+    else if (callingTag.getName() == VALUE_ManifoldMapping) {
 
       // create coarse model optimization method recursive
       assertion((_coarseModelOptimizationConfig.get() != nullptr));
@@ -341,7 +371,8 @@ void PostProcessingConfiguration::xmlEndTagCallback(
               _config.dataIDs,                                                   // fine data IDs
               _coarseModelOptimizationConfig->getPostProcessing()->getDataIDs(), // coarse data IDs
               _preconditioner));
-    } else if (callingTag.getName() == VALUE_BROYDEN) {
+    }
+    else if (callingTag.getName() == VALUE_BROYDEN) {
       _postProcessing = impl::PtrPostProcessing(
           new impl::BroydenPostProcessing(
               _config.relaxationFactor,
@@ -351,20 +382,23 @@ void PostProcessingConfiguration::xmlEndTagCallback(
               _config.filter, _config.singularityLimit,
               _config.dataIDs,
               _preconditioner));
-    } else {
+    }
+    else {
       assertion(false);
     }
   }
 }
 
-void PostProcessingConfiguration::clear()
+void
+PostProcessingConfiguration::clear()
 {
   _config         = ConfigurationData();
   _postProcessing = impl::PtrPostProcessing();
   _neededMeshes.clear();
 }
 
-void PostProcessingConfiguration::addTypeSpecificSubtags(
+void
+PostProcessingConfiguration::addTypeSpecificSubtags(
     xml::XMLTag &tag)
 {
   using namespace xml;
@@ -373,7 +407,8 @@ void PostProcessingConfiguration::addTypeSpecificSubtags(
     XMLAttribute<double> attrValue(ATTR_VALUE);
     tagRelax.addAttribute(attrValue);
     tag.addSubtag(tagRelax);
-  } else if (tag.getName() == VALUE_AITKEN) {
+  }
+  else if (tag.getName() == VALUE_AITKEN) {
     XMLTag               tagInitRelax(*this, TAG_INIT_RELAX, XMLTag::OCCUR_ONCE);
     XMLAttribute<double> attrValue(ATTR_VALUE);
     tagInitRelax.addAttribute(attrValue);
@@ -388,7 +423,8 @@ void PostProcessingConfiguration::addTypeSpecificSubtags(
     tagData.addAttribute(attrName);
     tagData.addAttribute(attrMesh);
     tag.addSubtag(tagData);
-  } else if (tag.getName() == VALUE_HIERARCHICAL_AITKEN) {
+  }
+  else if (tag.getName() == VALUE_HIERARCHICAL_AITKEN) {
     XMLTag               tagInitRelax(*this, TAG_INIT_RELAX, XMLTag::OCCUR_ONCE);
     XMLAttribute<double> attrValue(ATTR_VALUE);
     tagInitRelax.addAttribute(attrValue);
@@ -403,7 +439,8 @@ void PostProcessingConfiguration::addTypeSpecificSubtags(
     tagData.addAttribute(attrName);
     tagData.addAttribute(attrMesh);
     tag.addSubtag(tagData);
-  } else if (tag.getName() == VALUE_IQNILS) {
+  }
+  else if (tag.getName() == VALUE_IQNILS) {
     XMLTag               tagInitRelax(*this, TAG_INIT_RELAX, XMLTag::OCCUR_ONCE);
     XMLAttribute<double> attrDoubleValue(ATTR_VALUE);
     tagInitRelax.addAttribute(attrDoubleValue);
@@ -472,8 +509,8 @@ void PostProcessingConfiguration::addTypeSpecificSubtags(
     nonconstTSteps.setDefaultValue(-1);
     tagPreconditioner.addAttribute(nonconstTSteps);
     tag.addSubtag(tagPreconditioner);
-
-  } else if (tag.getName() == VALUE_MVQN) {
+  }
+  else if (tag.getName() == VALUE_MVQN) {
     XMLTag               tagInitRelax(*this, TAG_INIT_RELAX, XMLTag::OCCUR_ONCE);
     XMLAttribute<double> attrDoubleValue(ATTR_VALUE);
     tagInitRelax.addAttribute(attrDoubleValue);
@@ -572,7 +609,8 @@ void PostProcessingConfiguration::addTypeSpecificSubtags(
     nonconstTSteps.setDefaultValue(-1);
     tagPreconditioner.addAttribute(nonconstTSteps);
     tag.addSubtag(tagPreconditioner);
-  } else if (tag.getName() == VALUE_ManifoldMapping) {
+  }
+  else if (tag.getName() == VALUE_ManifoldMapping) {
 
     // add coarse model optimization PostProcessing Tag
     // new PP config for coarse model optimization method (recursive definition)
@@ -652,8 +690,8 @@ void PostProcessingConfiguration::addTypeSpecificSubtags(
     nonconstTSteps.setDefaultValue(-1);
     tagPreconditioner.addAttribute(nonconstTSteps);
     tag.addSubtag(tagPreconditioner);
-
-  } else if (tag.getName() == VALUE_BROYDEN) {
+  }
+  else if (tag.getName() == VALUE_BROYDEN) {
     XMLTag               tagInitRelax(*this, TAG_INIT_RELAX, XMLTag::OCCUR_ONCE);
     XMLAttribute<double> attrDoubleValue(ATTR_VALUE);
     tagInitRelax.addAttribute(attrDoubleValue);
@@ -682,10 +720,11 @@ void PostProcessingConfiguration::addTypeSpecificSubtags(
     tagData.addAttribute(attrName);
     tagData.addAttribute(attrMesh);
     tag.addSubtag(tagData);
-  } else {
+  }
+  else {
     ERROR("Post-processing of type \""
           << tag.getName() << "\" is unknown!");
   }
 }
-}
-} // namespace precice, cplscheme
+} // namespace cplscheme
+} // namespace precice

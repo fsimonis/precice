@@ -2,14 +2,15 @@
 #include "com/MPIDirectCommunication.hpp"
 #include "com/MPIPortsCommunication.hpp"
 #include "com/SocketCommunication.hpp"
-#include "xml/XMLAttribute.hpp"
 #include "utils/Helpers.hpp"
+#include "xml/XMLAttribute.hpp"
 
 namespace precice
 {
 namespace com
 {
-PtrCommunication CommunicationConfiguration::createCommunication(
+PtrCommunication
+CommunicationConfiguration::createCommunication(
     const xml::XMLTag &tag) const
 {
   com::PtrCommunication com;

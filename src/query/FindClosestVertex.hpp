@@ -4,20 +4,21 @@
 
 // ---------------------------------------------------------- CLASS DEFINITION
 
-namespace precice {
-namespace query {
+namespace precice
+{
+namespace query
+{
 
 /// Finds the closest Vertex object hold by Mesh objects.
 class FindClosestVertex
 {
 public:
-
   /**
    * @brief Constructor.
    *
    * @param[in] searchPoint Coordinates of origin of search for closest point.
    */
-  explicit FindClosestVertex ( const Eigen::VectorXd& searchPoint );
+  explicit FindClosestVertex(const Eigen::VectorXd &searchPoint);
 
   /**
    * @brief Searches among all Vertex objects hold by the given Mesh object.
@@ -26,29 +27,33 @@ public:
    * the meshes is found.
    */
   template<typename CONTAINER_T>
-  bool operator() ( CONTAINER_T& container );
+  bool
+  operator()(CONTAINER_T &container);
 
   /// Returns the coordinates of the search point.
-  const Eigen::VectorXd& getSearchPoint() const;
+  const Eigen::VectorXd &
+  getSearchPoint() const;
 
-  bool hasFound() const;
+  bool
+  hasFound() const;
 
   /**
    * @brief Returns the euclidian distance to the closest vertex found.
    *
    * @pre find() has been called and returned true.
    */
-  double getEuclidianDistance();
+  double
+  getEuclidianDistance();
 
   /**
    * @brief Returns the closest vertex found.
    *
    * @pre find() has been called and returned true.
    */
-  mesh::Vertex& getClosestVertex();
+  mesh::Vertex &
+  getClosestVertex();
 
 private:
-
   /// Origin of search for closest vertex.
   Eigen::VectorXd _searchPoint;
 
@@ -56,31 +61,30 @@ private:
   double _shortestDistance = std::numeric_limits<double>::max();
 
   /// Pointer to closest Vertex object found.
-  mesh::Vertex* _closestVertex = nullptr;
+  mesh::Vertex *_closestVertex = nullptr;
 };
 
 // --------------------------------------------------------- HEADER DEFINITIONS
 
 template<typename CONTAINER_T>
-bool FindClosestVertex:: operator()
-(
-  CONTAINER_T& container )
+bool
+FindClosestVertex::operator()(
+    CONTAINER_T &container)
 {
   Eigen::VectorXd vectorDistance = Eigen::VectorXd::Zero(_searchPoint.size());
-  for ( mesh::Vertex& vertex : container.vertices() ) {
-    assertion ( vertex.getDimensions() == _searchPoint.size(),
-                vertex.getDimensions(), _searchPoint.size() );
+  for (mesh::Vertex &vertex : container.vertices()) {
+    assertion(vertex.getDimensions() == _searchPoint.size(),
+              vertex.getDimensions(), _searchPoint.size());
     vectorDistance = vertex.getCoords();
     vectorDistance -= _searchPoint;
     double distance = vectorDistance.norm();
-    if ( distance < _shortestDistance) {
+    if (distance < _shortestDistance) {
       _shortestDistance = distance;
-      _closestVertex = &vertex;
+      _closestVertex    = &vertex;
     }
   }
   return _closestVertex != NULL;
 }
 
-}} // namespace precice, query
-
-
+} // namespace query
+} // namespace precice

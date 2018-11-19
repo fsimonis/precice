@@ -7,15 +7,16 @@ namespace precice
 namespace xml
 {
 
-template <typename VALUE_T>
+template<typename VALUE_T>
 class ValidatorOr;
 
-template <typename VALUE_T>
-const Validator<VALUE_T> &operator||(
+template<typename VALUE_T>
+const Validator<VALUE_T> &
+operator||(
     const Validator<VALUE_T> &lhs,
     const Validator<VALUE_T> &rhs);
-}
-}
+} // namespace xml
+} // namespace precice
 
 // ----------------------------------------------------------- CLASS DEFINITION
 
@@ -24,7 +25,7 @@ namespace precice
 namespace xml
 {
 
-template <typename VALUE_T>
+template<typename VALUE_T>
 class ValidatorOr
     : public Validator<VALUE_T>
 {
@@ -39,18 +40,23 @@ public:
     delete _rhs;
   }
 
-  virtual bool validateValue(const VALUE_T &value);
+  virtual bool
+  validateValue(const VALUE_T &value);
 
-  virtual Validator<VALUE_T> &clone() const;
+  virtual Validator<VALUE_T> &
+  clone() const;
 
-  virtual std::string getErrorMessage() const;
+  virtual std::string
+  getErrorMessage() const;
 
-  virtual std::string getDocumentation() const;
+  virtual std::string
+  getDocumentation() const;
 
 private:
   ValidatorOr(const ValidatorOr<VALUE_T> &rhs);
 
-  ValidatorOr<VALUE_T> &operator=(const ValidatorOr<VALUE_T> &rhs);
+  ValidatorOr<VALUE_T> &
+  operator=(const ValidatorOr<VALUE_T> &rhs);
 
   Validator<VALUE_T> *_lhs;
 
@@ -58,5 +64,5 @@ private:
 };
 
 #include "ValidatorOr.cpph"
-}
-} // namespace precice, xml
+} // namespace xml
+} // namespace precice

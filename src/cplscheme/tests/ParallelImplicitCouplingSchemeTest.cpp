@@ -1,32 +1,32 @@
+#include "com/MPIDirectCommunication.hpp"
+#include "cplscheme/Constants.hpp"
 #include "cplscheme/ParallelCouplingScheme.hpp"
+#include "cplscheme/SharedPointer.hpp"
 #include "cplscheme/config/CouplingSchemeConfiguration.hpp"
 #include "cplscheme/config/PostProcessingConfiguration.hpp"
-#include "cplscheme/impl/ConvergenceMeasure.hpp"
 #include "cplscheme/impl/AbsoluteConvergenceMeasure.hpp"
-#include "cplscheme/impl/MinIterationConvergenceMeasure.hpp"
-#include "cplscheme/impl/IQNILSPostProcessing.hpp"
-#include "cplscheme/impl/MVQNPostProcessing.hpp"
 #include "cplscheme/impl/BaseQNPostProcessing.hpp"
 #include "cplscheme/impl/ConstantPreconditioner.hpp"
-#include "cplscheme/SharedPointer.hpp"
+#include "cplscheme/impl/ConvergenceMeasure.hpp"
+#include "cplscheme/impl/IQNILSPostProcessing.hpp"
+#include "cplscheme/impl/MVQNPostProcessing.hpp"
+#include "cplscheme/impl/MinIterationConvergenceMeasure.hpp"
 #include "cplscheme/impl/SharedPointer.hpp"
-#include "cplscheme/Constants.hpp"
+#include "m2n/GatherScatterCommunication.hpp"
+#include "m2n/M2N.hpp"
+#include "m2n/config/M2NConfiguration.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/SharedPointer.hpp"
 #include "mesh/Vertex.hpp"
 #include "mesh/config/DataConfiguration.hpp"
 #include "mesh/config/MeshConfiguration.hpp"
-#include "com/MPIDirectCommunication.hpp"
-#include "m2n/GatherScatterCommunication.hpp"
-#include "m2n/config/M2NConfiguration.hpp"
-#include "m2n/M2N.hpp"
+#include "utils/EigenHelperFunctions.hpp"
 #include "xml/XMLTag.hpp"
 #include <Eigen/Core>
 #include <string>
-#include "utils/EigenHelperFunctions.hpp"
 
-#include "testing/Testing.hpp"
 #include "testing/Fixtures.hpp"
+#include "testing/Testing.hpp"
 
 using namespace precice;
 using namespace precice::cplscheme;
@@ -35,11 +35,12 @@ BOOST_AUTO_TEST_SUITE(CplSchemeTests)
 
 struct ParallelImplicitCouplingSchemeFixture
 {
-  using DataMap = std::map<int,PtrCouplingData>;
+  using DataMap = std::map<int, PtrCouplingData>;
 
   std::string _pathToTests;
 
-  ParallelImplicitCouplingSchemeFixture(){
+  ParallelImplicitCouplingSchemeFixture()
+  {
     _pathToTests = testing::getPathToSources() + "/cplscheme/tests/";
   }
 };
@@ -54,7 +55,7 @@ BOOST_AUTO_TEST_CASE(testParseConfigurationWithRelaxation)
 
   std::string path(_pathToTests + "parallel-implicit-cplscheme-relax-const-config.xml");
 
-  xml::XMLTag root = xml::getRootTag();
+  xml::XMLTag          root = xml::getRootTag();
   PtrDataConfiguration dataConfig(new DataConfiguration(root));
   dataConfig->setDimensions(3);
   PtrMeshConfiguration meshConfig(new MeshConfiguration(root, dataConfig));
@@ -71,29 +72,28 @@ BOOST_AUTO_TEST_CASE(testParseConfigurationWithRelaxation)
 BOOST_AUTO_TEST_CASE(testMVQNPP)
 {
   //use two vectors and see if underrelaxation works
-  double initialRelaxation = 0.01;
-  int    maxIterationsUsed = 50;
-  int    timestepsReused = 6;
-  int    reusedTimestepsAtRestart = 0;
-  int    chunkSize = 0;
-  int filter = cplscheme::impl::PostProcessing::QR1FILTER;
-  int restartType = cplscheme::impl::MVQNPostProcessing::NO_RESTART;
-  double singularityLimit = 1e-10;
-  double svdTruncationEps = 0.0;
-  bool enforceInitialRelaxation = false;
-  bool alwaysBuildJacobian = false;
+  double           initialRelaxation        = 0.01;
+  int              maxIterationsUsed        = 50;
+  int              timestepsReused          = 6;
+  int              reusedTimestepsAtRestart = 0;
+  int              chunkSize                = 0;
+  int              filter                   = cplscheme::impl::PostProcessing::QR1FILTER;
+  int              restartType              = cplscheme::impl::MVQNPostProcessing::NO_RESTART;
+  double           singularityLimit         = 1e-10;
+  double           svdTruncationEps         = 0.0;
+  bool             enforceInitialRelaxation = false;
+  bool             alwaysBuildJacobian      = false;
   std::vector<int> dataIDs;
   dataIDs.push_back(0);
   dataIDs.push_back(1);
   std::vector<double> factors;
-  factors.resize(2,1.0);
+  factors.resize(2, 1.0);
   cplscheme::impl::PtrPreconditioner prec(new cplscheme::impl::ConstantPreconditioner(factors));
-  mesh::PtrMesh dummyMesh ( new mesh::Mesh("DummyMesh", 3, false) );
-
+  mesh::PtrMesh                      dummyMesh(new mesh::Mesh("DummyMesh", 3, false));
 
   cplscheme::impl::MVQNPostProcessing pp(initialRelaxation, enforceInitialRelaxation, maxIterationsUsed,
-      timestepsReused, filter, singularityLimit, dataIDs, prec, alwaysBuildJacobian,
-      restartType, chunkSize, reusedTimestepsAtRestart, svdTruncationEps);
+                                         timestepsReused, filter, singularityLimit, dataIDs, prec, alwaysBuildJacobian,
+                                         restartType, chunkSize, reusedTimestepsAtRestart, svdTruncationEps);
 
   Eigen::VectorXd dvalues;
   Eigen::VectorXd dcol1;
@@ -111,7 +111,7 @@ BOOST_AUTO_TEST_CASE(testMVQNPP)
   utils::append(dcol1, 1.0);
   utils::append(dcol1, 1.0);
 
-  PtrCouplingData dpcd(new CouplingData(&dvalues,dummyMesh,false,1));
+  PtrCouplingData dpcd(new CouplingData(&dvalues, dummyMesh, false, 1));
 
   //init forces
   utils::append(fvalues, 0.1);
@@ -124,11 +124,11 @@ BOOST_AUTO_TEST_CASE(testMVQNPP)
   utils::append(fcol1, 0.2);
   utils::append(fcol1, 0.2);
 
-  PtrCouplingData fpcd(new CouplingData(&fvalues,dummyMesh,false,1));
+  PtrCouplingData fpcd(new CouplingData(&fvalues, dummyMesh, false, 1));
 
   DataMap data;
-  data.insert(std::pair<int,PtrCouplingData>(0,dpcd));
-  data.insert(std::pair<int,PtrCouplingData>(1,fpcd));
+  data.insert(std::pair<int, PtrCouplingData>(0, dpcd));
+  data.insert(std::pair<int, PtrCouplingData>(1, fpcd));
 
   pp.initialize(data);
 
@@ -170,27 +170,26 @@ BOOST_AUTO_TEST_CASE(testVIQNPP)
 {
   //use two vectors and see if underrelaxation works
 
-  double initialRelaxation = 0.01;
-  int    maxIterationsUsed = 50;
-  int    timestepsReused = 6;
-  int filter = cplscheme::impl::BaseQNPostProcessing::QR1FILTER;
-  double singularityLimit = 1e-10;
-  bool enforceInitialRelaxation = false;
+  double           initialRelaxation        = 0.01;
+  int              maxIterationsUsed        = 50;
+  int              timestepsReused          = 6;
+  int              filter                   = cplscheme::impl::BaseQNPostProcessing::QR1FILTER;
+  double           singularityLimit         = 1e-10;
+  bool             enforceInitialRelaxation = false;
   std::vector<int> dataIDs;
   dataIDs.push_back(0);
   dataIDs.push_back(1);
   std::vector<double> factors;
-  factors.resize(2,1.0);
+  factors.resize(2, 1.0);
   cplscheme::impl::PtrPreconditioner prec(new cplscheme::impl::ConstantPreconditioner(factors));
 
   std::map<int, double> scalings;
-  scalings.insert(std::make_pair(0,1.0));
-  scalings.insert(std::make_pair(1,1.0));
-  mesh::PtrMesh dummyMesh ( new mesh::Mesh("DummyMesh", 3, false) );
+  scalings.insert(std::make_pair(0, 1.0));
+  scalings.insert(std::make_pair(1, 1.0));
+  mesh::PtrMesh dummyMesh(new mesh::Mesh("DummyMesh", 3, false));
 
   cplscheme::impl::IQNILSPostProcessing pp(initialRelaxation, enforceInitialRelaxation, maxIterationsUsed,
-      timestepsReused, filter, singularityLimit, dataIDs, prec);
-
+                                           timestepsReused, filter, singularityLimit, dataIDs, prec);
 
   Eigen::VectorXd dvalues;
   Eigen::VectorXd dcol1;
@@ -208,7 +207,7 @@ BOOST_AUTO_TEST_CASE(testVIQNPP)
   utils::append(dcol1, 1.0);
   utils::append(dcol1, 1.0);
 
-  PtrCouplingData dpcd(new CouplingData(&dvalues,dummyMesh,false,1));
+  PtrCouplingData dpcd(new CouplingData(&dvalues, dummyMesh, false, 1));
 
   //init forces
   utils::append(fvalues, 0.1);
@@ -221,11 +220,11 @@ BOOST_AUTO_TEST_CASE(testVIQNPP)
   utils::append(fcol1, 0.2);
   utils::append(fcol1, 0.2);
 
-  PtrCouplingData fpcd(new CouplingData(&fvalues,dummyMesh,false,1));
+  PtrCouplingData fpcd(new CouplingData(&fvalues, dummyMesh, false, 1));
 
   DataMap data;
-  data.insert(std::pair<int,PtrCouplingData>(0,dpcd));
-  data.insert(std::pair<int,PtrCouplingData>(1,fpcd));
+  data.insert(std::pair<int, PtrCouplingData>(0, dpcd));
+  data.insert(std::pair<int, PtrCouplingData>(1, fpcd));
 
   pp.initialize(data);
 
@@ -264,8 +263,7 @@ BOOST_AUTO_TEST_CASE(testVIQNPP)
 
 /// Test that runs on 2 processors.
 BOOST_FIXTURE_TEST_CASE(testInitializeData, testing::M2NFixture,
-		              * testing::MinRanks(2)
-                      * boost::unit_test::fixture<testing::MPICommRestrictFixture>(std::vector<int>({0, 1})))
+                        *testing::MinRanks(2) * boost::unit_test::fixture<testing::MPICommRestrictFixture>(std::vector<int>({0, 1})))
 {
   if (utils::Parallel::getCommunicatorSize() != 2) // only run test on ranks {0,1}, for other ranks return
     return;
@@ -281,33 +279,33 @@ BOOST_FIXTURE_TEST_CASE(testInitializeData, testing::M2NFixture,
   mesh::MeshConfiguration meshConfig(root, dataConfig);
   meshConfig.setDimensions(3);
   mesh::PtrMesh mesh(new mesh::Mesh("Mesh", 3, false));
-  const auto dataID0 = mesh->createData("Data0", 1)->getID();
-  const auto dataID1 = mesh->createData("Data1", 3)->getID();
+  const auto    dataID0 = mesh->createData("Data0", 1)->getID();
+  const auto    dataID1 = mesh->createData("Data1", 3)->getID();
   mesh->createVertex(Eigen::Vector3d::Zero());
   mesh->allocateDataValues();
   meshConfig.addMesh(mesh);
 
   // Create all parameters necessary to create a ParallelImplicitCouplingScheme object
-  double maxTime = 1.0;
-  int maxTimesteps = 3;
-  double timestepLength = 0.1;
+  double      maxTime        = 1.0;
+  int         maxTimesteps   = 3;
+  double      timestepLength = 0.1;
   std::string nameParticipant0("Participant0");
   std::string nameParticipant1("Participant1");
   std::string nameLocalParticipant("");
-  int sendDataIndex = -1;
-  int receiveDataIndex = -1;
-  bool initData = false;
-  if (utils::Parallel::getProcessRank() == 0){
+  int         sendDataIndex    = -1;
+  int         receiveDataIndex = -1;
+  bool        initData         = false;
+  if (utils::Parallel::getProcessRank() == 0) {
     nameLocalParticipant = nameParticipant0;
-    sendDataIndex = 0;
-    receiveDataIndex = 1;
-    initData = true;
+    sendDataIndex        = 0;
+    receiveDataIndex     = 1;
+    initData             = true;
   }
-  else if (utils::Parallel::getProcessRank() == 1){
+  else if (utils::Parallel::getProcessRank() == 1) {
     nameLocalParticipant = nameParticipant1;
-    sendDataIndex = 1;
-    receiveDataIndex = 0;
-    initData = true;
+    sendDataIndex        = 1;
+    receiveDataIndex     = 0;
+    initData             = true;
   }
 
   // Create the coupling scheme object
@@ -318,35 +316,35 @@ BOOST_FIXTURE_TEST_CASE(testInitializeData, testing::M2NFixture,
   cplScheme.addDataToReceive(mesh->data()[receiveDataIndex], mesh, initData);
 
   // Add convergence measures
-  int minIterations = 3;
-  cplscheme::impl::PtrConvergenceMeasure minIterationConvMeasure1 (
-      new cplscheme::impl::MinIterationConvergenceMeasure(minIterations) );
-  cplscheme::impl::PtrConvergenceMeasure minIterationConvMeasure2 (
-      new cplscheme::impl::MinIterationConvergenceMeasure(minIterations) );
-  cplScheme.addConvergenceMeasure (
-      mesh->data()[1]->getID(), false, false, minIterationConvMeasure1 );
-  cplScheme.addConvergenceMeasure (
-      mesh->data()[0]->getID(), false, false, minIterationConvMeasure2 );
+  int                                    minIterations = 3;
+  cplscheme::impl::PtrConvergenceMeasure minIterationConvMeasure1(
+      new cplscheme::impl::MinIterationConvergenceMeasure(minIterations));
+  cplscheme::impl::PtrConvergenceMeasure minIterationConvMeasure2(
+      new cplscheme::impl::MinIterationConvergenceMeasure(minIterations));
+  cplScheme.addConvergenceMeasure(
+      mesh->data()[1]->getID(), false, false, minIterationConvMeasure1);
+  cplScheme.addConvergenceMeasure(
+      mesh->data()[0]->getID(), false, false, minIterationConvMeasure2);
 
   std::string writeIterationCheckpoint(constants::actionWriteIterationCheckpoint());
   std::string readIterationCheckpoint(constants::actionReadIterationCheckpoint());
 
   cplScheme.initialize(0.0, 0);
 
-  if (nameLocalParticipant == nameParticipant0){
+  if (nameLocalParticipant == nameParticipant0) {
     BOOST_TEST(cplScheme.isActionRequired(constants::actionWriteInitialData()));
     mesh->data(dataID0)->values() = Eigen::VectorXd::Constant(1, 4.0);
     cplScheme.performedAction(constants::actionWriteInitialData());
     cplScheme.initializeData();
     BOOST_TEST(cplScheme.hasDataBeenExchanged());
-    auto& values = mesh->data(dataID1)->values();
+    auto &values = mesh->data(dataID1)->values();
     BOOST_TEST(testing::equals(values, Eigen::Vector3d(1.0, 2.0, 3.0)), values);
 
-    while (cplScheme.isCouplingOngoing()){
-      if (cplScheme.isActionRequired(writeIterationCheckpoint)){
+    while (cplScheme.isCouplingOngoing()) {
+      if (cplScheme.isActionRequired(writeIterationCheckpoint)) {
         cplScheme.performedAction(writeIterationCheckpoint);
       }
-      if (cplScheme.isActionRequired(readIterationCheckpoint)){
+      if (cplScheme.isActionRequired(readIterationCheckpoint)) {
         cplScheme.performedAction(readIterationCheckpoint);
       }
       cplScheme.addComputedTime(timestepLength);
@@ -355,9 +353,10 @@ BOOST_FIXTURE_TEST_CASE(testInitializeData, testing::M2NFixture,
   }
   else {
     assertion(nameLocalParticipant == nameParticipant1);
-    auto& values = mesh->data(dataID0)->values();
+    auto &values = mesh->data(dataID0)->values();
     BOOST_TEST(cplScheme.isActionRequired(constants::actionWriteInitialData()));
-    Eigen::VectorXd v(3); v << 1.0, 2.0, 3.0;
+    Eigen::VectorXd v(3);
+    v << 1.0, 2.0, 3.0;
     mesh->data(dataID1)->values() = v;
     cplScheme.performedAction(constants::actionWriteInitialData());
     BOOST_TEST(testing::equals(values(0), 0.0), values);
@@ -365,13 +364,13 @@ BOOST_FIXTURE_TEST_CASE(testInitializeData, testing::M2NFixture,
     BOOST_TEST(cplScheme.hasDataBeenExchanged());
     BOOST_TEST(testing::equals(values(0), 4.0), values);
 
-    while (cplScheme.isCouplingOngoing()){
-      if (cplScheme.isActionRequired(writeIterationCheckpoint)){
+    while (cplScheme.isCouplingOngoing()) {
+      if (cplScheme.isActionRequired(writeIterationCheckpoint)) {
         cplScheme.performedAction(writeIterationCheckpoint);
       }
       cplScheme.addComputedTime(timestepLength);
       cplScheme.advance();
-      if (cplScheme.isActionRequired(readIterationCheckpoint)){
+      if (cplScheme.isActionRequired(readIterationCheckpoint)) {
         cplScheme.performedAction(readIterationCheckpoint);
       }
     }
@@ -379,7 +378,7 @@ BOOST_FIXTURE_TEST_CASE(testInitializeData, testing::M2NFixture,
   cplScheme.finalize();
   utils::Parallel::clearGroups();
 }
-# endif // not PRECICE_NO_MPI
+#endif // not PRECICE_NO_MPI
 
 BOOST_AUTO_TEST_SUITE_END()
 BOOST_AUTO_TEST_SUITE_END()

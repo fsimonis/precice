@@ -17,7 +17,8 @@ BOOST_AUTO_TEST_CASE(MinIterationConvergenceMeasureTest)
       measure.measure(emptyValues, emptyValues, emptyValues);
       if (iMeasurement < 5) {
         BOOST_TEST(not measure.isConvergence());
-      } else {
+      }
+      else {
         BOOST_TEST(measure.isConvergence());
       }
     }

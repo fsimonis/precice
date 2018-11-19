@@ -15,23 +15,25 @@ namespace partition
  * If required the mesh needs to be sent to another participant.
  * Furthermore, distribution data structures need to be set up.
  */
-class ProvidedPartition : public Partition
+class ProvidedPartition: public Partition
 {
 public:
-
   ProvidedPartition(mesh::PtrMesh mesh, bool hasToSend);
 
   virtual ~ProvidedPartition() {}
 
   /// The mesh is gathered and sent to another participant (if required)
-  virtual void communicate() override;
+  virtual void
+  communicate() override;
 
   /// All distribution data structures are set up.
-  virtual void compute() override;
+  virtual void
+  compute() override;
 
 private:
   /// Sets owner=True on all vertices
-  virtual void createOwnerInformation() override;
+  virtual void
+  createOwnerInformation() override;
 
   logging::Logger _log{"partition::ProvidedPartition"};
 

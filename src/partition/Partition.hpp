@@ -36,22 +36,27 @@ public:
   virtual ~Partition() {}
 
   /// The mesh is communicated between both master ranks (if required)
-  virtual void communicate() = 0;
+  virtual void
+  communicate() = 0;
 
   /// The partition is computed, i.e. the mesh re-partitioned if required and all data structures are set up.
-  virtual void compute() = 0;
+  virtual void
+  compute() = 0;
 
-  void setFromMapping(mapping::PtrMapping fromMapping)
+  void
+  setFromMapping(mapping::PtrMapping fromMapping)
   {
     _fromMapping = fromMapping;
   }
 
-  void setToMapping(mapping::PtrMapping toMapping)
+  void
+  setToMapping(mapping::PtrMapping toMapping)
   {
     _toMapping = toMapping;
   }
 
-  void setM2N(m2n::PtrM2N m2n)
+  void
+  setM2N(m2n::PtrM2N m2n)
   {
     _m2n = m2n;
   }
@@ -66,10 +71,12 @@ protected:
   m2n::PtrM2N _m2n;
 
   /// Decides which rank owns which vertex, information stored at each rank.
-  virtual void createOwnerInformation() = 0;
+  virtual void
+  createOwnerInformation() = 0;
 
   /// Generate vertex offsets from the vertexDistribution, broadcast it to all slaves
-  void computeVertexOffsets();
+  void
+  computeVertexOffsets();
 
 private:
   logging::Logger _log{"partition::Partition"};

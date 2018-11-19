@@ -15,9 +15,10 @@ ValuePreconditioner::ValuePreconditioner(
 {
 }
 
-void ValuePreconditioner::_update_(bool timestepComplete,
-                                   const Eigen::VectorXd &oldValues,
-                                   const Eigen::VectorXd &res)
+void
+ValuePreconditioner::_update_(bool                   timestepComplete,
+                              const Eigen::VectorXd &oldValues,
+                              const Eigen::VectorXd &res)
 {
   if (timestepComplete || _firstTimestep) {
 
@@ -47,6 +48,6 @@ void ValuePreconditioner::_update_(bool timestepComplete,
     _firstTimestep = false;
   }
 }
-}
-}
-} // namespace precice, cplscheme
+} // namespace impl
+} // namespace cplscheme
+} // namespace precice

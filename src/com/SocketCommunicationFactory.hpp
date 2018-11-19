@@ -11,7 +11,7 @@ namespace precice
 {
 namespace com
 {
-class SocketCommunicationFactory : public CommunicationFactory
+class SocketCommunicationFactory: public CommunicationFactory
 {
 public:
   SocketCommunicationFactory(unsigned short     portNumber       = 0,
@@ -21,9 +21,11 @@ public:
 
   explicit SocketCommunicationFactory(std::string const &addressDirectory);
 
-  PtrCommunication newCommunication() override;
+  PtrCommunication
+  newCommunication() override;
 
-  std::string addressDirectory() override;
+  std::string
+  addressDirectory() override;
 
 private:
   unsigned short _portNumber;

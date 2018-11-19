@@ -3,8 +3,10 @@
 #include "mapping/SharedPointer.hpp"
 #include "mapping/config/MappingConfiguration.hpp"
 
-namespace precice {
-namespace impl {
+namespace precice
+{
+namespace impl
+{
 
 /// Holds a data mapping and related information.
 struct MappingContext
@@ -14,7 +16,7 @@ struct MappingContext
 
   /// id of mesh from which is mapped
   int fromMeshID = -1;
-  
+
   /// id of mesh to which is mapped
   int toMeshID = -1;
 
@@ -25,8 +27,8 @@ struct MappingContext
   //bool isIncremental;
 
   /// True, if data has been mapped already.
-  bool hasMappedData = false;  
+  bool hasMappedData = false;
 };
 
-
-}} // namespace precice, impl
+} // namespace impl
+} // namespace precice

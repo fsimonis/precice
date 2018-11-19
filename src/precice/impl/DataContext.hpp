@@ -3,8 +3,10 @@
 #include "MappingContext.hpp"
 #include "mesh/SharedPointer.hpp"
 
-namespace precice {
-namespace impl {
+namespace precice
+{
+namespace impl
+{
 
 /**
  * @brief Stores one Data object with related context. If this dataContext is not associated with a mapping,
@@ -23,4 +25,5 @@ struct DataContext
   MappingContext mappingContext;
 };
 
-}} // namespace precice, impl
+} // namespace impl
+} // namespace precice

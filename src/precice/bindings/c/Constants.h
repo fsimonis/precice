@@ -4,10 +4,13 @@
 extern "C" {
 #endif
 
-const char* precicec_nameConfiguration();
+const char *
+precicec_nameConfiguration();
 
-const char* precicec_actionWriteIterationCheckpoint();
-const char* precicec_actionReadIterationCheckpoint();
+const char *
+precicec_actionWriteIterationCheckpoint();
+const char *
+precicec_actionReadIterationCheckpoint();
 
 #ifdef __cplusplus
 }

@@ -1,21 +1,20 @@
 #include "Tracer.hpp"
 #include <boost/log/attributes/mutable_constant.hpp>
 
-namespace precice {
-namespace logging {
+namespace precice
+{
+namespace logging
+{
 
-Tracer::Tracer
-(
-  Logger &log,
-  std::string function,
-  std::string file,
-  long line
-  )
-  :
-  _log(log),
-  _function(function),
-  _file(file),
-  _line(line)
+Tracer::Tracer(
+    Logger &    log,
+    std::string function,
+    std::string file,
+    long        line)
+    : _log(log),
+      _function(function),
+      _file(file),
+      _line(line)
 {}
 
 Tracer::~Tracer()
@@ -31,4 +30,5 @@ Tracer::~Tracer()
   BOOST_LOG_SEV(_log, trivial::severity_level::trace) << "Leaving " << _function;
 }
 
-}} // namespace precice,logging
+} // namespace logging
+} // namespace precice

@@ -1,8 +1,8 @@
 #pragma once
 
+#include "logging/Logger.hpp"
 #include <string>
 #include <vector>
-#include "logging/Logger.hpp"
 
 #ifndef PRECICE_NO_MPI
 #include <mpi.h>
@@ -21,25 +21,28 @@ public:
   using Communicator = MPI_Comm;
 #else
   using Communicator = std::nullptr_t;
-  #define MPI_COMM_NULL nullptr
+#define MPI_COMM_NULL nullptr
 #endif
 
   /// Used to sort and order all coupling participants.
-  struct AccessorGroup {
+  struct AccessorGroup
+  {
     std::string name;
-    int id;
-    int leaderRank;
-    int size;
+    int         id;
+    int         leaderRank;
+    int         size;
   };
 
-  static Communicator getCommunicatorWorld();
+  static Communicator
+  getCommunicatorWorld();
 
   /**
    * @brief Splits and creates a local MPI communicator according to groupName
    *
    * @param[in] groupName MPI group in which the calling process will be put in
    */
-  static void splitCommunicator(const std::string &groupName);
+  static void
+  splitCommunicator(const std::string &groupName);
 
   /**
    * @brief Initializes the MPI environment.
@@ -47,38 +50,46 @@ public:
    * @param[in] argc Parameter count
    * @param[in] argv Parameter values, is passed to MPI_Init
    */
-  static void initializeMPI(
-      int *argc,
+  static void
+  initializeMPI(
+      int *   argc,
       char ***argv);
 
   /// Finalizes MPI environment.
-  static void finalizeMPI();
+  static void
+  finalizeMPI();
 
   /// clears groups for communicator splitting
-  static void clearGroups();
+  static void
+  clearGroups();
 
   /// Returns the global process rank.
-  static int getProcessRank();
+  static int
+  getProcessRank();
 
   /**
    * @brief Returns the local process rank.
    *
    * If only one accessor group is present, returns getProcessRank().
    */
-  static int getLocalProcessRank();
+  static int
+  getLocalProcessRank();
 
   /// Returns the number of processes in the communicator.
-  static int getCommunicatorSize();
+  static int
+  getCommunicatorSize();
 
   /// Synchronizes all processes.
-  static void synchronizeProcesses();
+  static void
+  synchronizeProcesses();
 
   /**
    * @brief Synchronizes all local processes.
    *
    * If only one accessor group is present, calls synchcronizeProcesses().
    */
-  static void synchronizeLocalProcesses();
+  static void
+  synchronizeLocalProcesses();
 
   /**
    * @brief Switches precice communication away from global space to given one.
@@ -92,17 +103,20 @@ public:
    * @attention Will result in an error, if called by a process not in the new
    *            default communicator!
    */
-  static void setGlobalCommunicator(Communicator defaultCommunicator);
+  static void
+  setGlobalCommunicator(Communicator defaultCommunicator);
 
   /// Returns the default communicator.
-  static const Communicator &getGlobalCommunicator();
+  static const Communicator &
+  getGlobalCommunicator();
 
   /**
    * @brief Returns communicator of processes within one group.
    *
    * This communicator is empty, until initialize() has been called.
    */
-  static const Communicator &getLocalCommunicator();
+  static const Communicator &
+  getLocalCommunicator();
 
   /**
    * @brief Returns a communicator with a subset of processes.
@@ -114,7 +128,8 @@ public:
    *
    * @param[in] ranks Process ranks to be selected for restricted comm.
    */
-  static Communicator getRestrictedCommunicator(const std::vector<int> &ranks);
+  static Communicator
+  getRestrictedCommunicator(const std::vector<int> &ranks);
 
   /// Create a restricted communicator and sets them as the global communicator
   /**
@@ -124,9 +139,11 @@ public:
    * @param[in] ranks Process ranks to be selected for restricted comm.
    *
    */
-  static void restrictGlobalCommunicator(const std::vector<int> &ranks);
+  static void
+  restrictGlobalCommunicator(const std::vector<int> &ranks);
 
-  static const std::vector<AccessorGroup> &getAccessorGroups();
+  static const std::vector<AccessorGroup> &
+  getAccessorGroups();
 
 private:
   static logging::Logger _log;
@@ -144,5 +161,5 @@ private:
 
   static bool _mpiInitializedByPrecice;
 };
-}
-} // namespace precice, utils
+} // namespace utils
+} // namespace precice

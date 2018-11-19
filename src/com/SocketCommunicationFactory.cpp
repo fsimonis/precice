@@ -28,13 +28,15 @@ SocketCommunicationFactory::SocketCommunicationFactory(
 {
 }
 
-PtrCommunication SocketCommunicationFactory::newCommunication()
+PtrCommunication
+SocketCommunicationFactory::newCommunication()
 {
   return std::make_shared<SocketCommunication>(
       _portNumber, _reuseAddress, _networkName, _addressDirectory);
 }
 
-std::string SocketCommunicationFactory::addressDirectory()
+std::string
+SocketCommunicationFactory::addressDirectory()
 {
   return _addressDirectory;
 }

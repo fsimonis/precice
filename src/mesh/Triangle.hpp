@@ -1,15 +1,15 @@
 #pragma once
 
 #include <Eigen/Core>
+#include <algorithm>
 #include <boost/noncopyable.hpp>
 #include <iostream>
-#include <algorithm>
 
+#include "math/differences.hpp"
 #include "mesh/Edge.hpp"
 #include "mesh/PropertyContainer.hpp"
 #include "mesh/RangeAccessor.hpp"
 #include "utils/assertion.hpp"
-#include "math/differences.hpp"
 
 namespace precice
 {
@@ -27,7 +27,7 @@ namespace mesh
 {
 
 /// Triangle of a mesh, defined by three edges (and vertices).
-class Triangle : public PropertyContainer, private boost::noncopyable
+class Triangle: public PropertyContainer, private boost::noncopyable
 {
 public:
   /// Type of the read-only const random-access iterator over Vertex coords
@@ -55,7 +55,8 @@ public:
   virtual ~Triangle() {}
 
   /// Returns dimensionalty of space the triangle is embedded in.
-  int getDimensions() const;
+  int
+  getDimensions() const;
 
   /**
    * @brief Returns triangle vertex with index 0, 1 or 2.
@@ -64,7 +65,8 @@ public:
    * edge 0. Vertex 2 is either the first or second vertex of edge 1, which
    * is determined on construction of the triangle.
    */
-  Vertex &vertex(int i);
+  Vertex &
+  vertex(int i);
 
   /**
    * @brief Returns const triangle vertex with index 0, 1 or 2.
@@ -73,56 +75,70 @@ public:
    * edge 0. Vertex 2 is either the first or second vertex of edge 1, which
    * is determined on construction of the triangle.
    */
-  const Vertex &vertex(int i) const;
+  const Vertex &
+  vertex(int i) const;
 
   /// Returns triangle edge with index 0, 1 or 2.
-  Edge &edge(int i);
+  Edge &
+  edge(int i);
 
   /// Returns const triangle edge with index 0, 1 or 2.
-  const Edge &edge(int i) const;
+  const Edge &
+  edge(int i) const;
 
   ///@name Iterators
   ///@{
 
   /// Returns a read-only random-access iterator to the begin (0) of the vertex range [0,1,2]
-  iterator begin();
+  iterator
+  begin();
 
   /// Returns a read-only random-access iterator to the end (3) of the vertex range [0,1,2]
-  iterator end();
+  iterator
+  end();
 
   /// Returns a read-only random-access iterator to the begin (0) of the vertex range [0,1,2]
-  const_iterator begin() const;
+  const_iterator
+  begin() const;
 
   /// Returns a read-only random access iterator to the end (3) of the vertex range [0,1,2]
-  const_iterator end() const;
+  const_iterator
+  end() const;
 
   /// Returns a read-only random-access iterator to the begin (0) of the vertex range [0,1,2]
-  const_iterator cbegin() const;
+  const_iterator
+  cbegin() const;
 
   /// Returns a read-only random access iterator to the end (3) of the vertex range [0,1,2]
-  const_iterator cend() const;
+  const_iterator
+  cend() const;
 
   ///@}
 
   /// Sets the outer normal of the triangle.
-  template <typename VECTOR_T>
-  void setNormal(const VECTOR_T &normal);
+  template<typename VECTOR_T>
+  void
+  setNormal(const VECTOR_T &normal);
 
   /// Returns a among triangles globally unique ID.
-  int getID() const;
+  int
+  getID() const;
 
   /**
    * @brief Returns the outer normal of the triangle.
    *
    * @pre The normal has to be computed and set from outside before.
    */
-  const Eigen::VectorXd &getNormal() const;
+  const Eigen::VectorXd &
+  getNormal() const;
 
   /// Returns the barycenter of the triangle.
-  const Eigen::VectorXd getCenter() const;
+  const Eigen::VectorXd
+  getCenter() const;
 
   /// Returns the radius of the circle enclosing the triangle.
-  double getEnclosingRadius() const;
+  double
+  getEnclosingRadius() const;
 
   /**
    * @brief Compares two Triangles for equality
@@ -130,10 +146,12 @@ public:
    * Two Triangles are equal if their normal vector is equal AND
    * if the three edges are equal, whereas the order of edges is NOT important.
    */
-  bool operator==(const Triangle& other) const;
+  bool
+  operator==(const Triangle &other) const;
 
   /// Not equal, implemented in terms of equal.
-  bool operator!=(const Triangle& other) const;
+  bool
+  operator!=(const Triangle &other) const;
 
 private:
   /// Edges defining the triangle.
@@ -152,73 +170,85 @@ private:
 
 // --------------------------------------------------------- HEADER DEFINITIONS
 
-inline Vertex &Triangle::vertex(int i)
+inline Vertex &
+Triangle::vertex(int i)
 {
   assertion((i >= 0) && (i < 3), i);
   return edge(i).vertex(_vertexMap[i]);
 }
 
-inline const Vertex &Triangle::vertex(int i) const
+inline const Vertex &
+Triangle::vertex(int i) const
 {
   assertion((i >= 0) && (i < 3), i);
   return edge(i).vertex(_vertexMap[i]);
 }
 
-inline Edge &Triangle::edge(int i)
+inline Edge &
+Triangle::edge(int i)
 {
   return *_edges[i];
 }
 
-inline const Edge &Triangle::edge(int i) const
+inline const Edge &
+Triangle::edge(int i) const
 {
   return *_edges[i];
 }
 
-inline Triangle::iterator Triangle::begin()
+inline Triangle::iterator
+Triangle::begin()
 {
   return {this, 0};
 }
 
-inline Triangle::iterator Triangle::end()
+inline Triangle::iterator
+Triangle::end()
 {
   return {this, 3};
 }
 
-inline Triangle::const_iterator Triangle::begin() const
+inline Triangle::const_iterator
+Triangle::begin() const
 {
   return {this, 0};
 }
 
-inline Triangle::const_iterator Triangle::end() const
+inline Triangle::const_iterator
+Triangle::end() const
 {
   return {this, 3};
 }
 
-inline Triangle::const_iterator Triangle::cbegin() const
+inline Triangle::const_iterator
+Triangle::cbegin() const
 {
   return begin();
 }
 
-inline Triangle::const_iterator Triangle::cend() const
+inline Triangle::const_iterator
+Triangle::cend() const
 {
   return end();
 }
 
-template <typename VECTOR_T>
-void Triangle::setNormal(
+template<typename VECTOR_T>
+void
+Triangle::setNormal(
     const VECTOR_T &normal)
 {
   assertion(normal.size() == getDimensions(), normal.size(), getDimensions());
   _normal = normal;
 }
 
-
-inline int Triangle::getID() const
+inline int
+Triangle::getID() const
 {
   return _id;
 }
 
-std::ostream& operator<<(std::ostream& os, const Triangle& t);
+std::ostream &
+operator<<(std::ostream &os, const Triangle &t);
 
 } // namespace mesh
 } // namespace precice

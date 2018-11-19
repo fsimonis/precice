@@ -23,7 +23,8 @@ ScaleByDtAction::ScaleByDtAction(
             _sourceData->getDimensions(), _targetData->getDimensions());
 }
 
-void ScaleByDtAction::performAction(
+void
+ScaleByDtAction::performAction(
     double time,
     double dt,
     double computedPartFullDt,
@@ -40,12 +41,14 @@ void ScaleByDtAction::performAction(
     for (int i = 0; i < targetValues.size(); i++) {
       targetValues[i] = sourceValues[i] * scaling;
     }
-  } else if (_scaling == SCALING_BY_DT) {
+  }
+  else if (_scaling == SCALING_BY_DT) {
     DEBUG("Scale by dt " << fullDt);
     for (int i = 0; i < targetValues.size(); i++) {
       targetValues[i] = sourceValues[i] * fullDt;
     }
-  } else {
+  }
+  else {
     assertion(_scaling == SCALING_BY_COMPUTED_DT_PART_RATIO, _scaling);
     double scaling = computedPartFullDt / fullDt;
     DEBUG("Scale by computed dt part ratio " << scaling);

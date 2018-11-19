@@ -20,7 +20,8 @@ ProvidedPartition::ProvidedPartition(
 {
 }
 
-void ProvidedPartition::communicate()
+void
+ProvidedPartition::communicate()
 {
   TRACE();
 
@@ -38,10 +39,10 @@ void ProvidedPartition::communicate()
 
     // Gather Mesh
     INFO("Gather mesh " + _mesh->getName());
-    if (utils::MasterSlave::_slaveMode ) {
-        com::CommunicateMesh(utils::MasterSlave::_communication).sendMesh(*_mesh, 0);
+    if (utils::MasterSlave::_slaveMode) {
+      com::CommunicateMesh(utils::MasterSlave::_communication).sendMesh(*_mesh, 0);
     }
-    if (utils::MasterSlave::_masterMode)  {
+    if (utils::MasterSlave::_masterMode) {
       assertion(utils::MasterSlave::_rank == 0);
       assertion(utils::MasterSlave::_size > 1);
 
@@ -50,7 +51,7 @@ void ProvidedPartition::communicate()
         DEBUG("Received sub-mesh, from slave: " << rankSlave << ", global vertexCount: " << globalMesh.vertices().size());
       }
     }
-    
+
     // Set global index
     if (not utils::MasterSlave::_slaveMode) {
       int globalIndex = 0;
@@ -74,7 +75,8 @@ void ProvidedPartition::communicate()
   } //_hasToSend
 }
 
-void ProvidedPartition::compute()
+void
+ProvidedPartition::compute()
 {
   TRACE();
   INFO("Compute partition for mesh " << _mesh->getName());
@@ -94,7 +96,8 @@ void ProvidedPartition::compute()
     utils::MasterSlave::_communication->broadcast(globalNumberOfVertices, 0);
     assertion(globalNumberOfVertices != -1);
     _mesh->setGlobalNumberOfVertices(globalNumberOfVertices);
-  } else if (utils::MasterSlave::_masterMode) {
+  }
+  else if (utils::MasterSlave::_masterMode) {
     assertion(utils::MasterSlave::_size > 1);
     int vertexCounter = 0;
 
@@ -116,7 +119,8 @@ void ProvidedPartition::compute()
     }
     _mesh->setGlobalNumberOfVertices(vertexCounter);
     utils::MasterSlave::_communication->broadcast(vertexCounter);
-  } else { // Coupling mode
+  }
+  else { // Coupling mode
     for (int i = 0; i < numberOfVertices; i++) {
       _mesh->vertices()[i].setGlobalIndex(i);
     }
@@ -128,7 +132,8 @@ void ProvidedPartition::compute()
   computeVertexOffsets();
 }
 
-void ProvidedPartition::createOwnerInformation()
+void
+ProvidedPartition::createOwnerInformation()
 {
   TRACE();
   for (mesh::Vertex &v : _mesh->vertices()) {

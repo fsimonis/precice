@@ -1,14 +1,16 @@
 #pragma once
 
+#include "logging/Logger.hpp"
 #include <chrono>
 #include <list>
 #include <map>
-#include <vector>
 #include <string>
-#include "logging/Logger.hpp"
+#include <vector>
 
-namespace precice {
-namespace utils {
+namespace precice
+{
+namespace utils
+{
 
 /// Represents an event that can be started and stopped.
 /** Additionally to the duration there is a special property that can be set for a event.
@@ -17,8 +19,8 @@ like MPI calls in an event. It is intended to be set by the user. */
 class Event
 {
 public:
-  
-  enum class State {
+  enum class State
+  {
     STOPPED = 0,
     STARTED = 1,
     PAUSED  = 2,
@@ -28,10 +30,10 @@ public:
   using Clock = std::chrono::steady_clock;
 
   using StateChanges = std::vector<std::tuple<State, Clock::time_point>>;
-    
+
   /// An Event can't be copied.
-  Event(const Event & other) = delete;
-  
+  Event(const Event &other) = delete;
+
   /// Name used to identify the timer. Events of the same name are accumulated to
   std::string name;
 
@@ -46,84 +48,96 @@ public:
   ~Event();
 
   /// Starts an event. If it's already started it has no effect.
-  void start(bool barrier = false);
+  void
+  start(bool barrier = false);
 
   /// Stops an event and commit it. If it's already stopped it has no effect.
-  void stop(bool barrier = false);
+  void
+  stop(bool barrier = false);
 
   /// Pauses an event, does not commit. If it's already paused it has no effect.
-  void pause(bool barrier = false);
+  void
+  pause(bool barrier = false);
 
   /// Gets the duration of the event.
-  Clock::duration getDuration();
+  Clock::duration
+  getDuration();
 
   std::vector<int> data;
 
   StateChanges stateChanges;
 
 private:
-  
   Clock::time_point starttime;
   // Clock::time_point stoptime;
   Clock::duration duration = Clock::duration::zero();
-  State state = State::STOPPED;
-  bool _barrier = false;
+  State           state    = State::STOPPED;
+  bool            _barrier = false;
   logging::Logger _log{"utils::Events"};
-  
 };
-
-
 
 /// Class that aggregates durations for a specific event.
 class EventData
 {
 public:
   explicit EventData(std::string _name);
-  
+
   EventData(std::string _name, int _rank, long _count, long _total,
             long _max, long _min, std::vector<int> _data, Event::StateChanges stateChanges);
-  
-  /// Adds an Events data.
-  void put(Event* event);
 
-  std::string getName() const;
+  /// Adds an Events data.
+  void
+  put(Event *event);
+
+  std::string
+  getName() const;
 
   /// Get the average duration of all events so far.
-  long getAvg() const;
+  long
+  getAvg() const;
 
   /// Get the maximum duration of all events so far
-  long getMax() const;
+  long
+  getMax() const;
 
   /// Get the minimum duration of all events so far
-  long getMin() const;
+  long
+  getMin() const;
 
   /// Get the total duration of all events so far
-  long getTotal() const;
+  long
+  getTotal() const;
 
   /// Get the number of all events so far
-  long getCount() const;
+  long
+  getCount() const;
 
   /// Get the time percentage that the total time of this event took in relation to the global duration.
-  int getTimePercentage() const;
+  int
+  getTimePercentage() const;
 
-  const std::vector<int> & getData() const;
+  const std::vector<int> &
+  getData() const;
 
-  void print(std::ostream &out);
+  void
+  print(std::ostream &out);
 
-  void writeCSV(std::ostream &out);
+  void
+  writeCSV(std::ostream &out);
 
-  void writeEventLog(std::ostream &out);
+  void
+  writeEventLog(std::ostream &out);
 
-  Event::Clock::duration max = Event::Clock::duration::min();
-  Event::Clock::duration min = Event::Clock::duration::max();
+  Event::Clock::duration max   = Event::Clock::duration::min();
+  Event::Clock::duration min   = Event::Clock::duration::max();
   Event::Clock::duration total = Event::Clock::duration::zero();
-  
-  int rank;
+
+  int                 rank;
   Event::StateChanges stateChanges;
-  
+
 private:
-  std::string name;
-  long count = 0;
+  std::string      name;
+  long             count = 0;
   std::vector<int> data;
 };
 
@@ -131,11 +145,10 @@ private:
 struct GlobalEventStats
 {
   // std::string name;
-  int maxRank, minRank;
-  Event::Clock::duration max   = Event::Clock::duration::min();
-  Event::Clock::duration min   = Event::Clock::duration::max();
+  int                    maxRank, minRank;
+  Event::Clock::duration max = Event::Clock::duration::min();
+  Event::Clock::duration min = Event::Clock::duration::max();
 };
-
 
 using GlobalEvents = std::multimap<std::string, EventData>;
 
@@ -148,79 +161,97 @@ class EventRegistry
 public:
   /// Deleted copy operator for singleton pattern
   EventRegistry(EventRegistry const &) = delete;
-  
-  /// Deleted assigment operator for singleton pattern
-  void operator=(EventRegistry const &) = delete;
 
-  static EventRegistry & instance();
-  
+  /// Deleted assigment operator for singleton pattern
+  void
+  operator=(EventRegistry const &) = delete;
+
+  static EventRegistry &
+  instance();
+
   /// Sets the global start time
   /**
    * @param[in] applicationName A name that is added to the logfile to distinguish different participants
    * @param[in] run A name of the run, will be printed as a separate column with each Event.
    */
-  void initialize(std::string appName = "", std::string run = "");
+  void
+  initialize(std::string appName = "", std::string run = "");
 
   /// Sets the global end time
-  void finalize();
+  void
+  finalize();
 
   /// Clears the registry. needed for tests
-  void clear();
+  void
+  clear();
 
   /// Finalizes the timings and calls print. Can be used as a crash handler to still get some timing results.
-  void signal_handler(int signal);
+  void
+  signal_handler(int signal);
 
   /// Records the event.
-  void put(Event* event);
+  void
+  put(Event *event);
 
   /// Make this returning a reference or smart ptr?
-  Event & getStoredEvent(std::string const & name);
+  Event &
+  getStoredEvent(std::string const &name);
 
   /// Returns the timestamp of the run, i.e. when the run finished
-  std::chrono::system_clock::time_point getTimestamp();
-  
+  std::chrono::system_clock::time_point
+  getTimestamp();
+
   /// Returns the duration of the run in ms, either currently running, or fixed when run is stopped.
-  Event::Clock::duration getDuration();
+  Event::Clock::duration
+  getDuration();
 
   /// Prints a verbose report to stdout and a terse one to EventTimings-AppName.log
-  void printAll();
+  void
+  printAll();
 
   /// Prints the result table to an arbitrary stream.
   /** terse enables a more machine readable format with one event per line, seperated by whitespace. */
-  void print(std::ostream &out);
+  void
+  print(std::ostream &out);
 
   /// Convenience function: Prints to std::cout
-  void print();
+  void
+  print();
 
-  void writeCSV(std::string filename);
+  void
+  writeCSV(std::string filename);
 
-  void writeEventLogs(std::string filename);
-  
-  void printGlobalStats();
+  void
+  writeEventLogs(std::string filename);
+
+  void
+  printGlobalStats();
 
   /// Currently active prefix. Changing that applies to newly created events.
   std::string prefix;
-  
+
   /// A name that is added to the logfile to identify a run
   std::string runName;
 
 private:
   /// Private, empty constructor for singleton pattern
   EventRegistry()
-    : globalEvent("_GLOBAL", true, false) // Unstarted, it's started in initialize
+      : globalEvent("_GLOBAL", true, false) // Unstarted, it's started in initialize
   {}
-  
+
   /// Gather EventData from all ranks on rank 0.
-  void collect();
-  
+  void
+  collect();
+
   /// Returns length of longest name
-  size_t getMaxNameWidth();
+  size_t
+  getMaxNameWidth();
 
   /// Event for measuring global time, also acts as a barrier
   Event globalEvent;
-  
+
   bool initialized = false;
-  
+
   /// Timestamp when the run finished
   std::chrono::system_clock::time_point timestamp;
 
@@ -236,13 +267,11 @@ private:
   std::string applicationName;
 };
 
-
 /// Class that changes the prefix in its scope
 class ScopedEventPrefix
 {
 public:
-  
-  ScopedEventPrefix(const std::string & name)
+  ScopedEventPrefix(const std::string &name)
   {
     previousName = EventRegistry::instance().prefix;
     EventRegistry::instance().prefix += name;
@@ -252,10 +281,10 @@ public:
   {
     EventRegistry::instance().prefix = previousName;
   }
-  
-private:
 
+private:
   std::string previousName = "";
 };
 
-}} // namespace precice::utils
+} // namespace utils
+} // namespace precice

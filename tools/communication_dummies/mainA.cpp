@@ -1,7 +1,7 @@
-#include <m2n/PointToPointCommunication.hpp>
 #include <com/MPIDirectCommunication.hpp>
-#include <com/SocketCommunicationFactory.hpp>
 #include <com/MPIPortsCommunicationFactory.hpp>
+#include <com/SocketCommunicationFactory.hpp>
+#include <m2n/PointToPointCommunication.hpp>
 #include <mesh/Mesh.hpp>
 #include <utils/MasterSlave.hpp>
 
@@ -17,15 +17,16 @@ using std::endl;
 using std::vector;
 
 vector<double>
-getData() {
+getData()
+{
   int rank = utils::MasterSlave::_rank;
 
   static double data_0[] = {10.0, 20.0, 40.0, 80.0};
   static double data_1[] = {30.0, 50.0, 60.0, 90.0};
   static double data_2[] = {70.0, 100.0};
 
-  static double* data[] = {data_0, data_1, data_2};
-  static int size[] = {sizeof(data_0) / sizeof(*data_0),
+  static double *data[] = {data_0, data_1, data_2};
+  static int     size[] = {sizeof(data_0) / sizeof(*data_0),
                        sizeof(data_1) / sizeof(*data_1),
                        sizeof(data_2) / sizeof(*data_2)};
 
@@ -33,15 +34,16 @@ getData() {
 }
 
 vector<double>
-getExpectedData() {
+getExpectedData()
+{
   int rank = utils::MasterSlave::_rank;
 
   static double data_0[] = {10.0 + 2, 20.0 + 1, 40.0 + 2, 80.0 + 5};
   static double data_1[] = {30.0 + 2, 50.0 + 1, 60.0 + 3, 90.0 + 5};
   static double data_2[] = {70.0 + 3, 100.0 + 5};
 
-  static double* data[] = {data_0, data_1, data_2};
-  static int size[] = {sizeof(data_0) / sizeof(*data_0),
+  static double *data[] = {data_0, data_1, data_2};
+  static int     size[] = {sizeof(data_0) / sizeof(*data_0),
                        sizeof(data_1) / sizeof(*data_1),
                        sizeof(data_2) / sizeof(*data_2)};
 
@@ -49,7 +51,8 @@ getExpectedData() {
 }
 
 bool
-validate(vector<double> const& data) {
+validate(vector<double> const &data)
+{
   bool valid = true;
 
   vector<double> expectedData = getExpectedData();
@@ -65,7 +68,8 @@ validate(vector<double> const& data) {
 }
 
 int
-main(int argc, char** argv) {
+main(int argc, char **argv)
+{
   std::cout << "Running communication dummy" << std::endl;
 
   int provided;
@@ -82,18 +86,20 @@ main(int argc, char** argv) {
 
   if (utils::MasterSlave::_rank == 0) {
     utils::MasterSlave::_masterMode = true;
-    utils::MasterSlave::_slaveMode = false;
-  } else {
+    utils::MasterSlave::_slaveMode  = false;
+  }
+  else {
     utils::MasterSlave::_masterMode = false;
-    utils::MasterSlave::_slaveMode = true;
+    utils::MasterSlave::_slaveMode  = true;
   }
 
   if (utils::MasterSlave::_masterMode) {
     utils::Parallel::initializeMPI(NULL, NULL);
     utils::Parallel::splitCommunicator("Master");
-  } else {
+  }
+  else {
     assertion(utils::MasterSlave::_slaveMode);
-    utils::Parallel::initializeMPI(NULL, NULL);    
+    utils::Parallel::initializeMPI(NULL, NULL);
     utils::Parallel::splitCommunicator("Slave");
   }
 
@@ -106,7 +112,8 @@ main(int argc, char** argv) {
     utils::MasterSlave::_communication->acceptConnection(
         "Master", "Slave", utils::MasterSlave::_rank, 1);
     utils::MasterSlave::_communication->setRankOffset(rankOffset);
-  } else {
+  }
+  else {
     assertion(utils::MasterSlave::_slaveMode);
     utils::MasterSlave::_communication->requestConnection(
         "Master",
@@ -137,11 +144,9 @@ main(int argc, char** argv) {
   std::vector<com::PtrCommunicationFactory> cfs(
       {com::PtrCommunicationFactory(new com::SocketCommunicationFactory)});
 
- //std::vector<com::PtrCommunicationFactory> cfs(
- //     {com::PtrCommunicationFactory(new com::SocketCommunicationFactory),
- //      com::PtrCommunicationFactory(new com::MPIPortsCommunicationFactory)});
-
-
+  //std::vector<com::PtrCommunicationFactory> cfs(
+  //     {com::PtrCommunicationFactory(new com::SocketCommunicationFactory),
+  //      com::PtrCommunicationFactory(new com::MPIPortsCommunicationFactory)});
 
   for (auto cf : cfs) {
     m2n::PointToPointCommunication c(cf, mesh);

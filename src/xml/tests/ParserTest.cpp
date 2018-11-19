@@ -1,24 +1,26 @@
-#include <string>
 #include "testing/Testing.hpp"
 #include "xml/ConfigParser.hpp"
 #include "xml/ValidatorEquals.hpp"
 #include "xml/ValidatorOr.hpp"
 #include "xml/XMLAttribute.hpp"
 #include "xml/XMLTag.hpp"
+#include <string>
 
 using namespace precice::xml;
 using precice::testing::getPathToSources;
 
 BOOST_AUTO_TEST_SUITE(XML)
 
-struct CallbackHostAttr : public XMLTag::Listener {
+struct CallbackHostAttr: public XMLTag::Listener
+{
   Eigen::VectorXd eigenValue;
   double          doubleValue;
   int             intValue;
   bool            boolValue;
   std::string     stringValue;
 
-  void xmlTagCallback(XMLTag &callingTag)
+  void
+  xmlTagCallback(XMLTag &callingTag)
   {
     if (callingTag.getName() == "test-double") {
       doubleValue = callingTag.getDoubleAttributeValue("attribute");
@@ -41,7 +43,8 @@ struct CallbackHostAttr : public XMLTag::Listener {
     }
   }
 
-  void xmlEndTagCallback(XMLTag &callingTag)
+  void
+  xmlEndTagCallback(XMLTag &callingTag)
   {
     std::ignore = callingTag;
   }

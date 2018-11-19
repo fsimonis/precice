@@ -1,5 +1,4 @@
 #include "IQNILSPostProcessing.hpp"
-#include <Eigen/Core>
 #include "QRFactorization.hpp"
 #include "com/Communication.hpp"
 #include "cplscheme/CouplingData.hpp"
@@ -8,9 +7,9 @@
 #include "mesh/Mesh.hpp"
 #include "mesh/Vertex.hpp"
 #include "utils/EigenHelperFunctions.hpp"
-#include "utils/MasterSlave.hpp"
 #include "utils/Helpers.hpp"
-
+#include "utils/MasterSlave.hpp"
+#include <Eigen/Core>
 
 //#include "utils/NumericalCompare.hpp"
 
@@ -37,7 +36,8 @@ IQNILSPostProcessing::IQNILSPostProcessing(
                            filter, singularityLimit, dataIDs, preconditioner)
 {}
 
-void IQNILSPostProcessing::initialize(
+void
+IQNILSPostProcessing::initialize(
     DataMap &cplData)
 {
   // do common QN post processing initialization
@@ -52,8 +52,9 @@ void IQNILSPostProcessing::initialize(
   }
 }
 
-void IQNILSPostProcessing::updateDifferenceMatrices(
-  DataMap &cplData)
+void
+IQNILSPostProcessing::updateDifferenceMatrices(
+    DataMap &cplData)
 {
   // Compute residuals of secondary data
   for (int id : _secondaryDataIDs) {
@@ -67,7 +68,8 @@ void IQNILSPostProcessing::updateDifferenceMatrices(
 
   if (_firstIteration && (_firstTimeStep || _forceInitialRelaxation)) {
     // constant relaxation: for secondary data called from base class
-  } else {
+  }
+  else {
     if (not _firstIteration) {
       bool columnLimitReached = getLSSystemCols() == _maxIterationsUsed;
       bool overdetermined     = getLSSystemCols() <= getLSSystemRows();
@@ -77,7 +79,8 @@ void IQNILSPostProcessing::updateDifferenceMatrices(
         for (int id : _secondaryDataIDs) {
           utils::appendFront(_secondaryMatricesW[id], _secondaryResiduals[id]);
         }
-      } else {
+      }
+      else {
         // Shift column for secondary W matrices
         for (int id : _secondaryDataIDs) {
           utils::shiftSetFirst(_secondaryMatricesW[id], _secondaryResiduals[id]);
@@ -105,7 +108,8 @@ void IQNILSPostProcessing::updateDifferenceMatrices(
   BaseQNPostProcessing::updateDifferenceMatrices(cplData);
 }
 
-void IQNILSPostProcessing::computeUnderrelaxationSecondaryData(
+void
+IQNILSPostProcessing::computeUnderrelaxationSecondaryData(
     DataMap &cplData)
 {
   //Store x_tildes for secondary data
@@ -127,7 +131,8 @@ void IQNILSPostProcessing::computeUnderrelaxationSecondaryData(
   }
 }
 
-void IQNILSPostProcessing::computeQNUpdate(PostProcessing::DataMap &cplData, Eigen::VectorXd &xUpdate)
+void
+IQNILSPostProcessing::computeQNUpdate(PostProcessing::DataMap &cplData, Eigen::VectorXd &xUpdate)
 {
   TRACE();
   DEBUG("   Compute Newton factors");
@@ -165,7 +170,8 @@ void IQNILSPostProcessing::computeQNUpdate(PostProcessing::DataMap &cplData, Eig
     assertion(Q.cols() == getLSSystemCols(), Q.cols(), getLSSystemCols());
     // back substitution
     c = R.triangularView<Eigen::Upper>().solve<Eigen::OnTheLeft>(_local_b);
-  } else {
+  }
+  else {
     assertion(utils::MasterSlave::_communication.get() != nullptr);
     assertion(utils::MasterSlave::_communication->isConnected());
     if (_hasNodesOnInterface) {
@@ -188,7 +194,7 @@ void IQNILSPostProcessing::computeQNUpdate(PostProcessing::DataMap &cplData, Eig
     // broadcast coefficients c to all slaves
     utils::MasterSlave::broadcast(c.data(), c.size());
   }
-  
+
   DEBUG("   Apply Newton factors");
   // compute x updates from W and coefficients c, i.e, xUpdate = c*W
   xUpdate = _matrixW * c;
@@ -231,7 +237,8 @@ void IQNILSPostProcessing::computeQNUpdate(PostProcessing::DataMap &cplData, Eig
   }
 }
 
-void IQNILSPostProcessing::specializedIterationsConverged(
+void
+IQNILSPostProcessing::specializedIterationsConverged(
     DataMap &cplData)
 {
   if (_matrixCols.front() == 0) { // Did only one iteration
@@ -243,14 +250,16 @@ void IQNILSPostProcessing::specializedIterationsConverged(
       for (int id : _secondaryDataIDs) {
         _secondaryMatricesW[id].resize(0, 0);
       }
-    } else {
+    }
+    else {
       /**
        * pending deletion (after first iteration of next time step
        * Using the matrices from the old time step for the first iteration
        * is better than doing underrelaxation as first iteration of every time step
        */
     }
-  } else if ((int) _matrixCols.size() > _timestepsReused) {
+  }
+  else if ((int) _matrixCols.size() > _timestepsReused) {
     int toRemove = _matrixCols.back();
     for (int id : _secondaryDataIDs) {
       Eigen::MatrixXd &secW = _secondaryMatricesW[id];
@@ -262,7 +271,8 @@ void IQNILSPostProcessing::specializedIterationsConverged(
   }
 }
 
-void IQNILSPostProcessing::removeMatrixColumn(
+void
+IQNILSPostProcessing::removeMatrixColumn(
     int columnIndex)
 {
   assertion(_matrixV.cols() > 1);
@@ -273,6 +283,6 @@ void IQNILSPostProcessing::removeMatrixColumn(
 
   BaseQNPostProcessing::removeMatrixColumn(columnIndex);
 }
-}
-}
-} // namespace precice, cplscheme, impl
+} // namespace impl
+} // namespace cplscheme
+} // namespace precice

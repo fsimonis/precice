@@ -16,26 +16,32 @@ public:
   explicit CommunicateBoundingBox(
       com::PtrCommunication communication);
 
-  void sendBoundingBox(
+  void
+  sendBoundingBox(
       const mesh::Mesh::BoundingBox &bb,
       int                            rankReceiver);
 
-  void receiveBoundingBox(
+  void
+  receiveBoundingBox(
       mesh::Mesh::BoundingBox &bb,
       int                      rankSender);
 
-  void sendBoundingBoxMap(
+  void
+  sendBoundingBoxMap(
       mesh::Mesh::BoundingBoxMap &bbm,
       int                         rankReceiver);
 
-  void receiveBoundingBoxMap(
+  void
+  receiveBoundingBoxMap(
       mesh::Mesh::BoundingBoxMap &bbm,
       int                         rankSender);
 
-  void broadcastSendBoundingBoxMap(
+  void
+  broadcastSendBoundingBoxMap(
       mesh::Mesh::BoundingBoxMap &bbm);
 
-  void broadcastReceiveBoundingBoxMap(
+  void
+  broadcastReceiveBoundingBoxMap(
       mesh::Mesh::BoundingBoxMap &bbm);
 
 private:

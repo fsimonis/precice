@@ -14,8 +14,8 @@ namespace tests
 {
 class RelativeConvergenceMeasureTest;
 }
-}
-}
+} // namespace cplscheme
+} // namespace precice
 
 // ----------------------------------------------------------- CLASS DEFINITION
 
@@ -37,7 +37,7 @@ namespace impl
  * For a description of how to perform the measurement, see class
  * ConvergenceMeasure.
  */
-class RelativeConvergenceMeasure : public ConvergenceMeasure
+class RelativeConvergenceMeasure: public ConvergenceMeasure
 {
 public:
   /**
@@ -51,12 +51,14 @@ public:
 
   virtual ~RelativeConvergenceMeasure(){};
 
-  virtual void newMeasurementSeries()
+  virtual void
+  newMeasurementSeries()
   {
     _isConvergence = false;
   }
 
-  virtual void measure(
+  virtual void
+  measure(
       const Eigen::VectorXd &oldValues,
       const Eigen::VectorXd &newValues,
       const Eigen::VectorXd &designSpecification)
@@ -79,7 +81,8 @@ public:
     //                    << ", convergence = " << _isConvergence );
   }
 
-  virtual bool isConvergence() const
+  virtual bool
+  isConvergence() const
   {
     return _isConvergence;
   }
@@ -87,7 +90,8 @@ public:
   /**
     * @brief Adds current convergence information to output stream.
     */
-  virtual std::string printState()
+  virtual std::string
+  printState()
   {
     std::ostringstream os;
     os << "relative convergence measure: ";
@@ -101,7 +105,8 @@ public:
     return os.str();
   }
 
-  virtual double getNormResidual()
+  virtual double
+  getNormResidual()
   {
     if (math::equals(_norm, 0.))
       return std::numeric_limits<double>::infinity();
@@ -120,6 +125,6 @@ private:
 
   bool _isConvergence = false;
 };
-}
-}
-} // namespace precice, cplscheme, impl
+} // namespace impl
+} // namespace cplscheme
+} // namespace precice

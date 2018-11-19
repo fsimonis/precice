@@ -5,37 +5,41 @@
 class TransformToVRML
 {
 public:
-
-  enum FileType {
+  enum FileType
+  {
     UNDEFINED,
     IGES,
     STEP,
     VRML
   };
 
-  TransformToVRML (
-    const std::string & inputFileName,
-    const std::string & outputFileName );
+  TransformToVRML(
+      const std::string &inputFileName,
+      const std::string &outputFileName);
 
-  virtual ~TransformToVRML() {};
+  virtual ~TransformToVRML(){};
 
-  bool parseFileType ();
+  bool
+  parseFileType();
 
-  bool doTransform ();
+  bool
+  doTransform();
 
 private:
-
   std::string _inputFileName;
 
   std::string _outputFileName;
 
   FileType _inputFileType;
 
-  void eliminateRedundancy ();
+  void
+  eliminateRedundancy();
 
-  bool transformIGES ();
+  bool
+  transformIGES();
 
-  bool transformSTEP ();
+  bool
+  transformSTEP();
 };
 
 #endif /* TOOLS_DATACONVERTER_HPP_ */

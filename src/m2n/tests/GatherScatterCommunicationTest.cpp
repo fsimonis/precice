@@ -20,13 +20,13 @@ BOOST_AUTO_TEST_CASE(GatherScatterTest, *testing::OnSize(4))
 {
   assertion(utils::Parallel::getCommunicatorSize() == 4);
 
-  com::PtrCommunication participantCom = com::PtrCommunication(new com::MPIDirectCommunication());
+  com::PtrCommunication                     participantCom = com::PtrCommunication(new com::MPIDirectCommunication());
   m2n::DistributedComFactory::SharedPointer distrFactory =
       m2n::DistributedComFactory::SharedPointer(
           new m2n::GatherScatterComFactory(participantCom));
-  m2n::PtrM2N           m2n = m2n::PtrM2N(new m2n::M2N(participantCom, distrFactory));
+  m2n::PtrM2N           m2n            = m2n::PtrM2N(new m2n::M2N(participantCom, distrFactory));
   com::PtrCommunication masterSlaveCom = com::PtrCommunication(new com::MPIDirectCommunication());
-  utils::MasterSlave::_communication = masterSlaveCom;
+  utils::MasterSlave::_communication   = masterSlaveCom;
 
   utils::Parallel::synchronizeProcesses();
 
@@ -36,7 +36,8 @@ BOOST_AUTO_TEST_CASE(GatherScatterTest, *testing::OnSize(4))
     utils::MasterSlave::_size       = 1;
     utils::MasterSlave::_slaveMode  = false;
     utils::MasterSlave::_masterMode = false;
-  } else if (utils::Parallel::getProcessRank() == 1) { // Participant 2 - Master
+  }
+  else if (utils::Parallel::getProcessRank() == 1) { // Participant 2 - Master
     utils::Parallel::splitCommunicator("Part2Master");
     utils::MasterSlave::_rank       = 0;
     utils::MasterSlave::_size       = 3;
@@ -44,14 +45,16 @@ BOOST_AUTO_TEST_CASE(GatherScatterTest, *testing::OnSize(4))
     utils::MasterSlave::_masterMode = true;
     masterSlaveCom->acceptConnection("Part2Master", "Part2Slaves", utils::Parallel::getProcessRank());
     masterSlaveCom->setRankOffset(1);
-  } else if (utils::Parallel::getProcessRank() == 2) { // Participant 2 - Slave1
+  }
+  else if (utils::Parallel::getProcessRank() == 2) { // Participant 2 - Slave1
     utils::Parallel::splitCommunicator("Part2Slaves");
     utils::MasterSlave::_rank       = 1;
     utils::MasterSlave::_size       = 3;
     utils::MasterSlave::_slaveMode  = true;
     utils::MasterSlave::_masterMode = false;
     masterSlaveCom->requestConnection("Part2Master", "Part2Slaves", 0, 2);
-  } else if (utils::Parallel::getProcessRank() == 3) { // Participant 2 - Slave2
+  }
+  else if (utils::Parallel::getProcessRank() == 3) { // Participant 2 - Slave2
     utils::Parallel::splitCommunicator("Part2Slaves");
     utils::MasterSlave::_rank       = 2;
     utils::MasterSlave::_size       = 3;
@@ -64,11 +67,14 @@ BOOST_AUTO_TEST_CASE(GatherScatterTest, *testing::OnSize(4))
 
   if (utils::Parallel::getProcessRank() == 0) { // Part1
     m2n->acceptMasterConnection("Part1", "Part2Master");
-  } else if (utils::Parallel::getProcessRank() == 1) { // Part2 Master
+  }
+  else if (utils::Parallel::getProcessRank() == 1) { // Part2 Master
     m2n->requestMasterConnection("Part1", "Part2Master");
-  } else if (utils::Parallel::getProcessRank() == 2) { // Part2 Slave1
+  }
+  else if (utils::Parallel::getProcessRank() == 2) { // Part2 Slave1
     m2n->requestMasterConnection("Part1", "Part2Master");
-  } else if (utils::Parallel::getProcessRank() == 3) { // Part2 Slave2
+  }
+  else if (utils::Parallel::getProcessRank() == 3) { // Part2 Slave2
     m2n->requestMasterConnection("Part1", "Part2Master");
   }
 
@@ -95,8 +101,8 @@ BOOST_AUTO_TEST_CASE(GatherScatterTest, *testing::OnSize(4))
     BOOST_TEST(values[3] == 16.0);
     BOOST_TEST(values[4] == 10.0);
     BOOST_TEST(values[5] == 12.0);
-
-  } else {
+  }
+  else {
     mesh::PtrMesh pMesh(new mesh::Mesh("Mesh", dimensions, flipNormals));
     m2n->createDistributedCommunication(pMesh);
     m2n->requestSlavesConnection("Part1", "Part2Master");
@@ -118,11 +124,13 @@ BOOST_AUTO_TEST_CASE(GatherScatterTest, *testing::OnSize(4))
       BOOST_TEST(values[2] == 4.0);
       values = values * 2;
       m2n->send(values.data(), 3, pMesh->getID(), valueDimension);
-    } else if (utils::Parallel::getProcessRank() == 2) { // Slave1
+    }
+    else if (utils::Parallel::getProcessRank() == 2) { // Slave1
       Eigen::VectorXd values;
       m2n->receive(values.data(), 0, pMesh->getID(), valueDimension);
       m2n->send(values.data(), 0, pMesh->getID(), valueDimension);
-    } else if (utils::Parallel::getProcessRank() == 3) { // Slave2
+    }
+    else if (utils::Parallel::getProcessRank() == 3) { // Slave2
       Eigen::Vector4d values(0.0, 0.0, 0.0, 0.0);
       m2n->receive(values.data(), 4, pMesh->getID(), valueDimension);
       BOOST_TEST(values[0] == 3.0);

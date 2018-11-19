@@ -1,9 +1,9 @@
 #include "ComputeCurvatureAction.hpp"
-#include <Eigen/Dense>
 #include "mesh/Edge.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/Triangle.hpp"
 #include "mesh/Vertex.hpp"
+#include <Eigen/Dense>
 
 namespace precice
 {
@@ -19,7 +19,8 @@ ComputeCurvatureAction::ComputeCurvatureAction(
 {
 }
 
-void ComputeCurvatureAction::performAction(
+void
+ComputeCurvatureAction::performAction(
     double time,
     double dt,
     double computedPartFullDt,
@@ -43,7 +44,8 @@ void ComputeCurvatureAction::performAction(
         dataValues[v1.getID() * 2 + d] -= tangent[d];
       }
     }
-  } else {
+  }
+  else {
     assertion(getMesh()->getDimensions() == 3, getMesh()->getDimensions());
     for (int i = 0; i < dataValues.size(); i++) {
       dataValues[i] = 0.0;

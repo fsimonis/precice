@@ -2,8 +2,10 @@
 
 #include "mesh/Mesh.hpp"
 
-namespace precice {
-namespace mapping {
+namespace precice
+{
+namespace mapping
+{
 
 /**
  * @brief Abstract base class for mapping of data from one mesh to another.
@@ -11,7 +13,6 @@ namespace mapping {
 class Mapping
 {
 public:
-
   /**
    * @brief Specifies additional constraints for a mapping.
    *
@@ -21,7 +22,8 @@ public:
    * while area independent values such as pressure or stresses should be mapped
    * consistent.
    */
-  enum Constraint {
+  enum Constraint
+  {
     CONSISTENT,
     CONSERVATIVE
   };
@@ -35,7 +37,8 @@ public:
    * connected by edges and faces. VERTEX requires a mesh consisting of vertices
    * only.
    */
-  enum MeshRequirement {
+  enum MeshRequirement
+  {
     UNDEFINED = 0,
     /// Vertices only.
     VERTEX = 1,
@@ -44,7 +47,7 @@ public:
   };
 
   /// Constructor, takes mapping constraint.
-  Mapping ( Constraint constraint, int dimensions );
+  Mapping(Constraint constraint, int dimensions);
 
   /// Destructor, empty.
   virtual ~Mapping() {}
@@ -55,35 +58,44 @@ public:
    * @param[in] input Mesh with known data values to be mapped.
    * @param[in] output Mesh with unknwon data values to be computed from input.
    */
-  void setMeshes (
-    const mesh::PtrMesh& input,
-    const mesh::PtrMesh& output );
+  void
+  setMeshes(
+      const mesh::PtrMesh &input,
+      const mesh::PtrMesh &output);
 
-  const mesh::PtrMesh& getInputMesh() const;
+  const mesh::PtrMesh &
+  getInputMesh() const;
 
-  const mesh::PtrMesh& getOutputMesh() const;
+  const mesh::PtrMesh &
+  getOutputMesh() const;
 
   /// Returns the constraint (consistent/conservative) of the mapping.
-  Constraint getConstraint() const;
+  Constraint
+  getConstraint() const;
 
   /// Returns the requirement on the input mesh.
-  MeshRequirement getInputRequirement() const;
+  MeshRequirement
+  getInputRequirement() const;
 
   /// Returns the requirement on the output mesh.
-  MeshRequirement getOutputRequirement() const;
+  MeshRequirement
+  getOutputRequirement() const;
 
   /// Computes the mapping coefficients from the in- and output mesh.
-  virtual void computeMapping() =0;
+  virtual void
+  computeMapping() = 0;
 
   /**
    * @brief Returns true, if the mapping has been computed.
    *
    * After a call to clear(), a computed mapping is removed and false returned.
    */
-  virtual bool hasComputedMapping() const =0;
+  virtual bool
+  hasComputedMapping() const = 0;
 
   /// Removes a computed mapping.
-  virtual void clear() = 0;
+  virtual void
+  clear() = 0;
 
   /**
    * @brief Maps input data to output data from input mesh to output mesh.
@@ -94,35 +106,40 @@ public:
    * Post-conditions:
    * - output values are computed from input values
    */
-  virtual void map (
-    int inputDataID,
-    int outputDataID ) =0;
+  virtual void
+  map(
+      int inputDataID,
+      int outputDataID) = 0;
 
   /// Method used by partition. Tags vertices that could be owned by this rank.
-  virtual void tagMeshFirstRound() = 0;
+  virtual void
+  tagMeshFirstRound() = 0;
 
   /// Method used by partition. Tags vertices that can be filtered out.
-  virtual void tagMeshSecondRound() = 0;
-
+  virtual void
+  tagMeshSecondRound() = 0;
 
 protected:
-
   /// Returns pointer to input mesh.
-  mesh::PtrMesh input() const;
+  mesh::PtrMesh
+  input() const;
 
   /// Returns pointer to output mesh.
-  mesh::PtrMesh output() const;
+  mesh::PtrMesh
+  output() const;
 
   /// Sets the mesh requirement for the input mesh.
-  void setInputRequirement ( MeshRequirement requirement );
+  void
+  setInputRequirement(MeshRequirement requirement);
 
   /// Sets the mesh requirement for the output mesh.
-  void setOutputRequirement ( MeshRequirement requirement );
+  void
+  setOutputRequirement(MeshRequirement requirement);
 
-  int getDimensions() const;
+  int
+  getDimensions() const;
 
 private:
-
   /// Determines wether mapping is consistent or conservative.
   Constraint _constraint;
 
@@ -141,4 +158,5 @@ private:
   int _dimensions;
 };
 
-}} // namespace precice, mapping
+} // namespace mapping
+} // namespace precice

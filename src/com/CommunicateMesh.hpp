@@ -18,32 +18,38 @@ public:
       com::PtrCommunication communication);
 
   /// Sends a constructed mesh to the receiver with given rank.
-  void sendMesh(
+  void
+  sendMesh(
       const mesh::Mesh &mesh,
       int               rankReceiver);
 
   /// Receives a mesh from the sender with given rank. Adds received mesh to mesh.
-  void receiveMesh(
+  void
+  receiveMesh(
       mesh::Mesh &mesh,
       int         rankSender);
 
-  void broadcastSendMesh(
+  void
+  broadcastSendMesh(
       const mesh::Mesh &mesh);
 
-  void broadcastReceiveMesh(
+  void
+  broadcastReceiveMesh(
       mesh::Mesh &mesh);
 
-  void sendBoundingBox(
+  void
+  sendBoundingBox(
       const mesh::Mesh::BoundingBox &bb,
       int                            rankReceiver);
 
-  void receiveBoundingBox(
+  void
+  receiveBoundingBox(
       mesh::Mesh::BoundingBox &bb,
       int                      rankSender);
 
 private:
   logging::Logger _log{"com::CommunicateMesh"};
-  
+
   /// Communication means used for the transfer of the geometry.
   com::PtrCommunication _communication;
 };

@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Eigen/Core>
 #include "PostProcessing.hpp"
 #include "logging/Logger.hpp"
+#include <Eigen/Core>
 
 #include <map>
 
@@ -13,7 +13,7 @@ namespace cplscheme
 namespace impl
 {
 
-class AitkenPostProcessing : public PostProcessing
+class AitkenPostProcessing: public PostProcessing
 {
 public:
   AitkenPostProcessing(
@@ -22,23 +22,29 @@ public:
 
   virtual ~AitkenPostProcessing() {}
 
-  virtual std::vector<int> getDataIDs() const
+  virtual std::vector<int>
+  getDataIDs() const
   {
     return _dataIDs;
   }
 
-  virtual void setDesignSpecification(
+  virtual void
+  setDesignSpecification(
       Eigen::VectorXd &q);
 
-  virtual std::map<int, Eigen::VectorXd> getDesignSpecification(DataMap &cplData);
+  virtual std::map<int, Eigen::VectorXd>
+  getDesignSpecification(DataMap &cplData);
 
-  virtual void initialize(
+  virtual void
+  initialize(
       DataMap &cpldata);
 
-  virtual void performPostProcessing(
+  virtual void
+  performPostProcessing(
       DataMap &cpldata);
 
-  virtual void iterationsConverged(
+  virtual void
+  iterationsConverged(
       DataMap &cpldata);
 
 private:
@@ -56,6 +62,6 @@ private:
 
   Eigen::VectorXd _designSpecification;
 };
-}
-}
-} // namespace precice, cplscheme, impl
+} // namespace impl
+} // namespace cplscheme
+} // namespace precice

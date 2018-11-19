@@ -11,7 +11,7 @@ namespace utils
 {
 class ManageUniqueIDs;
 }
-}
+} // namespace precice
 
 namespace precice
 {
@@ -32,7 +32,6 @@ namespace mesh
 class PropertyContainer
 {
 public:
-
   virtual ~PropertyContainer(){};
 
   // Shortform for the type of a property.
@@ -42,7 +41,8 @@ public:
   static const int INDEX_GEOMETRY_ID;
 
   /// Returns a new, globally unique property ID.
-  static int getFreePropertyID();
+  static int
+  getFreePropertyID();
 
   /**
     * @brief Resets the ID counter of all properties.
@@ -50,22 +50,26 @@ public:
     * This function is meant for test cases. Already created PropertyContainer
     * objects might be in inconsistent state after calling this function.
     */
-  static void resetPropertyIDCounter();
+  static void
+  resetPropertyIDCounter();
 
   /// Enables hierarchical property behavior.
-  void addParent(PropertyContainer &parent)
+  void
+  addParent(PropertyContainer &parent)
   {
     _parents.push_back(&parent);
   }
 
   /// Returns the number of parents.
-  int getParentCount() const
+  int
+  getParentCount() const
   {
     return (int) _parents.size();
   }
 
   /// Returns the parent corresponding to the given index (0 ... count).
-  const PropertyContainer &getParent(size_t index) const;
+  const PropertyContainer &
+  getParent(size_t index) const;
 
   /**
      * @brief Create (if not existing) and set property value.
@@ -73,8 +77,9 @@ public:
      * @param[in] propertyID ID of the property.
      * @param[in] value Value to be set for the property.
      */
-  template <typename value_t>
-  void setProperty(int propertyID, const value_t &value)
+  template<typename value_t>
+  void
+  setProperty(int propertyID, const value_t &value)
   {
     _properties[propertyID] = value;
   }
@@ -85,7 +90,8 @@ public:
      * True is also returned, when one or more parent PropertyContainer are set
      * and have the property with given ID (once or more).
      */
-  bool hasProperty(int propertyID) const;
+  bool
+  hasProperty(int propertyID) const;
 
   /**
      * @brief Deletes a set property.
@@ -96,7 +102,8 @@ public:
      * @param[in] propertyID ID of the property to delete
      * @return true, if property existed, false if not
      */
-  bool deleteProperty(int propertyID);
+  bool
+  deleteProperty(int propertyID);
 
   /**
      * @brief Returns the value of the property with given ID.
@@ -107,12 +114,14 @@ public:
      * - the type of the property has to coincide with the one specified as
      *   explicit template parameter when calling getProperty<type>().
      */
-  template <typename value_t>
-  const value_t &getProperty(int propertyID) const;
+  template<typename value_t>
+  const value_t &
+  getProperty(int propertyID) const;
 
   /// Returns all properties of this and parent PropertyContainer objects.
-  template <typename value_t>
-  void getProperties(int propertyID, std::vector<value_t> &properties);
+  template<typename value_t>
+  void
+  getProperties(int propertyID, std::vector<value_t> &properties);
 
 private:
   mutable logging::Logger _log{"mesh::PropertyContainer"};
@@ -129,8 +138,9 @@ private:
 
 // --------------------------------------------------------- HEADER DEFINITIONS
 
-template <typename value_t>
-const value_t &PropertyContainer::getProperty(int propertyID) const
+template<typename value_t>
+const value_t &
+PropertyContainer::getProperty(int propertyID) const
 {
   std::map<int, PropertyType>::const_iterator iter;
   iter = _properties.find(propertyID);
@@ -148,8 +158,9 @@ const value_t &PropertyContainer::getProperty(int propertyID) const
   return *boost::any_cast<value_t>(&iter->second);
 }
 
-template <typename value_t>
-void PropertyContainer::getProperties(int propertyID, std::vector<value_t> &properties)
+template<typename value_t>
+void
+PropertyContainer::getProperties(int propertyID, std::vector<value_t> &properties)
 {
   std::map<int, PropertyType>::const_iterator iter;
   iter = _properties.find(propertyID);
@@ -158,11 +169,12 @@ void PropertyContainer::getProperties(int propertyID, std::vector<value_t> &prop
     // When the type of value_t does not match that of the any, NULL is returned.
     assertion(boost::any_cast<value_t>(&iter->second) != NULL);
     properties.push_back(boost::any_cast<value_t>(iter->second));
-  } else {
+  }
+  else {
     for (size_t i = 0; i < _parents.size(); i++) {
       _parents[i]->getProperties(propertyID, properties);
     }
   }
 }
-}
-} // namespace precice, mesh
+} // namespace mesh
+} // namespace precice

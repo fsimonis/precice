@@ -1,10 +1,10 @@
 #pragma once
 
-#include <limits>
 #include "../CouplingData.hpp"
 #include "ConvergenceMeasure.hpp"
 #include "logging/Logger.hpp"
 #include "utils/MasterSlave.hpp"
+#include <limits>
 
 namespace precice
 {
@@ -24,7 +24,7 @@ namespace impl
  * For a description of how to perform the measurement, see class
  * ConvergenceMeasure.
  */
-class ResidualRelativeConvergenceMeasure : public ConvergenceMeasure
+class ResidualRelativeConvergenceMeasure: public ConvergenceMeasure
 {
 public:
   /**
@@ -38,14 +38,16 @@ public:
 
   virtual ~ResidualRelativeConvergenceMeasure(){};
 
-  virtual void newMeasurementSeries()
+  virtual void
+  newMeasurementSeries()
   {
     _isConvergence     = false;
     _isFirstIteration  = true;
     _normFirstResidual = std::numeric_limits<double>::max();
   }
 
-  virtual void measure(
+  virtual void
+  measure(
       const Eigen::VectorXd &oldValues,
       const Eigen::VectorXd &newValues,
       const Eigen::VectorXd &designSpecification)
@@ -63,13 +65,15 @@ public:
     //                    << ", convergence = " << _isConvergence );
   }
 
-  virtual bool isConvergence() const
+  virtual bool
+  isConvergence() const
   {
     return _isConvergence;
   }
 
   /// Adds current convergence information to output stream.
-  virtual std::string printState()
+  virtual std::string
+  printState()
   {
     std::ostringstream os;
     os << "residual relative convergence measure: ";
@@ -96,6 +100,6 @@ private:
 
   bool _isConvergence = false;
 };
-}
-}
-} // namespace precice, cplscheme, impl
+} // namespace impl
+} // namespace cplscheme
+} // namespace precice

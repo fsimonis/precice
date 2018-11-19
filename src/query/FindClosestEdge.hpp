@@ -1,25 +1,28 @@
 #pragma once
 
-#include <array>
-#include <Eigen/Core>
 #include "logging/Logger.hpp"
+#include <Eigen/Core>
+#include <array>
 
-namespace precice {
-  namespace mesh {
-    class Edge;
-    class Mesh;
-  }
-}
+namespace precice
+{
+namespace mesh
+{
+class Edge;
+class Mesh;
+} // namespace mesh
+} // namespace precice
 
-namespace precice {
-namespace query {
+namespace precice
+{
+namespace query
+{
 
 /// Finds the closest Edge object contained in Mesh objects.
 class FindClosestEdge
 {
 public:
-
-  explicit FindClosestEdge ( const Eigen::VectorXd& searchPoint );
+  explicit FindClosestEdge(const Eigen::VectorXd &searchPoint);
 
   /**
    * @brief Finds the closest Edge object contained in the given Mesh object.
@@ -27,23 +30,29 @@ public:
    * @return True, if a closest Edge object could be found.
    */
   template<typename CONTAINER_T>
-  bool operator() ( CONTAINER_T& container );
+  bool
+  operator()(CONTAINER_T &container);
 
-  const Eigen::VectorXd& getSearchPoint() const;
+  const Eigen::VectorXd &
+  getSearchPoint() const;
 
-  bool hasFound() const;
+  bool
+  hasFound() const;
 
-  double getEuclidianDistance();
+  double
+  getEuclidianDistance();
 
-  mesh::Edge& getClosestEdge();
+  mesh::Edge &
+  getClosestEdge();
 
-  const Eigen::VectorXd& getVectorToProjectionPoint() const;
+  const Eigen::VectorXd &
+  getVectorToProjectionPoint() const;
 
   /// Returns parametric description value (index 0,1) of projected point.
-  double getProjectionPointParameter ( int index ) const;
+  double
+  getProjectionPointParameter(int index) const;
 
 private:
-
   logging::Logger _log{"query::FindClosestEdge"};
 
   Eigen::VectorXd _searchPoint;
@@ -52,30 +61,28 @@ private:
 
   Eigen::VectorXd _vectorToProjectionPoint;
 
-  std::array<double,2> _parametersProjectionPoint;
+  std::array<double, 2> _parametersProjectionPoint;
 
-  mesh::Edge* _closestEdge = nullptr;
+  mesh::Edge *_closestEdge = nullptr;
 
-  void find ( mesh::Edge& edge );
+  void
+  find(mesh::Edge &edge);
 };
-
-
 
 // --------------------------------------------------------- HEADER DEFINITIONS
 
 template<typename CONTAINER_T>
-bool FindClosestEdge:: operator()
-(
-  CONTAINER_T& container )
+bool
+FindClosestEdge::operator()(
+    CONTAINER_T &container)
 {
   size_t index = 0;
-  for ( mesh::Edge& edge : container.edges() ) {
-    find ( edge );
-    index ++;
+  for (mesh::Edge &edge : container.edges()) {
+    find(edge);
+    index++;
   }
   return _closestEdge != nullptr;
 }
 
-}} // namespace precice, query
-
-
+} // namespace query
+} // namespace precice

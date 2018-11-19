@@ -1,23 +1,30 @@
 #include "Constants.hpp"
 
-namespace precice {
-namespace io {
-namespace constants {
+namespace precice
+{
+namespace io
+{
+namespace constants
+{
 
-int exportVTK()
+int
+exportVTK()
 {
   return 0;
 }
 
-int exportAll()
+int
+exportAll()
 {
   return 2;
 }
 
-int exportVTKXML()
+int
+exportVTKXML()
 {
   return 3;
 }
 
-}}} // namespace precice, io, constants
-
+} // namespace constants
+} // namespace io
+} // namespace precice

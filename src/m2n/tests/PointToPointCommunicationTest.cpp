@@ -1,6 +1,5 @@
 #ifndef PRECICE_NO_MPI
 
-#include <vector>
 #include "com/MPIDirectCommunication.hpp"
 #include "com/MPIPortsCommunicationFactory.hpp"
 #include "com/SocketCommunicationFactory.hpp"
@@ -8,6 +7,7 @@
 #include "mesh/Mesh.hpp"
 #include "testing/Testing.hpp"
 #include "utils/MasterSlave.hpp"
+#include <vector>
 
 using precice::utils::MasterSlave;
 using precice::utils::Parallel;
@@ -19,14 +19,16 @@ using namespace m2n;
 
 BOOST_AUTO_TEST_SUITE(M2NTests)
 
-void process(vector<double> &data)
+void
+process(vector<double> &data)
 {
   for (auto &elem : data) {
     elem += MasterSlave::_rank + 1;
   }
 }
 
-void P2PComTest1(com::PtrCommunicationFactory cf)
+void
+P2PComTest1(com::PtrCommunicationFactory cf)
 {
   assertion(Parallel::getCommunicatorSize() == 4);
 
@@ -139,7 +141,8 @@ void P2PComTest1(com::PtrCommunicationFactory cf)
     c.receive(data.data(), data.size());
 
     BOOST_TEST(data == expectedData);
-  } else {
+  }
+  else {
     c.acceptConnection("B", "A");
 
     c.receive(data.data(), data.size());
@@ -156,7 +159,8 @@ void P2PComTest1(com::PtrCommunicationFactory cf)
 }
 
 /// a very similar test, but with a vertex that has been completely filtered out
-void P2PComTest2(com::PtrCommunicationFactory cf)
+void
+P2PComTest2(com::PtrCommunicationFactory cf)
 {
   assertion(Parallel::getCommunicatorSize() == 4);
 
@@ -268,7 +272,8 @@ void P2PComTest2(com::PtrCommunicationFactory cf)
     c.send(data.data(), data.size());
     c.receive(data.data(), data.size());
     BOOST_TEST(data == expectedData);
-  } else {
+  }
+  else {
     c.acceptConnection("B", "A");
 
     c.receive(data.data(), data.size());
@@ -285,7 +290,7 @@ void P2PComTest2(com::PtrCommunicationFactory cf)
 }
 
 BOOST_AUTO_TEST_CASE(SocketCommunication,
-                     * testing::OnSize(4))
+                     *testing::OnSize(4))
 {
   com::PtrCommunicationFactory cf(new com::SocketCommunicationFactory);
   if (utils::Parallel::getProcessRank() < 4) {
@@ -295,8 +300,7 @@ BOOST_AUTO_TEST_CASE(SocketCommunication,
 }
 
 BOOST_AUTO_TEST_CASE(MPIPortsCommunication,
-                     * testing::OnSize(4)
-                     * boost::unit_test::label("MPI_Ports"))
+                     *testing::OnSize(4) * boost::unit_test::label("MPI_Ports"))
 {
   com::PtrCommunicationFactory cf(new com::MPIPortsCommunicationFactory);
   if (utils::Parallel::getProcessRank() < 4) {

@@ -14,7 +14,8 @@ ResidualSumPreconditioner::ResidualSumPreconditioner(
 {
 }
 
-void ResidualSumPreconditioner::initialize(std::vector<size_t> &svs)
+void
+ResidualSumPreconditioner::initialize(std::vector<size_t> &svs)
 {
   TRACE();
   Preconditioner::initialize(svs);
@@ -22,9 +23,10 @@ void ResidualSumPreconditioner::initialize(std::vector<size_t> &svs)
   _residualSum.resize(_subVectorSizes.size(), 0.0);
 }
 
-void ResidualSumPreconditioner::_update_(bool timestepComplete,
-                                         const Eigen::VectorXd &oldValues,
-                                         const Eigen::VectorXd &res)
+void
+ResidualSumPreconditioner::_update_(bool                   timestepComplete,
+                                    const Eigen::VectorXd &oldValues,
+                                    const Eigen::VectorXd &res)
 {
   if (not timestepComplete) {
     std::vector<double> norms(_subVectorSizes.size(), 0.0);
@@ -60,12 +62,13 @@ void ResidualSumPreconditioner::_update_(bool timestepComplete,
     }
 
     _requireNewQR = true;
-  } else {
+  }
+  else {
     for (size_t k = 0; k < _subVectorSizes.size(); k++) {
       _residualSum[k] = 0.0;
     }
   }
 }
-}
-}
-} // namespace precice, cplscheme
+} // namespace impl
+} // namespace cplscheme
+} // namespace precice

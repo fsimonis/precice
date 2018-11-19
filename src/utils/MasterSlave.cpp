@@ -2,57 +2,60 @@
 
 #include "MasterSlave.hpp"
 
-#include "utils/assertion.hpp"
 #include "com/Communication.hpp"
+#include "utils/assertion.hpp"
 
-namespace precice {
-namespace utils {
+namespace precice
+{
+namespace utils
+{
 
 int MasterSlave::_rank = -1;
 int MasterSlave::_size = -1;
 // One day somebody would want to choose master dynamically (e.g. from
 // configuration). As a result, `_masterMode' would no longer correspond to 0th
 // process. For now we just hardcode `_masterRank' assignment to `0'.
-int MasterSlave::_masterRank = 0;
-bool MasterSlave::_masterMode = false;
-bool MasterSlave::_slaveMode = false;
+int                   MasterSlave::_masterRank = 0;
+bool                  MasterSlave::_masterMode = false;
+bool                  MasterSlave::_slaveMode  = false;
 com::PtrCommunication MasterSlave::_communication;
 
+logging::Logger MasterSlave::_log("utils::MasterSlave");
 
-logging::Logger MasterSlave:: _log("utils::MasterSlave" );
-
-void MasterSlave:: configure(int rank, int size)
+void
+MasterSlave::configure(int rank, int size)
 {
   TRACE(rank, size);
-  CHECK(size>=2, "You cannot use a master with a serial participant.");
+  CHECK(size >= 2, "You cannot use a master with a serial participant.");
   _rank = rank;
   _size = size;
   assertion(_rank != -1 && _size != -1);
-  _masterMode = (rank==0);
-  _slaveMode = (rank!=0);
-  DEBUG("slaveMode: " << _slaveMode <<", masterMode: " << _masterMode);
+  _masterMode = (rank == 0);
+  _slaveMode  = (rank != 0);
+  DEBUG("slaveMode: " << _slaveMode << ", masterMode: " << _masterMode);
 }
 
-double MasterSlave:: l2norm(const Eigen::VectorXd& vec)
+double
+MasterSlave::l2norm(const Eigen::VectorXd &vec)
 {
   TRACE();
 
-  if(not _masterMode && not _slaveMode){ //old case
+  if (not _masterMode && not _slaveMode) { //old case
     return vec.norm();
   }
 
   assertion(_communication.get() != nullptr);
   assertion(_communication->isConnected());
-  double localSum2 = 0.0;
+  double localSum2  = 0.0;
   double globalSum2 = 0.0;
 
-  for(int i=0; i<vec.size(); i++){
-    localSum2 += vec(i)*vec(i);
+  for (int i = 0; i < vec.size(); i++) {
+    localSum2 += vec(i) * vec(i);
   }
 
   // localSum is modified, do not use afterwards
   allreduceSum(localSum2, globalSum2, 1);
-   /* old loop over all slaves solution
+  /* old loop over all slaves solution
   if(_slaveMode){
     _communication->send(localSum2, 0);
     _communication->receive(globalSum2, 0);
@@ -71,23 +74,23 @@ double MasterSlave:: l2norm(const Eigen::VectorXd& vec)
   return sqrt(globalSum2);
 }
 
-
-double MasterSlave:: dot(const Eigen::VectorXd& vec1, const Eigen::VectorXd& vec2)
+double
+MasterSlave::dot(const Eigen::VectorXd &vec1, const Eigen::VectorXd &vec2)
 {
   TRACE();
 
-  if(not _masterMode && not _slaveMode){ //old case
+  if (not _masterMode && not _slaveMode) { //old case
     return vec1.dot(vec2);
   }
 
   assertion(_communication.get() != nullptr);
   assertion(_communication->isConnected());
-  assertion(vec1.size()==vec2.size(), vec1.size(), vec2.size());
-  double localSum = 0.0;
+  assertion(vec1.size() == vec2.size(), vec1.size(), vec2.size());
+  double localSum  = 0.0;
   double globalSum = 0.0;
 
-  for(int i=0; i<vec1.size(); i++){
-    localSum += vec1(i)*vec2(i);
+  for (int i = 0; i < vec1.size(); i++) {
+    localSum += vec1(i) * vec2(i);
   }
 
   // localSum is modified, do not use afterwards
@@ -113,18 +116,19 @@ double MasterSlave:: dot(const Eigen::VectorXd& vec1, const Eigen::VectorXd& vec
   return globalSum;
 }
 
-void MasterSlave:: reset()
+void
+MasterSlave::reset()
 {
   TRACE();
   _masterMode = false;
-  _slaveMode = false;
-  _rank = -1;
-  _size = -1;
+  _slaveMode  = false;
+  _rank       = -1;
+  _size       = -1;
 }
 
-
 void
-MasterSlave::reduceSum(double* sendData, double* rcvData, int size) {
+MasterSlave::reduceSum(double *sendData, double *rcvData, int size)
+{
   TRACE();
 
   if (not _masterMode && not _slaveMode) {
@@ -146,7 +150,8 @@ MasterSlave::reduceSum(double* sendData, double* rcvData, int size) {
 }
 
 void
-MasterSlave::reduceSum(int& sendData, int& rcvData, int size) {
+MasterSlave::reduceSum(int &sendData, int &rcvData, int size)
+{
   TRACE();
 
   if (not _masterMode && not _slaveMode) {
@@ -168,7 +173,8 @@ MasterSlave::reduceSum(int& sendData, int& rcvData, int size) {
 }
 
 void
-MasterSlave::allreduceSum(double* sendData, double* rcvData, int size) {
+MasterSlave::allreduceSum(double *sendData, double *rcvData, int size)
+{
   TRACE();
 
   if (not _masterMode && not _slaveMode) {
@@ -190,7 +196,8 @@ MasterSlave::allreduceSum(double* sendData, double* rcvData, int size) {
 }
 
 void
-MasterSlave::allreduceSum(double& sendData, double& rcvData, int size) {
+MasterSlave::allreduceSum(double &sendData, double &rcvData, int size)
+{
   TRACE();
 
   if (not _masterMode && not _slaveMode) {
@@ -212,7 +219,8 @@ MasterSlave::allreduceSum(double& sendData, double& rcvData, int size) {
 }
 
 void
-MasterSlave::allreduceSum(int& sendData, int& rcvData, int size) {
+MasterSlave::allreduceSum(int &sendData, int &rcvData, int size)
+{
   TRACE();
 
   if (not _masterMode && not _slaveMode) {
@@ -234,30 +242,8 @@ MasterSlave::allreduceSum(int& sendData, int& rcvData, int size) {
 }
 
 void
-MasterSlave::broadcast(bool& value) {
-  TRACE();
-
-  if (not _masterMode && not _slaveMode) {
-    return;
-  }
-
-  assertion(_communication.get() != nullptr);
-  assertion(_communication->isConnected());
-
-  if (_masterMode) {
-    // Broadcast (send) value.
-    _communication->broadcast(value);
-  }
-
-  if (_slaveMode) {
-    // Broadcast (receive) value.
-    _communication->broadcast(value, 0);
-  }
-}
-
-
-void
-MasterSlave::broadcast(double& value) {
+MasterSlave::broadcast(bool &value)
+{
   TRACE();
 
   if (not _masterMode && not _slaveMode) {
@@ -279,7 +265,31 @@ MasterSlave::broadcast(double& value) {
 }
 
 void
-MasterSlave::broadcast(double* values, int size) {
+MasterSlave::broadcast(double &value)
+{
+  TRACE();
+
+  if (not _masterMode && not _slaveMode) {
+    return;
+  }
+
+  assertion(_communication.get() != nullptr);
+  assertion(_communication->isConnected());
+
+  if (_masterMode) {
+    // Broadcast (send) value.
+    _communication->broadcast(value);
+  }
+
+  if (_slaveMode) {
+    // Broadcast (receive) value.
+    _communication->broadcast(value, 0);
+  }
+}
+
+void
+MasterSlave::broadcast(double *values, int size)
+{
   TRACE();
 
   if (not _masterMode && not _slaveMode) {
@@ -300,4 +310,5 @@ MasterSlave::broadcast(double* values, int size) {
   }
 }
 
-}} // precice, utils
+} // namespace utils
+} // namespace precice

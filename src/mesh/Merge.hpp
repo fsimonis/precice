@@ -1,16 +1,18 @@
 #pragma once
 
-#include "mesh/Group.hpp"
-#include "mesh/Vertex.hpp"
 #include "mesh/Edge.hpp"
-#include "mesh/Triangle.hpp"
+#include "mesh/Group.hpp"
 #include "mesh/Quad.hpp"
+#include "mesh/Triangle.hpp"
+#include "mesh/Vertex.hpp"
 #include <set>
 
 // ---------------------------------------------------------- CLASS DEFINITION
 
-namespace precice {
-namespace mesh {
+namespace precice
+{
+namespace mesh
+{
 
 /**
  * @brief Merges all visitable objects into one Group while avoiding duplicates.
@@ -26,7 +28,6 @@ namespace mesh {
 class Merge
 {
 public:
-
   Merge();
 
   /// Destructor. Removes temporary property from merged objects.
@@ -34,13 +35,14 @@ public:
 
   /// Merges the content of a CONTAINER_T with already merged content.
   template<typename CONTAINER_T>
-  Group& operator() ( CONTAINER_T& container );
+  Group &
+  operator()(CONTAINER_T &container);
 
   /// Returns the merged visitables
-  Group& content();
+  Group &
+  content();
 
 private:
-
   // @brief Merged visitables
   Group _merged;
 };
@@ -48,36 +50,37 @@ private:
 // --------------------------------------------------------- HEADER DEFINITIONS
 
 template<typename CONTAINER_T>
-Group& Merge:: operator() ( CONTAINER_T& container )
+Group &
+Merge::operator()(CONTAINER_T &container)
 {
   _merged.clear();
-  std::set<Vertex*> vertices;
-  for ( Vertex& vertex : container.vertices() ){
-    if ( vertices.find(&vertex) == vertices.end() ){
+  std::set<Vertex *> vertices;
+  for (Vertex &vertex : container.vertices()) {
+    if (vertices.find(&vertex) == vertices.end()) {
       vertices.insert(&vertex);
       _merged.add(vertex);
     }
   }
   vertices.clear();
-  std::set<Edge*> edges;
-  for ( Edge& edge : container.edges() ){
-    if ( edges.find(&edge) == edges.end() ){
+  std::set<Edge *> edges;
+  for (Edge &edge : container.edges()) {
+    if (edges.find(&edge) == edges.end()) {
       edges.insert(&edge);
       _merged.add(edge);
     }
   }
   edges.clear();
-  std::set<Triangle*> triangles;
-  for ( Triangle& triangle : container.triangles() ){
-    if ( triangles.find(&triangle) == triangles.end() ){
+  std::set<Triangle *> triangles;
+  for (Triangle &triangle : container.triangles()) {
+    if (triangles.find(&triangle) == triangles.end()) {
       triangles.insert(&triangle);
       _merged.add(triangle);
     }
   }
   triangles.clear();
-  std::set<Quad*> quads;
-  for ( Quad& quad : container.quads() ){
-    if ( quads.find(&quad) == quads.end() ){
+  std::set<Quad *> quads;
+  for (Quad &quad : container.quads()) {
+    if (quads.find(&quad) == quads.end()) {
       quads.insert(&quad);
       _merged.add(quad);
     }
@@ -86,5 +89,5 @@ Group& Merge:: operator() ( CONTAINER_T& container )
   return _merged;
 }
 
-}} // namespace precice, mesh
-
+} // namespace mesh
+} // namespace precice

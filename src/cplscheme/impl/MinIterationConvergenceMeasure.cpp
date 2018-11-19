@@ -14,11 +14,12 @@ MinIterationConvergenceMeasure::MinIterationConvergenceMeasure(
 {
 }
 
-void MinIterationConvergenceMeasure::newMeasurementSeries()
+void
+MinIterationConvergenceMeasure::newMeasurementSeries()
 {
   _currentIteration = 0;
   _isConvergence    = false;
 }
-}
-}
-} // namespace precice, cplscheme, impl
+} // namespace impl
+} // namespace cplscheme
+} // namespace precice

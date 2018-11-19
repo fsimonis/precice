@@ -2,15 +2,21 @@
 
 #include <string>
 
-namespace precice {
-namespace cplscheme {
-namespace constants {
+namespace precice
+{
+namespace cplscheme
+{
+namespace constants
+{
 
-const std::string& actionWriteIterationCheckpoint();
+const std::string &
+actionWriteIterationCheckpoint();
 
-const std::string& actionReadIterationCheckpoint();
+const std::string &
+actionReadIterationCheckpoint();
 
-const std::string& actionWriteInitialData();
+const std::string &
+actionWriteInitialData();
 
 enum TimesteppingMethod
 {
@@ -18,5 +24,6 @@ enum TimesteppingMethod
   FIRST_PARTICIPANT_SETS_DT
 };
 
-
-}}} // namespace precice, cplscheme, constants
+} // namespace constants
+} // namespace cplscheme
+} // namespace precice

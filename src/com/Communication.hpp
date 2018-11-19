@@ -51,7 +51,8 @@ public:
   }
 
   /// Returns true, if a connection to a remote participant has been setup.
-  virtual bool isConnected()
+  virtual bool
+  isConnected()
   {
     return _isConnected;
   }
@@ -61,7 +62,8 @@ public:
    *
    * @pre A connection to the remote participant has been set up.
    */
-  virtual size_t getRemoteCommunicatorSize() = 0;
+  virtual size_t
+  getRemoteCommunicatorSize() = 0;
 
   /**
    * @brief Accepts connection from another communicator, which has to call requestConnection().
@@ -77,9 +79,10 @@ public:
    * @param[in] requesterName Name of remote participant to connect to.
    * @param[in] acceptorRank Rank of the accpeting process, usually the calling one.
    */
-  virtual void acceptConnection(std::string const &acceptorName,
-                                std::string const &requesterName,
-                                int                acceptorRank) = 0;
+  virtual void
+  acceptConnection(std::string const &acceptorName,
+                   std::string const &requesterName,
+                   int                acceptorRank) = 0;
 
   /**
    * @brief Accepts connection from another communicator, which has to call requestConnectionAsClient().
@@ -95,11 +98,12 @@ public:
    * @param[in] acceptorRank Rank of accepting server, usually the rank of the current process.
    * @param[in] requesterCommunicatorSize Size of the requester (N)
    */
-   virtual void acceptConnectionAsServer(std::string const &acceptorName,
-                                         std::string const &requesterName,
-                                         int                acceptorRank,
-                                         int                requesterCommunicatorSize) = 0;
-  
+  virtual void
+  acceptConnectionAsServer(std::string const &acceptorName,
+                           std::string const &requesterName,
+                           int                acceptorRank,
+                           int                requesterCommunicatorSize) = 0;
+
   /**
    * @brief Connects to another communicator, which has to call acceptConnection().
    *
@@ -114,10 +118,11 @@ public:
    * @param[in] requesterRank Rank of the requester (has to go from 0 to N-1)
    * @param[in] requesterCommunicatorSize Size of the requester (N)
    */
-  virtual void requestConnection(std::string const &acceptorName,
-                                 std::string const &requesterName,
-                                 int                requesterRank,
-                                 int                requesterCommunicatorSize) = 0;
+  virtual void
+  requestConnection(std::string const &acceptorName,
+                    std::string const &requesterName,
+                    int                requesterRank,
+                    int                requesterCommunicatorSize) = 0;
 
   /**
    * @brief Connects to another communicator, which has to call acceptConnectionAsServer().
@@ -132,151 +137,203 @@ public:
    * @param[in] acceptorRanks Set of ranks that accept a connection
    * @param[in] requesterRank Rank that requests the connection, usually the caller's rank
    */
-   virtual void requestConnectionAsClient(std::string   const &acceptorName,
-                                          std::string   const &requesterName,
-                                          std::set<int> const &acceptorRanks,
-                                          int                  requesterRank) = 0;
-  
+  virtual void
+  requestConnectionAsClient(std::string const &  acceptorName,
+                            std::string const &  requesterName,
+                            std::set<int> const &acceptorRanks,
+                            int                  requesterRank) = 0;
+
   /**
    * @brief Disconnects from communication space, i.e. participant.
    *
    * This method is called on destruction.
    */
-  virtual void closeConnection() = 0;
+  virtual void
+  closeConnection() = 0;
 
   /// Performs a reduce summation on the rank given by rankMaster
-  virtual void reduceSum(double *itemsToSend, double *itemsToReceive, int size, int rankMaster);
+  virtual void
+  reduceSum(double *itemsToSend, double *itemsToReceive, int size, int rankMaster);
 
   /// Performs a reduce summation on the master, every other rank has to call reduceSum
-  virtual void reduceSum(double *itemsToSend, double *itemsToReceive, int size);
+  virtual void
+  reduceSum(double *itemsToSend, double *itemsToReceive, int size);
 
-  virtual void reduceSum(int itemToSend, int &itemToReceive, int rankMaster);
+  virtual void
+  reduceSum(int itemToSend, int &itemToReceive, int rankMaster);
 
-  virtual void reduceSum(int itemsToSend, int &itemsToReceive);
+  virtual void
+  reduceSum(int itemsToSend, int &itemsToReceive);
 
-  virtual void allreduceSum(double *itemsToSend, double *itemsToReceive, int size, int rankMaster);
+  virtual void
+  allreduceSum(double *itemsToSend, double *itemsToReceive, int size, int rankMaster);
 
-  virtual void allreduceSum(double *itemsToSend, double *itemsToReceive, int size);
+  virtual void
+  allreduceSum(double *itemsToSend, double *itemsToReceive, int size);
 
-  virtual void allreduceSum(double itemToSend, double &itemToReceive, int rankMaster);
+  virtual void
+  allreduceSum(double itemToSend, double &itemToReceive, int rankMaster);
 
-  virtual void allreduceSum(double itemToSend, double &itemToReceive);
+  virtual void
+  allreduceSum(double itemToSend, double &itemToReceive);
 
-  virtual void allreduceSum(int itemToSend, int &itemToReceive, int rankMaster);
+  virtual void
+  allreduceSum(int itemToSend, int &itemToReceive, int rankMaster);
 
-  virtual void allreduceSum(int itemToSend, int &itemToReceive);
+  virtual void
+  allreduceSum(int itemToSend, int &itemToReceive);
 
-  virtual void broadcast(const int *itemsToSend, int size);
+  virtual void
+  broadcast(const int *itemsToSend, int size);
 
-  virtual void broadcast(int *itemsToReceive, int size, int rankBroadcaster);
+  virtual void
+  broadcast(int *itemsToReceive, int size, int rankBroadcaster);
 
-  virtual void broadcast(int itemToSend);
+  virtual void
+  broadcast(int itemToSend);
 
-  virtual void broadcast(int &itemToReceive, int rankBroadcaster);
+  virtual void
+  broadcast(int &itemToReceive, int rankBroadcaster);
 
-  virtual void broadcast(const double *itemsToSend, int size);
+  virtual void
+  broadcast(const double *itemsToSend, int size);
 
-  virtual void broadcast(double *itemsToReceive, int size, int rankBroadcaster);
+  virtual void
+  broadcast(double *itemsToReceive, int size, int rankBroadcaster);
 
-  virtual void broadcast(double itemToSend);
+  virtual void
+  broadcast(double itemToSend);
 
-  virtual void broadcast(double &itemToReceive, int rankBroadcaster);
+  virtual void
+  broadcast(double &itemToReceive, int rankBroadcaster);
 
-  virtual void broadcast(bool itemToSend);
+  virtual void
+  broadcast(bool itemToSend);
 
-  virtual void broadcast(bool &itemToReceive, int rankBroadcaster);
+  virtual void
+  broadcast(bool &itemToReceive, int rankBroadcaster);
 
-  virtual void broadcast(std::vector<int> const &v);
-  virtual void broadcast(std::vector<int>& v, int rankBroadcaster);
+  virtual void
+  broadcast(std::vector<int> const &v);
+  virtual void
+  broadcast(std::vector<int> &v, int rankBroadcaster);
 
-  virtual void broadcast(std::vector<double> const &v);
-  virtual void broadcast(std::vector<double>& v, int rankBroadcaster);
-  
+  virtual void
+  broadcast(std::vector<double> const &v);
+  virtual void
+  broadcast(std::vector<double> &v, int rankBroadcaster);
+
   /// Sends a std::string to process with given rank.
-  virtual void send(std::string const &itemToSend, int rankReceiver) = 0;
+  virtual void
+  send(std::string const &itemToSend, int rankReceiver) = 0;
 
   /// Sends an array of integer values.
-  virtual void send(const int *itemsToSend, int size, int rankReceiver) = 0;
+  virtual void
+  send(const int *itemsToSend, int size, int rankReceiver) = 0;
 
   /// Asynchronously sends an array of integer values.
-  virtual PtrRequest aSend(const int *itemsToSend, int size, int rankReceiver) = 0;
+  virtual PtrRequest
+  aSend(const int *itemsToSend, int size, int rankReceiver) = 0;
 
   /// Sends an array of double values.
-  virtual void send(const double *itemsToSend, int size, int rankReceiver) = 0;
+  virtual void
+  send(const double *itemsToSend, int size, int rankReceiver) = 0;
 
   /// Asynchronously sends an array of double values.
-  virtual PtrRequest aSend(const double *itemsToSend, int size, int rankReceiver) = 0;
+  virtual PtrRequest
+  aSend(const double *itemsToSend, int size, int rankReceiver) = 0;
 
-  virtual PtrRequest aSend(std::vector<double> const & itemsToSend, int rankReceiver) = 0;
+  virtual PtrRequest
+  aSend(std::vector<double> const &itemsToSend, int rankReceiver) = 0;
 
   /// Sends a double to process with given rank.
-  virtual void send(double itemToSend, int rankReceiver) = 0;
+  virtual void
+  send(double itemToSend, int rankReceiver) = 0;
 
   /// Asynchronously sends a double to process with given rank.
-  virtual PtrRequest aSend(double itemToSend, int rankReceiver) = 0;
+  virtual PtrRequest
+  aSend(double itemToSend, int rankReceiver) = 0;
 
   /// Sends an int to process with given rank.
-  virtual void send(int itemToSend, int rankReceiver) = 0;
+  virtual void
+  send(int itemToSend, int rankReceiver) = 0;
 
   /// Asynchronously sends an int to process with given rank.
-  virtual PtrRequest aSend(int itemToSend, int rankReceiver) = 0;
+  virtual PtrRequest
+  aSend(int itemToSend, int rankReceiver) = 0;
 
   /// Sends a bool to process with given rank.
-  virtual void send(bool itemToSend, int rankReceiver) = 0;
+  virtual void
+  send(bool itemToSend, int rankReceiver) = 0;
 
   /// Asynchronously sends a bool to process with given rank.
-  virtual PtrRequest aSend(bool itemToSend, int rankReceiver) = 0;
+  virtual PtrRequest
+  aSend(bool itemToSend, int rankReceiver) = 0;
 
   /// Receives a std::string from process with given rank.
-  virtual void receive(std::string &itemToReceive, int rankSender) = 0;
+  virtual void
+  receive(std::string &itemToReceive, int rankSender) = 0;
 
   /// Receives an array of integer values.
-  virtual void receive(int *itemsToReceive, int size, int rankSender) = 0;
+  virtual void
+  receive(int *itemsToReceive, int size, int rankSender) = 0;
 
   /// Receives an array of double values.
-  virtual void receive(double *itemsToReceive, int size, int rankSender) = 0;
+  virtual void
+  receive(double *itemsToReceive, int size, int rankSender) = 0;
 
   /// Asynchronously receives an array of double values.
-  virtual PtrRequest aReceive(double *itemsToReceive,
-                              int     size,
-                              int     rankSender) = 0;
+  virtual PtrRequest
+  aReceive(double *itemsToReceive,
+           int     size,
+           int     rankSender) = 0;
 
   /// Asynchronously receives a vector of double values.
   /*
    * @attention All asynchronous receives methods require the vector to be appropriately sized
    */
-  virtual PtrRequest aReceive(std::vector<double> & itemsToReceive, int rankSender) = 0;
+  virtual PtrRequest
+  aReceive(std::vector<double> &itemsToReceive, int rankSender) = 0;
 
   /// Receives a double from process with given rank.
-  virtual void receive(double &itemToReceive, int rankSender) = 0;
+  virtual void
+  receive(double &itemToReceive, int rankSender) = 0;
 
   /// Asynchronously receives a double from process with given rank.
-  virtual PtrRequest aReceive(double &itemToReceive, int rankSender) = 0;
+  virtual PtrRequest
+  aReceive(double &itemToReceive, int rankSender) = 0;
 
   /// Receives an int from process with given rank.
-  virtual void receive(int &itemToReceive, int rankSender) = 0;
+  virtual void
+  receive(int &itemToReceive, int rankSender) = 0;
 
   /// Asynchronously receives an int from process with given rank.
-  virtual PtrRequest aReceive(int &itemToReceive, int rankSender) = 0;
+  virtual PtrRequest
+  aReceive(int &itemToReceive, int rankSender) = 0;
 
   /// Receives a bool from process with given rank.
-  virtual void receive(bool &itemToReceive, int rankSender) = 0;
+  virtual void
+  receive(bool &itemToReceive, int rankSender) = 0;
 
   /// Asynchronously receives a bool from process with given rank.
-  virtual PtrRequest aReceive(bool &itemToReceive, int rankSender) = 0;
+  virtual PtrRequest
+  aReceive(bool &itemToReceive, int rankSender) = 0;
 
-  
-  virtual void send(std::vector<int> const &v, int rankReceiver) = 0;
+  virtual void
+  send(std::vector<int> const &v, int rankReceiver) = 0;
   /// Receives an std::vector of ints. The vector will be resized accordingly.
-  virtual void receive(std::vector<int> &v, int rankSender) = 0;
+  virtual void
+  receive(std::vector<int> &v, int rankSender) = 0;
 
-  virtual void send(std::vector<double> const &v, int rankReceiver) = 0;
+  virtual void
+  send(std::vector<double> const &v, int rankReceiver) = 0;
   /// Receives an std::vector of doubles. The vector will be resized accordingly.
-  virtual void receive(std::vector<double> &v, int rankSender) = 0;
-
+  virtual void
+  receive(std::vector<double> &v, int rankSender) = 0;
 
   /// Set rank offset.
-  void setRankOffset(int rankOffset)
+  void
+  setRankOffset(int rankOffset)
   {
     _rankOffset = rankOffset;
   }
@@ -289,7 +346,6 @@ protected:
 
 private:
   logging::Logger _log{"com::Communication"};
-  
 };
 } // namespace com
 } // namespace precice

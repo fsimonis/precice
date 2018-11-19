@@ -24,7 +24,7 @@ namespace impl
  * MVQN-related data. The data is called "secondary" henceforth and additional
  * old value and data matrices are needed for it.
  */
-class BroydenPostProcessing : public BaseQNPostProcessing
+class BroydenPostProcessing: public BaseQNPostProcessing
 {
 public:
   /**
@@ -48,7 +48,8 @@ public:
   /**
     * @brief Initializes the post-processing.
     */
-  virtual void initialize(DataMap &cplData);
+  virtual void
+  initialize(DataMap &cplData);
 
   /**
     * @brief Marks a iteration sequence as converged.
@@ -56,7 +57,8 @@ public:
     * called by the iterationsConverged() method in the BaseQNPostProcessing class
     * handles the postprocessing sepcific action after the convergence of one iteration
     */
-  virtual void specializedIterationsConverged(DataMap &cplData);
+  virtual void
+  specializedIterationsConverged(DataMap &cplData);
 
 private:
   // remove this ofter debugging, not useful
@@ -73,15 +75,18 @@ private:
 
   // @brief comptes the MVQN update using QR decomposition of V,
   //        furthermore it updates the inverse of the system jacobian
-  virtual void computeQNUpdate(DataMap &cplData, Eigen::VectorXd &xUpdate);
+  virtual void
+  computeQNUpdate(DataMap &cplData, Eigen::VectorXd &xUpdate);
 
   // @brief updates the V, W matrices (as well as the matrices for the secondary data)
-  virtual void updateDifferenceMatrices(DataMap &cplData);
+  virtual void
+  updateDifferenceMatrices(DataMap &cplData);
 
   // @brief computes underrelaxation for the secondary data
-  virtual void computeUnderrelaxationSecondaryData(DataMap &cplData);
+  virtual void
+  computeUnderrelaxationSecondaryData(DataMap &cplData);
   //void computeNewtonFactorsQRDecomposition(DataMap& cplData, Eigen::VectorXd& update);
 };
-}
-}
-} // namespace precice, cplscheme, impl
+} // namespace impl
+} // namespace cplscheme
+} // namespace precice

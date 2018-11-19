@@ -1,10 +1,10 @@
 #pragma once
 
-#include <vector>
 #include "Partition.hpp"
 #include "logging/Logger.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/Vertex.hpp"
+#include <vector>
 
 namespace precice
 {
@@ -17,11 +17,12 @@ namespace partition
  * A mesh is received by the master rank and re-partitioned among all slave ranks.
  * Afterwards necessary distribution data structures are set up.
  */
-class ReceivedPartition : public Partition
+class ReceivedPartition: public Partition
 {
 public:
   /// Defines the typ of geometric filter used
-  enum GeometricFilter {
+  enum GeometricFilter
+  {
     /// undefined
     UNDEFINED,
     /// No geometric filter used (e.g. for RBF mappings)
@@ -37,9 +38,11 @@ public:
 
   virtual ~ReceivedPartition() {}
 
-  virtual void communicate() override;
+  virtual void
+  communicate() override;
 
-  virtual void compute() override;
+  virtual void
+  compute() override;
 
 private:
   /// Create filteredMesh from the filtered _mesh.
@@ -48,18 +51,23 @@ private:
    * or tagged to the filteredMesh. Edges and triangles are copied, when ALL vertices
    * are part of the filteredMesh i.e. their IDs are contained in vertexMap.
    */
-  void filterMesh(mesh::Mesh &filteredMesh, const bool filterByBB);
-  
+  void
+  filterMesh(mesh::Mesh &filteredMesh, const bool filterByBB);
+
   /// Sets _bb to the union with the mesh from fromMapping resp. toMapping, also enlage by _safetyFactor
-  void prepareBoundingBox();
+  void
+  prepareBoundingBox();
 
   /// Checks if vertex in contained in _bb
-  bool isVertexInBB(const mesh::Vertex &vertex);
+  bool
+  isVertexInBB(const mesh::Vertex &vertex);
 
-  virtual void createOwnerInformation() override;
+  virtual void
+  createOwnerInformation() override;
 
   /// Helper function for 'createOwnerFunction' to set local owner information
-  void setOwnerInformation(const std::vector<int> &ownerVec);
+  void
+  setOwnerInformation(const std::vector<int> &ownerVec);
 
   GeometricFilter _geometricFilter;
 

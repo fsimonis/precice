@@ -1,67 +1,81 @@
 #pragma once
 
-#include <boost/noncopyable.hpp>
 #include <Eigen/Core>
+#include <boost/noncopyable.hpp>
 #include <iostream>
 
-#include "mesh/PropertyContainer.hpp"
 #include "math/differences.hpp"
+#include "mesh/PropertyContainer.hpp"
 
-namespace precice {
-namespace mesh {
+namespace precice
+{
+namespace mesh
+{
 
 /// Vertex of a mesh.
-class Vertex : public PropertyContainer, private boost::noncopyable
+class Vertex: public PropertyContainer, private boost::noncopyable
 {
 public:
-
   /// Constructor for vertex
   template<typename VECTOR_T>
-  Vertex (
-    const VECTOR_T& coordinates,
-    int             id );
+  Vertex(
+      const VECTOR_T &coordinates,
+      int             id);
 
   /// Destructor, empty.
   virtual ~Vertex() {}
 
   /// Returns spatial dimensionality of vertex.
-  int getDimensions() const;
+  int
+  getDimensions() const;
 
   /// Sets the coordinates of the vertex.
   template<typename VECTOR_T>
-  void setCoords ( const VECTOR_T& coordinates );
+  void
+  setCoords(const VECTOR_T &coordinates);
 
   /// Sets the normal of the vertex.
   template<typename VECTOR_T>
-  void setNormal ( const VECTOR_T& normal );
+  void
+  setNormal(const VECTOR_T &normal);
 
   /// Returns the unique (among vertices of one mesh) ID of the vertex.
-  int getID() const;
+  int
+  getID() const;
 
   /// Returns the coordinates of the vertex.
-  const Eigen::VectorXd& getCoords() const;
+  const Eigen::VectorXd &
+  getCoords() const;
 
   /// Returns the normal of the vertex.
-  const Eigen::VectorXd& getNormal() const;
+  const Eigen::VectorXd &
+  getNormal() const;
 
-  int getGlobalIndex() const;
+  int
+  getGlobalIndex() const;
 
-  void setGlobalIndex(int globalIndex);
+  void
+  setGlobalIndex(int globalIndex);
 
-  bool isOwner() const;
+  bool
+  isOwner() const;
 
-  void setOwner(bool owner);
+  void
+  setOwner(bool owner);
 
-  bool isTagged() const;
+  bool
+  isTagged() const;
 
-  void tag();
+  void
+  tag();
 
-  inline bool operator==(const Vertex& rhs) const;
+  inline bool
+  operator==(const Vertex &rhs) const;
 
-  inline bool operator!=(const Vertex& rhs) const;
+  inline bool
+  operator!=(const Vertex &rhs) const;
 
 private:
-
   /// Unique (among vertices in one mesh) ID of the vertex.
   int _id;
 
@@ -84,58 +98,60 @@ private:
 // ------------------------------------------------------ HEADER IMPLEMENTATION
 
 template<typename VECTOR_T>
-Vertex:: Vertex
-(
-  const VECTOR_T& coordinates,
-  int             id )
-:
-  PropertyContainer (),
-  _id ( id ),
-  _coords ( coordinates ),
-  _normal ( Eigen::VectorXd::Constant(_coords.size(), 0.0) )
+Vertex::Vertex(
+    const VECTOR_T &coordinates,
+    int             id)
+    : PropertyContainer(),
+      _id(id),
+      _coords(coordinates),
+      _normal(Eigen::VectorXd::Constant(_coords.size(), 0.0))
 {}
 
 template<typename VECTOR_T>
-void Vertex:: setCoords
-(
-  const VECTOR_T& coordinates )
+void
+Vertex::setCoords(
+    const VECTOR_T &coordinates)
 {
-  assertion ( coordinates.size() == _coords.size(), coordinates.size(), _coords.size() );
+  assertion(coordinates.size() == _coords.size(), coordinates.size(), _coords.size());
   _coords = coordinates;
 }
 
 template<typename VECTOR_T>
-void Vertex:: setNormal
-(
-  const VECTOR_T& normal )
+void
+Vertex::setNormal(
+    const VECTOR_T &normal)
 {
-  assertion ( normal.size() == _normal.size(), normal.size(), _normal.size() );
+  assertion(normal.size() == _normal.size(), normal.size(), _normal.size());
   _normal = normal;
 }
 
-inline int Vertex:: getID() const
+inline int
+Vertex::getID() const
 {
   return _id;
 }
 
-inline const Eigen::VectorXd& Vertex::getCoords() const
+inline const Eigen::VectorXd &
+Vertex::getCoords() const
 {
   return _coords;
 }
 
-
-inline bool Vertex::operator==(const Vertex& rhs) const 
+inline bool
+Vertex::operator==(const Vertex &rhs) const
 {
-    return math::equals(_coords, rhs._coords);
+  return math::equals(_coords, rhs._coords);
 }
 
-inline bool Vertex::operator!=(const Vertex& rhs) const
+inline bool
+Vertex::operator!=(const Vertex &rhs) const
 {
-    return !(*this == rhs);
+  return !(*this == rhs);
 }
 
 /// Make Vertex printable
-std::ostream& operator<<(std::ostream& os, const Vertex& v);
+std::ostream &
+operator<<(std::ostream &os, const Vertex &v);
 
-}} // namespace precice, mesh
-
+} // namespace mesh
+} // namespace precice

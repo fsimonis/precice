@@ -11,7 +11,8 @@ MPIRequest::MPIRequest(MPI_Request request)
 {
 }
 
-bool MPIRequest::test()
+bool
+MPIRequest::test()
 {
   int complete = 0;
 
@@ -20,7 +21,8 @@ bool MPIRequest::test()
   return complete;
 }
 
-void MPIRequest::wait()
+void
+MPIRequest::wait()
 {
   MPI_Wait(&_request, MPI_STATUS_IGNORE);
 }

@@ -16,7 +16,8 @@ public:
 
   virtual ~DistributedComFactory(){};
 
-  virtual DistributedCommunication::SharedPointer newDistributedCommunication(
+  virtual DistributedCommunication::SharedPointer
+  newDistributedCommunication(
       mesh::PtrMesh mesh) = 0;
 };
 } // namespace m2n

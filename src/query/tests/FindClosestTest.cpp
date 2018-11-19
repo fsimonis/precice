@@ -1,4 +1,3 @@
-#include <vector>
 #include "io/ExportVTK.hpp"
 #include "mesh/Edge.hpp"
 #include "mesh/Mesh.hpp"
@@ -8,6 +7,7 @@
 #include "query/ExportVTKNeighbors.hpp"
 #include "query/FindClosest.hpp"
 #include "testing/Testing.hpp"
+#include <vector>
 
 using namespace precice;
 using namespace precice::query;

@@ -1,14 +1,14 @@
 #include "BaseQNPostProcessing.hpp"
-#include <sstream>
 #include "QRFactorization.hpp"
 #include "com/Communication.hpp"
 #include "cplscheme/CouplingData.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/Vertex.hpp"
 #include "utils/EigenHelperFunctions.hpp"
-#include "utils/MasterSlave.hpp"
-#include "utils/Helpers.hpp"
 #include "utils/EventTimings.hpp"
+#include "utils/Helpers.hpp"
+#include "utils/MasterSlave.hpp"
+#include <sstream>
 
 namespace precice
 {
@@ -30,7 +30,7 @@ BaseQNPostProcessing::BaseQNPostProcessing(
     double            singularityLimit,
     std::vector<int>  dataIDs,
     PtrPreconditioner preconditioner)
-  :   _preconditioner(preconditioner),
+    : _preconditioner(preconditioner),
       _initialRelaxation(initialRelaxation),
       _maxIterationsUsed(maxIterationsUsed),
       _timestepsReused(timestepsReused),
@@ -56,7 +56,8 @@ BaseQNPostProcessing::BaseQNPostProcessing(
  * @brief: Initializes all the needed variables and data
  *  ---------------------------------------------------------------------------------------------
  */
-void BaseQNPostProcessing::initialize(
+void
+BaseQNPostProcessing::initialize(
     DataMap &cplData)
 {
   TRACE(cplData.size());
@@ -145,7 +146,8 @@ void BaseQNPostProcessing::initialize(
     // test that the computed number of unknown per proc equals the number of entries actually present on that proc
     size_t unknowns = _dimOffsets[utils::MasterSlave::_rank + 1] - _dimOffsets[utils::MasterSlave::_rank];
     assertion(entries == unknowns, entries, unknowns);
-  } else {
+  }
+  else {
     _infostringstream << "\n--------\n DOFs (global): " << entries << std::endl;
   }
 
@@ -180,7 +182,8 @@ void BaseQNPostProcessing::initialize(
  *         i.e., x_star = argmin_x || f(x) - q ||
  *  ---------------------------------------------------------------------------------------------
  */
-void BaseQNPostProcessing::setDesignSpecification(
+void
+BaseQNPostProcessing::setDesignSpecification(
     Eigen::VectorXd &q)
 {
   TRACE();
@@ -195,7 +198,8 @@ void BaseQNPostProcessing::setDesignSpecification(
  *         This information is needed for convergence measurements in the coupling scheme.
  *  ---------------------------------------------------------------------------------------------
  */
-std::map<int, Eigen::VectorXd> BaseQNPostProcessing::getDesignSpecification(
+std::map<int, Eigen::VectorXd>
+BaseQNPostProcessing::getDesignSpecification(
     DataMap &cplData)
 {
   TRACE();
@@ -221,11 +225,12 @@ std::map<int, Eigen::VectorXd> BaseQNPostProcessing::getDesignSpecification(
  *         updates the difference matrices F and C. Also stores the residuals
  *  ---------------------------------------------------------------------------------------------
  */
-void BaseQNPostProcessing::updateDifferenceMatrices(
+void
+BaseQNPostProcessing::updateDifferenceMatrices(
     DataMap &cplData)
 {
   TRACE();
-  
+
   // Compute current residual: vertex-data - oldData
   _residuals = _values;
   _residuals -= _oldValues;
@@ -233,7 +238,8 @@ void BaseQNPostProcessing::updateDifferenceMatrices(
   //if (_firstIteration && (_firstTimeStep || (_matrixCols.size() < 2))) {
   if (_firstIteration && (_firstTimeStep || _forceInitialRelaxation)) {
     // do nothing: constant relaxation
-  } else {
+  }
+  else {
     DEBUG("   Update Difference Matrices");
     if (not _firstIteration) {
       // Update matrices V, W with newest information
@@ -266,7 +272,8 @@ void BaseQNPostProcessing::updateDifferenceMatrices(
         _qrV.pushFront(deltaR);
 
         _matrixCols.front()++;
-      } else {
+      }
+      else {
         utils::shiftSetFirst(_matrixV, deltaR);
         utils::shiftSetFirst(_matrixW, deltaXTilde);
 
@@ -295,11 +302,12 @@ void BaseQNPostProcessing::updateDifferenceMatrices(
  *         of fine and coarse model evaluations and also calls the coarse model optimization.
  *  ---------------------------------------------------------------------------------------------
  */
-void BaseQNPostProcessing::performPostProcessing(
+void
+BaseQNPostProcessing::performPostProcessing(
     DataMap &cplData)
 {
   TRACE(_dataIDs.size(), cplData.size());
-  
+
   utils::Event e("cpl.computeQuasiNewtonUpdate");
 
   assertion(_oldResiduals.size() == _oldXTilde.size(), _oldResiduals.size(), _oldXTilde.size());
@@ -345,7 +353,8 @@ void BaseQNPostProcessing::performPostProcessing(
     _values = _residuals;
 
     computeUnderrelaxationSecondaryData(cplData);
-  } else {
+  }
+  else {
     DEBUG("   Performing quasi-Newton Step");
 
     // If the previous time step converged within one single iteration, nothing was added
@@ -460,13 +469,15 @@ void BaseQNPostProcessing::performPostProcessing(
   _firstIteration = false;
 }
 
-void BaseQNPostProcessing::applyFilter()
+void
+BaseQNPostProcessing::applyFilter()
 {
   TRACE(_filter);
-  
+
   if (_filter == PostProcessing::NOFILTER) {
     // do nothing
-  } else {
+  }
+  else {
     // do: filtering of least-squares system to maintain good conditioning
     std::vector<int> delIndices(0);
     _qrV.applyFilter(_singularityLimit, delIndices, _matrixV);
@@ -481,7 +492,8 @@ void BaseQNPostProcessing::applyFilter()
   }
 }
 
-void BaseQNPostProcessing::concatenateCouplingData(
+void
+BaseQNPostProcessing::concatenateCouplingData(
     DataMap &cplData)
 {
   TRACE();
@@ -499,7 +511,8 @@ void BaseQNPostProcessing::concatenateCouplingData(
   }
 }
 
-void BaseQNPostProcessing::splitCouplingData(
+void
+BaseQNPostProcessing::splitCouplingData(
     DataMap &cplData)
 {
   TRACE();
@@ -526,11 +539,12 @@ void BaseQNPostProcessing::splitCouplingData(
  *         updates F and C according to the number of reused time steps
  *  ---------------------------------------------------------------------------------------------
  */
-void BaseQNPostProcessing::iterationsConverged(
+void
+BaseQNPostProcessing::iterationsConverged(
     DataMap &cplData)
 {
   TRACE();
-  
+
   if (utils::MasterSlave::_masterMode || (not utils::MasterSlave::_masterMode && not utils::MasterSlave::_slaveMode))
     _infostringstream << "# time step " << tSteps << " converged #\n iterations: " << its
                       << "\n used cols: " << getLSSystemCols() << "\n del cols: " << _nbDelCols << std::endl;
@@ -581,14 +595,16 @@ void BaseQNPostProcessing::iterationsConverged(
       // set the number of global rows in the QRFactorization. This is essential for the correctness in master-slave mode!
       _qrV.setGlobalRows(getLSSystemRows());
       _matrixCols.clear(); // _matrixCols.push_front() at the end of the method.
-    } else {
+    }
+    else {
       /**
        * pending deletion (after first iteration of next time step
        * Using the matrices from the old time step for the first iteration
        * is better than doing underrelaxation as first iteration of every time step
        */
     }
-  } else if ((int) _matrixCols.size() > _timestepsReused) {
+  }
+  else if ((int) _matrixCols.size() > _timestepsReused) {
     int toRemove = _matrixCols.back();
     assertion(toRemove > 0, toRemove);
     DEBUG("Removing " << toRemove << " cols from least-squares system with " << getLSSystemCols() << " cols");
@@ -615,7 +631,8 @@ void BaseQNPostProcessing::iterationsConverged(
  * @brief: removes a column from the least squares system, i. e., from the matrices F and C
  *  ---------------------------------------------------------------------------------------------
  */
-void BaseQNPostProcessing::removeMatrixColumn(
+void
+BaseQNPostProcessing::removeMatrixColumn(
     int columnIndex)
 {
   TRACE(columnIndex, _matrixV.cols());
@@ -644,22 +661,26 @@ void BaseQNPostProcessing::removeMatrixColumn(
   }
 }
 
-void BaseQNPostProcessing::exportState(
+void
+BaseQNPostProcessing::exportState(
     io::TXTWriter &writer)
 {
 }
 
-void BaseQNPostProcessing::importState(
+void
+BaseQNPostProcessing::importState(
     io::TXTReader &reader)
 {
 }
 
-int BaseQNPostProcessing::getDeletedColumns()
+int
+BaseQNPostProcessing::getDeletedColumns()
 {
   return _nbDelCols;
 }
 
-int BaseQNPostProcessing::getLSSystemCols()
+int
+BaseQNPostProcessing::getLSSystemCols()
 {
   int cols = 0;
   for (int col : _matrixCols) {
@@ -673,7 +694,8 @@ int BaseQNPostProcessing::getLSSystemCols()
   return cols;
 }
 
-int BaseQNPostProcessing::getLSSystemRows()
+int
+BaseQNPostProcessing::getLSSystemRows()
 {
   if (utils::MasterSlave::_masterMode || utils::MasterSlave::_slaveMode) {
     return _dimOffsets.back();
@@ -681,7 +703,8 @@ int BaseQNPostProcessing::getLSSystemRows()
   return _residuals.size();
 }
 
-void BaseQNPostProcessing::writeInfo(
+void
+BaseQNPostProcessing::writeInfo(
     std::string s, bool allProcs)
 {
   if (not utils::MasterSlave::_masterMode && not utils::MasterSlave::_slaveMode) {
@@ -689,16 +712,18 @@ void BaseQNPostProcessing::writeInfo(
     _infostringstream << s;
 
     // parallel post processing, master-slave mode
-  } else {
+  }
+  else {
     if (not allProcs) {
       if (utils::MasterSlave::_masterMode)
         _infostringstream << s;
-    } else {
+    }
+    else {
       _infostringstream << s;
     }
   }
   _infostringstream << std::flush;
 }
-}
-}
-} // namespace precice, cplscheme, impl
+} // namespace impl
+} // namespace cplscheme
+} // namespace precice

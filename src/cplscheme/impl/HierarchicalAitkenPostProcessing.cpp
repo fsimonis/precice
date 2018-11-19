@@ -1,9 +1,9 @@
 #include "HierarchicalAitkenPostProcessing.hpp"
-#include <limits>
 #include "../CouplingData.hpp"
 #include "math/math.hpp"
 #include "utils/EigenHelperFunctions.hpp"
 #include "utils/Helpers.hpp"
+#include <limits>
 
 namespace precice
 {
@@ -20,10 +20,11 @@ HierarchicalAitkenPostProcessing::HierarchicalAitkenPostProcessing(
 {
   CHECK((_initialRelaxation > 0.0) && (_initialRelaxation <= 1.0),
         "Initial relaxation factor for aitken post processing has to "
-        << "be larger than zero and smaller or equal than one!");
+            << "be larger than zero and smaller or equal than one!");
 }
 
-void HierarchicalAitkenPostProcessing::initialize(DataMap &cplData)
+void
+HierarchicalAitkenPostProcessing::initialize(DataMap &cplData)
 {
   TRACE();
   CHECK(utils::contained(*_dataIDs.begin(), cplData),
@@ -54,7 +55,8 @@ void HierarchicalAitkenPostProcessing::initialize(DataMap &cplData)
   }
 }
 
-void HierarchicalAitkenPostProcessing::performPostProcessing(
+void
+HierarchicalAitkenPostProcessing::performPostProcessing(
     DataMap &cplData)
 {
   TRACE();
@@ -208,14 +210,16 @@ void HierarchicalAitkenPostProcessing::performPostProcessing(
   _iterationCounter++;
 }
 
-void HierarchicalAitkenPostProcessing::iterationsConverged(
+void
+HierarchicalAitkenPostProcessing::iterationsConverged(
     DataMap &cplData)
 {
   _iterationCounter = 0;
   _residual         = Eigen::VectorXd::Constant(_residual.size(), std::numeric_limits<double>::max());
 }
 
-void HierarchicalAitkenPostProcessing::computeAitkenFactor(
+void
+HierarchicalAitkenPostProcessing::computeAitkenFactor(
     size_t level,
     double nominator,
     double denominator)
@@ -225,12 +229,14 @@ void HierarchicalAitkenPostProcessing::computeAitkenFactor(
     //INFO ( "First iteration (nom = " << nominator << ", den = " << denominator );
     _aitkenFactors[level] = math::sign(_aitkenFactors[level]) *
                             std::min(_initialRelaxation, std::abs(_aitkenFactors[level]));
-  } else {
+  }
+  else {
     //INFO ( "Aitken factor = - " << _aitkenFactors[level] << " * "
     //               << nominator << " / " << denominator );
     if (math::equals(std::sqrt(denominator), 0.0)) {
       _aitkenFactors[level] = 1.0;
-    } else {
+    }
+    else {
       _aitkenFactors[level] = -_aitkenFactors[level] * (nominator / denominator);
     }
   }
@@ -244,7 +250,8 @@ void HierarchicalAitkenPostProcessing::computeAitkenFactor(
  *         This information is needed for convergence measurements in the coupling scheme.
  *  ---------------------------------------------------------------------------------------------
  */
-std::map<int, Eigen::VectorXd> HierarchicalAitkenPostProcessing::getDesignSpecification(
+std::map<int, Eigen::VectorXd>
+HierarchicalAitkenPostProcessing::getDesignSpecification(
     DataMap &cplData)
 {
   ERROR("Design specification for Aitken relaxation is not supported yet.");
@@ -264,12 +271,13 @@ std::map<int, Eigen::VectorXd> HierarchicalAitkenPostProcessing::getDesignSpecif
   return designSpecifications;
 }
 
-void HierarchicalAitkenPostProcessing::setDesignSpecification(
+void
+HierarchicalAitkenPostProcessing::setDesignSpecification(
     Eigen::VectorXd &q)
 {
   _designSpecification = q;
   ERROR("design specification for Aitken relaxation is not supported yet.");
 }
-}
-}
-} // namespace precice, cplscheme, impl
+} // namespace impl
+} // namespace cplscheme
+} // namespace precice

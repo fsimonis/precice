@@ -11,7 +11,8 @@ CommunicateBoundingBox::CommunicateBoundingBox(
 {
 }
 
-void CommunicateBoundingBox::sendBoundingBox(
+void
+CommunicateBoundingBox::sendBoundingBox(
     const mesh::Mesh::BoundingBox &bb,
     int                            rankReceiver)
 {
@@ -23,7 +24,8 @@ void CommunicateBoundingBox::sendBoundingBox(
   }
 }
 
-void CommunicateBoundingBox::receiveBoundingBox(
+void
+CommunicateBoundingBox::receiveBoundingBox(
     mesh::Mesh::BoundingBox &bb,
     int                      rankSender)
 {
@@ -35,7 +37,8 @@ void CommunicateBoundingBox::receiveBoundingBox(
   }
 }
 
-void CommunicateBoundingBox::sendBoundingBoxMap(
+void
+CommunicateBoundingBox::sendBoundingBoxMap(
     mesh::Mesh::BoundingBoxMap &bbm,
     int                         rankReceiver)
 {
@@ -46,7 +49,8 @@ void CommunicateBoundingBox::sendBoundingBoxMap(
   }
 }
 
-void CommunicateBoundingBox::receiveBoundingBoxMap(
+void
+CommunicateBoundingBox::receiveBoundingBoxMap(
     mesh::Mesh::BoundingBoxMap &bbm,
     int                         rankSender)
 {
@@ -57,7 +61,8 @@ void CommunicateBoundingBox::receiveBoundingBoxMap(
   }
 }
 
-void CommunicateBoundingBox::broadcastSendBoundingBoxMap(
+void
+CommunicateBoundingBox::broadcastSendBoundingBoxMap(
     mesh::Mesh::BoundingBoxMap &bbm)
 {
 
@@ -69,7 +74,8 @@ void CommunicateBoundingBox::broadcastSendBoundingBoxMap(
   }
 }
 
-void CommunicateBoundingBox::broadcastReceiveBoundingBoxMap(
+void
+CommunicateBoundingBox::broadcastReceiveBoundingBoxMap(
     mesh::Mesh::BoundingBoxMap &bbm)
 {
   for (auto &rank : bbm) {

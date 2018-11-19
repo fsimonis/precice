@@ -4,15 +4,16 @@
 #include "cplscheme/impl/ResidualSumPreconditioner.hpp"
 #include "cplscheme/impl/SharedPointer.hpp"
 #include "cplscheme/impl/ValuePreconditioner.hpp"
-#include "testing/Testing.hpp"
 #include "testing/Fixtures.hpp"
+#include "testing/Testing.hpp"
 
 BOOST_AUTO_TEST_SUITE(CplSchemeTests)
 
 using namespace precice;
 using namespace cplscheme;
 
-struct ResPreconditionerFixture {
+struct ResPreconditionerFixture
+{
   Eigen::VectorXd _data;
   Eigen::VectorXd _res;
   Eigen::VectorXd _compareDataRes;
@@ -254,11 +255,14 @@ BOOST_AUTO_TEST_CASE(testParallelMatrixScaling,
   int localN = -1;
   if (utils::Parallel::getProcessRank() == 0) {
     localN = 2;
-  } else if (utils::Parallel::getProcessRank() == 1) {
+  }
+  else if (utils::Parallel::getProcessRank() == 1) {
     localN = 1;
-  } else if (utils::Parallel::getProcessRank() == 2) {
+  }
+  else if (utils::Parallel::getProcessRank() == 2) {
     localN = 0;
-  } else if (utils::Parallel::getProcessRank() == 3) {
+  }
+  else if (utils::Parallel::getProcessRank() == 3) {
     localN = 1;
   }
 
@@ -286,7 +290,8 @@ BOOST_AUTO_TEST_CASE(testParallelMatrixScaling,
     M(3, 1) = 4.0;
     x(0)    = 5.0;
     x(1)    = 5.0;
-  } else if (utils::Parallel::getProcessRank() == 1) {
+  }
+  else if (utils::Parallel::getProcessRank() == 1) {
     V(0, 0) = 5.0;
     V(0, 1) = 6.0;
     M(0, 0) = 1.0;
@@ -294,8 +299,10 @@ BOOST_AUTO_TEST_CASE(testParallelMatrixScaling,
     M(2, 0) = 3.0;
     M(3, 0) = 4.0;
     x(0)    = 5.0;
-  } else if (utils::Parallel::getProcessRank() == 2) {
-  } else if (utils::Parallel::getProcessRank() == 3) {
+  }
+  else if (utils::Parallel::getProcessRank() == 2) {
+  }
+  else if (utils::Parallel::getProcessRank() == 3) {
     V(0, 0) = 7.0;
     V(0, 1) = 8.0;
     M(0, 0) = 1.0;

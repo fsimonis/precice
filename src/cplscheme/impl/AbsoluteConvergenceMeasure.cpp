@@ -9,10 +9,12 @@ namespace impl
 {
 
 AbsoluteConvergenceMeasure::AbsoluteConvergenceMeasure(double convergenceLimit)
-  : _convergenceLimit(convergenceLimit)
+    : _convergenceLimit(convergenceLimit)
 {
   CHECK(not math::greaterEquals(0.0, _convergenceLimit),
         "Absolute convergence limit has to be greater than zero!");
 }
 
-}}} // namespace precice, cplscheme, impl
+} // namespace impl
+} // namespace cplscheme
+} // namespace precice

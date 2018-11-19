@@ -10,7 +10,7 @@ namespace impl
 {
 
 /// Preconditioner that uses the constant user-defined factors to scale the quasi-Newton system.
-class ConstantPreconditioner : public Preconditioner
+class ConstantPreconditioner: public Preconditioner
 {
 public:
   explicit ConstantPreconditioner(std::vector<double> factors);
@@ -20,7 +20,8 @@ public:
    */
   virtual ~ConstantPreconditioner() {}
 
-  virtual void initialize(std::vector<size_t> & svs);
+  virtual void
+  initialize(std::vector<size_t> &svs);
 
 private:
   /**
@@ -28,13 +29,14 @@ private:
    *
    * @param[in] timestepComplete True if this FSI iteration also completed a timestep
    */
-  virtual void _update_(bool timestepComplete, const Eigen::VectorXd &oldValues, const Eigen::VectorXd &res);
+  virtual void
+  _update_(bool timestepComplete, const Eigen::VectorXd &oldValues, const Eigen::VectorXd &res);
 
   logging::Logger _log{"cplscheme::ConstantPreconditioner"};
 
   /// Constant user-defined factors to scale the quasi-Newton system
   std::vector<double> _factors;
 };
-}
-}
-} // namespace precice, cplscheme, impl
+} // namespace impl
+} // namespace cplscheme
+} // namespace precice

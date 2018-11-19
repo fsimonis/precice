@@ -4,15 +4,15 @@
 class Tests
 {
 public:
-
-  void run();
+  void
+  run();
 
 private:
+  void
+  test2D();
 
-  void test2D();
-
-  void test3D();
-
+  void
+  test3D();
 };
 
 #endif /* TESTS_HPP_ */

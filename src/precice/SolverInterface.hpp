@@ -1,57 +1,64 @@
 #pragma once
 
-#include "MeshHandle.hpp"
 #include "Constants.hpp"
+#include "MeshHandle.hpp"
+#include <memory>
+#include <set>
 #include <string>
 #include <vector>
-#include <set>
-#include <memory>
 
 /**
  * Pre-declarations.
  */
-namespace precice {
-  namespace impl {
-    class SolverInterfaceImpl;
-  }
+namespace precice
+{
+namespace impl
+{
+class SolverInterfaceImpl;
 }
+} // namespace precice
 
 // Forward declaration to friend the boost test struct
-namespace PreciceTests {
-  namespace Parallel {
-    struct TestFinalize;
-    struct TestMasterSlaveSetup;
-    struct GlobalRBFPartitioning;
-    struct LocalRBFPartitioning;
-    struct TestQN;
-    struct testDistributedCommunications;
-    struct CouplingOnLine;
-  }
-  namespace Serial {
-    struct TestExplicit;
-    struct TestConfiguration;
-    struct testExplicitWithSubcycling;
-    struct testExplicitWithDataExchange;
-    struct testExplicitWithDataInitialization;
-    struct testExplicitWithBlockDataExchange;
-    struct testExplicitWithSolverGeometry;
-    struct testExplicitWithDisplacingGeometry;
-    struct testExplicitWithDataScaling;
-    struct testImplicit;
-    struct testStationaryMappingWithSolverMesh;
-    struct testBug;
-    struct testThreeSolvers;
-    struct testMultiCoupling;
-  }
-  namespace Server {
-    struct testCouplingModeWithOneServer;
-    struct testCouplingModeParallelWithOneServer;
-  }
-}
+namespace PreciceTests
+{
+namespace Parallel
+{
+struct TestFinalize;
+struct TestMasterSlaveSetup;
+struct GlobalRBFPartitioning;
+struct LocalRBFPartitioning;
+struct TestQN;
+struct testDistributedCommunications;
+struct CouplingOnLine;
+} // namespace Parallel
+namespace Serial
+{
+struct TestExplicit;
+struct TestConfiguration;
+struct testExplicitWithSubcycling;
+struct testExplicitWithDataExchange;
+struct testExplicitWithDataInitialization;
+struct testExplicitWithBlockDataExchange;
+struct testExplicitWithSolverGeometry;
+struct testExplicitWithDisplacingGeometry;
+struct testExplicitWithDataScaling;
+struct testImplicit;
+struct testStationaryMappingWithSolverMesh;
+struct testBug;
+struct testThreeSolvers;
+struct testMultiCoupling;
+} // namespace Serial
+namespace Server
+{
+struct testCouplingModeWithOneServer;
+struct testCouplingModeParallelWithOneServer;
+} // namespace Server
+} // namespace PreciceTests
 
 // ----------------------------------------------------------- CLASS DEFINITION
 
-namespace precice {
+namespace precice
+{
 
 /**
  * @brief Interface to be used by solvers when using preCICE.
@@ -67,9 +74,8 @@ namespace precice {
 class SolverInterface
 {
 public:
-
-    ///@name Construction and Configuration
-    ///@{
+  ///@name Construction and Configuration
+  ///@{
 
   /**
    * @brief Constructor.
@@ -81,10 +87,10 @@ public:
    *        from 0 and end with solverProcessSize - 1.
    * @param[in] solverProcessSize The number of solver processes using preCICE.
    */
-  SolverInterface (
-    const std::string& participantName,
-    int                solverProcessIndex,
-    int                solverProcessSize );
+  SolverInterface(
+      const std::string &participantName,
+      int                solverProcessIndex,
+      int                solverProcessSize);
 
   /**
    * @brief Destructor.
@@ -106,7 +112,8 @@ public:
    *
    * @param[in] configurationFileName Name (with path) of the xml configuration file to be read.
    */
-  void configure ( const std::string& configurationFileName );
+  void
+  configure(const std::string &configurationFileName);
 
   ///@}
 
@@ -126,7 +133,8 @@ public:
    *
    * @return Maximum length of first timestep to be computed by the solver.
    */
-  double initialize();
+  double
+  initialize();
 
   /**
    * @brief Initializes coupling data.
@@ -148,7 +156,8 @@ public:
    * @post Written coupling data values are reset to zero, in order to allow writing 
    * of values of first computed timestep.
    */
-  void initializeData();
+  void
+  initializeData();
 
   /**
    * @brief Advances preCICE after the solver has computed one timestep.
@@ -173,7 +182,8 @@ public:
    *
    * @return Maximum length of next timestep to be computed by solver.
    */
-  double advance ( double computedTimestepLength );
+  double
+  advance(double computedTimestepLength);
 
   /**
    * @brief Finalizes preCICE.
@@ -184,10 +194,11 @@ public:
    * @post Communication channels are closed.
    * @post Meshes and data are deallocated
    */
-  void finalize();
+  void
+  finalize();
 
   ///@}
-  
+
   ///@name Status Queries
   ///@{
 
@@ -199,14 +210,16 @@ public:
    *
    * @pre configure() has been called successfully.
    */
-  int getDimensions() const;
+  int
+  getDimensions() const;
 
   /**
    * @brief Returns true, if the coupled simulation is still ongoing.
    *
    * @pre initialize() has been called successfully.
    */
-  bool isCouplingOngoing();
+  bool
+  isCouplingOngoing();
 
   /**
    * @brief Returns true, if new data to be read is available.
@@ -219,7 +232,8 @@ public:
    *
    * @pre initialize() has been called successfully.
    */
-  bool isReadDataAvailable();
+  bool
+  isReadDataAvailable();
 
   /**
    * @brief Returns true, if new data has to be written before calling advance().
@@ -230,7 +244,8 @@ public:
    *
    * @pre initialize() has been called successfully.
    */
-  bool isWriteDataRequired ( double computedTimestepLength );
+  bool
+  isWriteDataRequired(double computedTimestepLength);
 
   /**
    * @brief Returns true, if the current coupling timestep is completed.
@@ -242,21 +257,24 @@ public:
    *
    * @pre initialize() has been called successfully.
    */
-  bool isTimestepComplete();
+  bool
+  isTimestepComplete();
 
   /**
    * @brief Returns whether the solver has to evaluate the surrogate model representation
    *        It does not automatically imply, that the solver does not have to evaluate the
    *        fine model representation
    */
-  bool hasToEvaluateSurrogateModel();
+  bool
+  hasToEvaluateSurrogateModel();
 
   /**
    * @brief Returns whether the solver has to evaluate the fine model representation
    *        It does not automatically imply, that the solver does not have to evaluate the
    *        surrogate model representation
    */
-  bool hasToEvaluateFineModel();
+  bool
+  hasToEvaluateFineModel();
 
   ///@}
 
@@ -272,14 +290,16 @@ public:
    * performing them on demand, and calling fulfilledAction() to signalize
    * preCICE the correct behavior of the solver.
    */
-  bool isActionRequired ( const std::string& action );
+  bool
+  isActionRequired(const std::string &action);
 
   /**
    * @brief Tells preCICE that a required action has been fulfilled by a solver.
    *
    * For more details see method requireAction().
    */
-  void fulfilledAction ( const std::string& action );
+  void
+  fulfilledAction(const std::string &action);
 
   ///@}
 
@@ -293,39 +313,45 @@ public:
    * changes. Only has an effect, if the mapping used is non-stationary and
    * non-incremental.
    */
-//  void resetMesh ( int meshID );
+  //  void resetMesh ( int meshID );
 
   /**
    * @brief Returns true, if the mesh with given name is used.
    */
-  bool hasMesh ( const std::string& meshName ) const;
+  bool
+  hasMesh(const std::string &meshName) const;
 
   /**
    * @brief Returns the ID belonging to the mesh with given name.
    *
    * The existing names are determined from the configuration.
    */
-  int getMeshID ( const std::string& meshName );
+  int
+  getMeshID(const std::string &meshName);
 
   /**
    * @brief Returns all mesh IDs (besides sub-ids).
    */
-  std::set<int> getMeshIDs();
+  std::set<int>
+  getMeshIDs();
 
   /// Returns a handle to a created mesh.
-  MeshHandle getMeshHandle ( const std::string& meshName );
+  MeshHandle
+  getMeshHandle(const std::string &meshName);
 
   /**
    * @brief Sets position of surface mesh vertex, returns ID.
    */
-  int setMeshVertex (
-    int           meshID,
-    const double* position );
+  int
+  setMeshVertex(
+      int           meshID,
+      const double *position);
 
   /**
    * @brief Returns the number of vertices of a mesh.
    */
-  int getMeshVertexSize(int meshID);
+  int
+  getMeshVertexSize(int meshID);
 
   /**
    * @brief Sets several spatial vertex positions.
@@ -343,11 +369,12 @@ public:
    *                      where n * the number of vector values. In 2D, the z-components are removed.
    * @param[out] ids IDs for data to be written from given positions.
    */
-  void setMeshVertices (
-    int     meshID,
-    int     size,
-    double* positions,
-    int*    ids );
+  void
+  setMeshVertices(
+      int     meshID,
+      int     size,
+      double *positions,
+      int *   ids);
 
   /**
    * @brief Gets spatial vertex positions for given IDs.
@@ -357,11 +384,12 @@ public:
    * @param[in] ids IDs obtained when setting write positions.
    * @param[in] positions Positions corresponding to IDs.
    */
-  void getMeshVertices (
-    int     meshID,
-    int     size,
-    int*    ids,
-    double* positions );
+  void
+  getMeshVertices(
+      int     meshID,
+      int     size,
+      int *   ids,
+      double *positions);
 
   /**
    * @brief Gets mesh vertex IDs from positions.
@@ -371,28 +399,31 @@ public:
    * @param[in] positions Positions (x,y,z,x,y,z,...) to find ids for.
    * @param[in] ids IDs corresponding to positions.
    */
-  void getMeshVertexIDsFromPositions (
-    int     meshID,
-    int     size,
-    double* positions,
-    int*    ids );
+  void
+  getMeshVertexIDsFromPositions(
+      int     meshID,
+      int     size,
+      double *positions,
+      int *   ids);
 
   /**
    * @brief Sets surface mesh edge from vertex IDs, returns edge ID.
    */
-  int setMeshEdge (
-    int meshID,
-    int firstVertexID,
-    int secondVertexID );
+  int
+  setMeshEdge(
+      int meshID,
+      int firstVertexID,
+      int secondVertexID);
 
   /**
    * @brief Sets surface mesh triangle from edge IDs.
    */
-  void setMeshTriangle (
-    int meshID,
-    int firstEdgeID,
-    int secondEdgeID,
-    int thirdEdgeID );
+  void
+  setMeshTriangle(
+      int meshID,
+      int firstEdgeID,
+      int secondEdgeID,
+      int thirdEdgeID);
 
   /**
    * @brief Sets surface mesh triangle from vertex IDs.
@@ -402,21 +433,23 @@ public:
    * significantly slower than the one using edge IDs, since it needs to check,
    * whether an edge is created already or not.
    */
-  void setMeshTriangleWithEdges (
-    int meshID,
-    int firstVertexID,
-    int secondVertexID,
-    int thirdVertexID );
+  void
+  setMeshTriangleWithEdges(
+      int meshID,
+      int firstVertexID,
+      int secondVertexID,
+      int thirdVertexID);
 
   /**
    * @brief Sets surface mesh quadrangle from edge IDs.
    */
-  void setMeshQuad (
-    int meshID,
-    int firstEdgeID,
-    int secondEdgeID,
-    int thirdEdgeID,
-    int fourthEdgeID );
+  void
+  setMeshQuad(
+      int meshID,
+      int firstEdgeID,
+      int secondEdgeID,
+      int thirdEdgeID,
+      int fourthEdgeID);
 
   /**
    * @brief Sets surface mesh quadrangle from vertex IDs.
@@ -426,12 +459,13 @@ public:
    * significantly slower than the one using edge IDs, since it needs to check,
    * whether an edge is created already or not.
    */
-  void setMeshQuadWithEdges (
-    int meshID,
-    int firstVertexID,
-    int secondVertexID,
-    int thirdVertexID,
-    int fourthVertexID );
+  void
+  setMeshQuadWithEdges(
+      int meshID,
+      int firstVertexID,
+      int secondVertexID,
+      int thirdVertexID,
+      int fourthVertexID);
 
   ///@}
 
@@ -441,24 +475,27 @@ public:
   /**
    * @brief Returns true, if the data with given name is used.
    */
-  bool hasData ( const std::string& dataName, int meshID ) const;
+  bool
+  hasData(const std::string &dataName, int meshID) const;
 
   /**
    * @brief Returns data id corresponding to the given name (from configuration)
    */
-  int getDataID ( const std::string& dataName, int meshID );
-
+  int
+  getDataID(const std::string &dataName, int meshID);
 
   /**
    * @brief Computes and maps all read data mapped to the mesh with given ID.
    *
    */
-  void mapReadDataTo ( int toMeshID );
+  void
+  mapReadDataTo(int toMeshID);
 
   /**
    * @brief Computes and maps all write data mapped from the mesh with given ID.
    */
-  void mapWriteDataFrom ( int fromMeshID );
+  void
+  mapWriteDataFrom(int fromMeshID);
 
   /**
    * @brief Writes vector data values given as block.
@@ -472,11 +509,12 @@ public:
    * @param[in] valueIndices Indizes of vertices, from SolverInterface::setMeshVertex() e.g.
    * @param[in] values Values of the data to be written.
    */
-  void writeBlockVectorData (
-    int     dataID,
-    int     size,
-    int*    valueIndices,
-    double* values );
+  void
+  writeBlockVectorData(
+      int     dataID,
+      int     size,
+      int *   valueIndices,
+      double *values);
 
   /**
    * @brief Write vectorial data to the interface mesh
@@ -487,11 +525,11 @@ public:
    * @param[in] valueIndex Position (coordinate, e.g.) of data to be written
    * @param[in] value      Value of the data to be written
    */
-  void writeVectorData (
-    int           dataID,
-    int           valueIndex,
-    const double* value );
-
+  void
+  writeVectorData(
+      int           dataID,
+      int           valueIndex,
+      const double *value);
 
   /**
    * @brief Writes scalar data values given as block.
@@ -500,11 +538,12 @@ public:
    * @param[in] size   Number of valueIndices, and number of values.
    * @param[in] values Values of the data to be written.
    */
-  void writeBlockScalarData (
-    int     dataID,
-    int     size,
-    int*    valueIndices,
-    double* values );
+  void
+  writeBlockScalarData(
+      int     dataID,
+      int     size,
+      int *   valueIndices,
+      double *values);
 
   /**
    * @brief Write scalar data to the interface mesh
@@ -515,10 +554,11 @@ public:
    * @param[in] dataPosition Position (coordinate, e.g.) of data to be written
    * @param[in] dataValue    Value of the data to be written
    */
-  void writeScalarData (
-    int    dataID,
-    int    valueIndex,
-    double value );
+  void
+  writeScalarData(
+      int    dataID,
+      int    valueIndex,
+      double value);
 
   /**
    * @brief Reads vector data values given as block.
@@ -532,11 +572,12 @@ public:
    * @param[in] valueIndices Indices (from setReadPosition()) of data values.
    * @param[out] values      Values of the data to be read.
    */
-  void readBlockVectorData (
-    int     dataID,
-    int     size,
-    int*    valueIndices,
-    double* values );
+  void
+  readBlockVectorData(
+      int     dataID,
+      int     size,
+      int *   valueIndices,
+      double *values);
 
   /**
    * @brief Reads vector data from the coupling mesh.
@@ -545,10 +586,11 @@ public:
    * @param[in]  dataPosition Position (coordinate, e.g.) of data to be read
    * @param[out] dataValue Read data value
    */
-  void readVectorData (
-    int     dataID,
-    int     valueIndex,
-    double* value );
+  void
+  readVectorData(
+      int     dataID,
+      int     valueIndex,
+      double *value);
 
   /**
    * @brief Reads scalar data values given as block.
@@ -557,11 +599,12 @@ public:
    * @param[in]  size Number of valueIndices, and number of values.
    * @param[out] values Values of the data to be read.
    */
-  void readBlockScalarData (
-    int     dataID,
-    int     size,
-    int*    valueIndices,
-    double* values );
+  void
+  readBlockScalarData(
+      int     dataID,
+      int     size,
+      int *   valueIndices,
+      double *values);
 
   /**
    * @brief Read scalar data from the interface mesh.
@@ -572,23 +615,24 @@ public:
    * @param[in]  valueIndex Position (coordinate, e.g.) of data to be read
    * @param[out] Value Read data value
    */
-  void readScalarData (
-    int     dataID,
-    int     valueIndex,
-    double& value );
+  void
+  readScalarData(
+      int     dataID,
+      int     valueIndex,
+      double &value);
 
   ///@}
 
 private:
-
   /// Pointer to implementation of SolverInterface.
   std::unique_ptr<impl::SolverInterfaceImpl> _impl;
 
   /// Disable copy construction by making copy constructor private.
-  SolverInterface ( const SolverInterface& copy );
+  SolverInterface(const SolverInterface &copy);
 
   /// Disable assignment construction by making assign. constructor private.
-  SolverInterface& operator= ( const SolverInterface& assign );
+  SolverInterface &
+  operator=(const SolverInterface &assign);
 
   // @brief To allow white box tests.
   friend struct PreciceTests::Parallel::TestFinalize;
@@ -614,7 +658,6 @@ private:
   friend struct PreciceTests::Serial::testMultiCoupling;
   friend struct PreciceTests::Server::testCouplingModeWithOneServer;
   friend struct PreciceTests::Server::testCouplingModeParallelWithOneServer;
-
 };
 
 } // namespace precice

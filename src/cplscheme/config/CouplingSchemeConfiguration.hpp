@@ -1,8 +1,5 @@
 #pragma once
 
-#include <string>
-#include <tuple>
-#include <vector>
 #include "cplscheme/Constants.hpp"
 #include "cplscheme/CouplingScheme.hpp"
 #include "cplscheme/MultiCouplingScheme.hpp"
@@ -14,6 +11,9 @@
 #include "precice/config/SharedPointer.hpp"
 #include "precice/impl/MeshContext.hpp"
 #include "xml/XMLTag.hpp"
+#include <string>
+#include <tuple>
+#include <vector>
 
 namespace precice
 {
@@ -21,8 +21,8 @@ namespace cplscheme
 {
 class CompositionalCouplingScheme;
 class BaseCouplingScheme;
-}
-}
+} // namespace cplscheme
+} // namespace precice
 
 // Forward declaration to friend the boost test struct
 namespace CplSchemeTests
@@ -35,7 +35,7 @@ namespace SerialImplicitCouplingSchemeTests
 {
 struct testParseConfigurationWithRelaxation;
 }
-}
+} // namespace CplSchemeTests
 
 // ----------------------------------------------------------- CLASS DEFINITION
 namespace precice
@@ -43,7 +43,7 @@ namespace precice
 namespace cplscheme
 {
 /// Configuration for coupling schemes.
-class CouplingSchemeConfiguration : public xml::XMLTag::Listener
+class CouplingSchemeConfiguration: public xml::XMLTag::Listener
 {
 public:
   /**
@@ -62,25 +62,30 @@ public:
   virtual ~CouplingSchemeConfiguration() {}
 
   /// Check, if a coupling scheme is configured for a participant.
-  bool hasCouplingScheme(const std::string &participantName) const;
+  bool
+  hasCouplingScheme(const std::string &participantName) const;
 
   /// Returns the configured coupling scheme.
-  const PtrCouplingScheme &getCouplingScheme(const std::string &participantName) const;
+  const PtrCouplingScheme &
+  getCouplingScheme(const std::string &participantName) const;
 
   /// Returns the name of one dataset exchanged in the coupling scheme.
-  const std::string &getDataToExchange(int index) const;
+  const std::string &
+  getDataToExchange(int index) const;
 
   /// Callback method required when using xml::XMLTag.
-  virtual void xmlTagCallback(xml::XMLTag &callingTag);
+  virtual void
+  xmlTagCallback(xml::XMLTag &callingTag);
 
   /// Callback method required when using xml::XMLTag.
-  virtual void xmlEndTagCallback(xml::XMLTag &callingTag);
+  virtual void
+  xmlEndTagCallback(xml::XMLTag &callingTag);
 
   /// Adds a manually configured coupling scheme for a participant.
-  void addCouplingScheme(PtrCouplingScheme cplScheme, const std::string &participantName);
+  void
+  addCouplingScheme(PtrCouplingScheme cplScheme, const std::string &participantName);
 
 private:
-
   mutable logging::Logger _log{"cplscheme::CouplingSchemeConfiguration"};
 
   const std::string TAG;
@@ -125,23 +130,24 @@ private:
   const std::string VALUE_FIXED;
   const std::string VALUE_FIRST_PARTICIPANT;
 
-  struct Config {
+  struct Config
+  {
     std::string                   type;
     std::string                   name;
     std::vector<std::string>      participants;
     std::string                   controller;
-    bool                          setController = false;
-    double                        maxTime = CouplingScheme::UNDEFINED_TIME;
-    int                           maxTimesteps = CouplingScheme::UNDEFINED_TIMESTEPS;
+    bool                          setController  = false;
+    double                        maxTime        = CouplingScheme::UNDEFINED_TIME;
+    int                           maxTimesteps   = CouplingScheme::UNDEFINED_TIMESTEPS;
     double                        timestepLength = CouplingScheme::UNDEFINED_TIMESTEP_LENGTH;
-    int                           validDigits = 16;
-    constants::TimesteppingMethod dtMethod = constants::FIXED_DT;
+    int                           validDigits    = 16;
+    constants::TimesteppingMethod dtMethod       = constants::FIXED_DT;
     /// Tuples of exchange data, mesh, and participant name.
     typedef std::tuple<mesh::PtrData, mesh::PtrMesh, std::string, std::string, bool> Exchange;
     std::vector<Exchange>                                                            exchanges;
     /// Tuples of data ID, mesh ID, and convergence measure.
     std::vector<std::tuple<int, bool, std::string, int, impl::PtrConvergenceMeasure>> convMeasures;
-    int                                                                               maxIterations = -1;
+    int                                                                               maxIterations      = -1;
     int                                                                               extrapolationOrder = 0;
 
   } _config;
@@ -158,88 +164,114 @@ private:
   /// If a participant has more than one coupling scheme, a composition is created.
   std::map<std::string, CompositionalCouplingScheme *> _couplingSchemeCompositions;
 
-  void addTypespecifcSubtags(const std::string &type, xml::XMLTag &tag);
+  void
+  addTypespecifcSubtags(const std::string &type, xml::XMLTag &tag);
 
-  void addTransientLimitTags(xml::XMLTag &tag);
+  void
+  addTransientLimitTags(xml::XMLTag &tag);
 
-  void addTagParticipants(xml::XMLTag &tag);
+  void
+  addTagParticipants(xml::XMLTag &tag);
 
-  void addTagParticipant(xml::XMLTag &tag);
+  void
+  addTagParticipant(xml::XMLTag &tag);
 
-  void addTagExchange(xml::XMLTag &tag);
+  void
+  addTagExchange(xml::XMLTag &tag);
 
-  void addTagAbsoluteConvergenceMeasure(xml::XMLTag &tag);
+  void
+  addTagAbsoluteConvergenceMeasure(xml::XMLTag &tag);
 
-  void addTagRelativeConvergenceMeasure(xml::XMLTag &tag);
+  void
+  addTagRelativeConvergenceMeasure(xml::XMLTag &tag);
 
-  void addTagResidualRelativeConvergenceMeasure(xml::XMLTag &tag);
+  void
+  addTagResidualRelativeConvergenceMeasure(xml::XMLTag &tag);
 
-  void addTagMinIterationConvergenceMeasure(xml::XMLTag &tag);
+  void
+  addTagMinIterationConvergenceMeasure(xml::XMLTag &tag);
 
-  void addBaseAttributesTagConvergenceMeasure(xml::XMLTag &tag);
+  void
+  addBaseAttributesTagConvergenceMeasure(xml::XMLTag &tag);
 
-  void addTagMaxIterations(xml::XMLTag &tag);
+  void
+  addTagMaxIterations(xml::XMLTag &tag);
 
-  void addTagExtrapolation(xml::XMLTag &tag);
+  void
+  addTagExtrapolation(xml::XMLTag &tag);
 
-  void addTagPostProcessing(xml::XMLTag &tag);
+  void
+  addTagPostProcessing(xml::XMLTag &tag);
 
-  void addAbsoluteConvergenceMeasure(
+  void
+  addAbsoluteConvergenceMeasure(
       const std::string &dataName,
       const std::string &meshName,
       double             limit,
       bool               suffices,
       int                level);
 
-  void addRelativeConvergenceMeasure(
+  void
+  addRelativeConvergenceMeasure(
       const std::string &dataName,
       const std::string &meshName,
       double             limit,
       bool               suffices,
       int                level);
 
-  void addResidualRelativeConvergenceMeasure(
+  void
+  addResidualRelativeConvergenceMeasure(
       const std::string &dataName,
       const std::string &meshName,
       double             limit,
       bool               suffices,
       int                level);
 
-  void addMinIterationConvergenceMeasure(
+  void
+  addMinIterationConvergenceMeasure(
       const std::string &dataName,
       const std::string &meshName,
       int                minIterations,
       bool               suffices,
       int                level);
 
-  mesh::PtrData getData(
+  mesh::PtrData
+  getData(
       const std::string &dataName,
       const std::string &meshName) const;
 
-  PtrCouplingScheme createSerialExplicitCouplingScheme(
+  PtrCouplingScheme
+  createSerialExplicitCouplingScheme(
       const std::string &accessor) const;
 
-  PtrCouplingScheme createParallelExplicitCouplingScheme(
+  PtrCouplingScheme
+  createParallelExplicitCouplingScheme(
       const std::string &accessor) const;
 
-  PtrCouplingScheme createSerialImplicitCouplingScheme(
+  PtrCouplingScheme
+  createSerialImplicitCouplingScheme(
       const std::string &accessor) const;
 
-  PtrCouplingScheme createParallelImplicitCouplingScheme(
+  PtrCouplingScheme
+  createParallelImplicitCouplingScheme(
       const std::string &accessor) const;
 
-  PtrCouplingScheme createMultiCouplingScheme(
+  PtrCouplingScheme
+  createMultiCouplingScheme(
       const std::string &accessor) const;
 
   /// returns name of the actual scheme holder (i.e. server name)
-  std::string determineCouplingSchemeHolder(
+  std::string
+  determineCouplingSchemeHolder(
       const std::string &accessorName) const;
 
-  constants::TimesteppingMethod getTimesteppingMethod(
+  constants::TimesteppingMethod
+  getTimesteppingMethod(
       const std::string &method) const;
 
   /// Adds configured exchange data to be sent or received to scheme.
-  void addDataToBeExchanged(
+  void
+  addDataToBeExchanged(
       BaseCouplingScheme &scheme,
       const std::string & accessor) const;
 
@@ -247,18 +279,20 @@ private:
    * @brief Adds configured exchange data to be sent or received to scheme.
    * Only used specifically for MultiCouplingScheme
    */
-  void addMultiDataToBeExchanged(
+  void
+  addMultiDataToBeExchanged(
       MultiCouplingScheme &scheme,
       const std::string &  accessor) const;
 
-  void checkIfDataIsExchanged(
+  void
+  checkIfDataIsExchanged(
       int dataID) const;
 
-  bool checkIfDataIsCoarse(int id) const;
+  bool
+  checkIfDataIsCoarse(int id) const;
 
-  friend struct CplSchemeTests::ParallelImplicitCouplingSchemeTests::testParseConfigurationWithRelaxation;  // For whitebox tests
-  friend struct CplSchemeTests::SerialImplicitCouplingSchemeTests::testParseConfigurationWithRelaxation;  // For whitebox tests
-
+  friend struct CplSchemeTests::ParallelImplicitCouplingSchemeTests::testParseConfigurationWithRelaxation; // For whitebox tests
+  friend struct CplSchemeTests::SerialImplicitCouplingSchemeTests::testParseConfigurationWithRelaxation;   // For whitebox tests
 };
-}
-} // namespace precice, cplscheme
+} // namespace cplscheme
+} // namespace precice

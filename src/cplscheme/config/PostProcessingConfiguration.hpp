@@ -13,37 +13,45 @@ namespace precice
 namespace cplscheme
 {
 
-class PostProcessingConfiguration : public xml::XMLTag::Listener
+class PostProcessingConfiguration: public xml::XMLTag::Listener
 {
 public:
   PostProcessingConfiguration(const mesh::PtrMeshConfiguration &meshConfig);
 
   /// Returns the configured coupling scheme.
-  impl::PtrPostProcessing getPostProcessing();
+  impl::PtrPostProcessing
+  getPostProcessing();
 
   /**
     * @brief Returns a pointer to the PostProcessingConfig object for the coarse model optimization method
     */
-  PtrPostProcessingConfiguration getCoarseModelOptimizationConfig();
+  PtrPostProcessingConfiguration
+  getCoarseModelOptimizationConfig();
 
   /// Callback method required when using xml::XMLTag.
-  virtual void xmlTagCallback(xml::XMLTag &callingTag);
+  virtual void
+  xmlTagCallback(xml::XMLTag &callingTag);
 
   /// Callback method required when using xml::XMLTag.
-  virtual void xmlEndTagCallback(xml::XMLTag &callingTag);
+  virtual void
+  xmlEndTagCallback(xml::XMLTag &callingTag);
 
   /// Removes configured post-processing.
-  void clear();
+  void
+  clear();
 
   /// Connect tags.
-  void connectTags(xml::XMLTag &tag);
+  void
+  connectTags(xml::XMLTag &tag);
 
-  std::vector<std::string> &getNeededMeshes()
+  std::vector<std::string> &
+  getNeededMeshes()
   {
     return _neededMeshes;
   }
 
-  void setIsAddManifoldMappingTagAllowed(bool b)
+  void
+  setIsAddManifoldMappingTagAllowed(bool b)
   {
     _isAddManifoldMappingTagAllowed = b;
   }
@@ -109,29 +117,31 @@ private:
 
   impl::PtrPreconditioner _preconditioner;
 
-  struct ConfigurationData {
+  struct ConfigurationData
+  {
     std::vector<int>      dataIDs;
     std::map<int, double> scalings;
     std::string           type;
-    double                relaxationFactor = 0;
-    bool                  forceInitialRelaxation = false;
-    int                   maxIterationsUsed = 0;
-    int                   timestepsReused = 0;
-    int                   filter = impl::PostProcessing::NOFILTER;
-    int                   imvjRestartType = 0;
-    int                   imvjChunkSize = 0;
+    double                relaxationFactor          = 0;
+    bool                  forceInitialRelaxation    = false;
+    int                   maxIterationsUsed         = 0;
+    int                   timestepsReused           = 0;
+    int                   filter                    = impl::PostProcessing::NOFILTER;
+    int                   imvjRestartType           = 0;
+    int                   imvjChunkSize             = 0;
     int                   imvjRSLS_reustedTimesteps = 0;
-    int                   precond_nbNonConstTSteps = -1;
-    double                singularityLimit= 0;
-    double                imvjRSSVD_truncationEps = 0;
-    bool                  estimateJacobian = false;
-    bool                  alwaysBuildJacobian = false;
+    int                   precond_nbNonConstTSteps  = -1;
+    double                singularityLimit          = 0;
+    double                imvjRSSVD_truncationEps   = 0;
+    bool                  estimateJacobian          = false;
+    bool                  alwaysBuildJacobian       = false;
     std::string           preconditionerType;
   } _config;
 
   bool _isAddManifoldMappingTagAllowed;
 
-  void addTypeSpecificSubtags(xml::XMLTag &tag);
+  void
+  addTypeSpecificSubtags(xml::XMLTag &tag);
 };
-}
-} // namespace precice, cplscheme
+} // namespace cplscheme
+} // namespace precice

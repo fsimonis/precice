@@ -1,10 +1,10 @@
 #ifndef PRECICE_NO_PYTHON
-#include <Python.h>
-#include <numpy/arrayobject.h>
 #include "PythonAction.hpp"
+#include "mesh/Data.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/Vertex.hpp"
-#include "mesh/Data.hpp"
+#include <Python.h>
+#include <numpy/arrayobject.h>
 
 namespace precice
 {
@@ -43,10 +43,11 @@ PythonAction::~PythonAction()
   }
 }
 
-void PythonAction::performAction(double time,
-                                 double dt,
-                                 double computedPartFullDt,
-                                 double fullDt)
+void
+PythonAction::performAction(double time,
+                            double dt,
+                            double computedPartFullDt,
+                            double fullDt)
 {
   TRACE(time, dt, computedPartFullDt, fullDt);
 
@@ -128,7 +129,8 @@ void PythonAction::performAction(double time,
   Py_DECREF(dataArgs);
 }
 
-void PythonAction::initialize()
+void
+PythonAction::initialize()
 {
   assertion(not _isInitialized);
   // Initialize Python
@@ -174,7 +176,8 @@ void PythonAction::initialize()
   }
 }
 
-int PythonAction::makeNumPyArraysAvailable()
+int
+PythonAction::makeNumPyArraysAvailable()
 {
   static bool importedAlready = false;
   if (importedAlready)

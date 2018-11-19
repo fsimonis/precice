@@ -2,11 +2,13 @@
 
 #include "logging/Logger.hpp"
 #include <Eigen/Core>
-#include <string>
 #include <fstream>
+#include <string>
 
-namespace precice {
-namespace io {
+namespace precice
+{
+namespace io
+{
 
 /**
  * @brief File writer for matrix in Matlab V7 ASCII format.
@@ -14,11 +16,10 @@ namespace io {
 class TXTWriter
 {
 public:
-
   /**
    * @brief Constructor, opens file and sets format.
    */
-  explicit TXTWriter(const std::string& filename);
+  explicit TXTWriter(const std::string &filename);
 
   /**
    * @brief Destructor, closes file.
@@ -26,7 +27,8 @@ public:
   ~TXTWriter();
 
   ///Writes (appends) the matrix to the file.
-  void write(const Eigen::MatrixXd& matrix)
+  void
+  write(const Eigen::MatrixXd &matrix)
   {
     for (long i = 0; i < matrix.rows(); i++) {
       for (long j = 0; j < matrix.cols(); j++) {
@@ -36,7 +38,6 @@ public:
     _file << std::endl;
   }
 
-  
 private:
   logging::Logger _log{"io::TXTWriter"};
 
@@ -44,5 +45,5 @@ private:
   std::ofstream _file;
 };
 
-}} // namespace precice, io
-
+} // namespace io
+} // namespace precice

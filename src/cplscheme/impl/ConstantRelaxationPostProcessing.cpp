@@ -1,10 +1,10 @@
 #include "ConstantRelaxationPostProcessing.hpp"
-#include <Eigen/Core>
 #include "../CouplingData.hpp"
 #include "mesh/Data.hpp"
 #include "mesh/Mesh.hpp"
 #include "utils/EigenHelperFunctions.hpp"
 #include "utils/Helpers.hpp"
+#include <Eigen/Core>
 
 namespace precice
 {
@@ -16,15 +16,16 @@ namespace impl
 ConstantRelaxationPostProcessing::ConstantRelaxationPostProcessing(
     double           relaxation,
     std::vector<int> dataIDs)
-  : _relaxation(relaxation),
-    _dataIDs(dataIDs)
+    : _relaxation(relaxation),
+      _dataIDs(dataIDs)
 {
   CHECK((relaxation > 0.0) && (relaxation <= 1.0),
         "Relaxation factor for constant relaxation post processing "
-        << "has to be larger than zero and smaller or equal than one!");
+            << "has to be larger than zero and smaller or equal than one!");
 }
 
-void ConstantRelaxationPostProcessing::initialize(DataMap &cplData)
+void
+ConstantRelaxationPostProcessing::initialize(DataMap &cplData)
 {
   CHECK(_dataIDs.size() == 0 || utils::contained(*_dataIDs.begin(), cplData),
         "Data with ID " << *_dataIDs.begin()
@@ -46,7 +47,8 @@ void ConstantRelaxationPostProcessing::initialize(DataMap &cplData)
   }
 }
 
-void ConstantRelaxationPostProcessing::performPostProcessing(DataMap &cplData)
+void
+ConstantRelaxationPostProcessing::performPostProcessing(DataMap &cplData)
 {
   TRACE();
   double omega         = _relaxation;
@@ -66,7 +68,8 @@ void ConstantRelaxationPostProcessing::performPostProcessing(DataMap &cplData)
  * This information is needed for convergence measurements in the coupling scheme.
  * @todo: Change to call by ref when Eigen is used.
  */
-std::map<int, Eigen::VectorXd> ConstantRelaxationPostProcessing::getDesignSpecification(
+std::map<int, Eigen::VectorXd>
+ConstantRelaxationPostProcessing::getDesignSpecification(
     DataMap &cplData)
 {
 
@@ -85,11 +88,12 @@ std::map<int, Eigen::VectorXd> ConstantRelaxationPostProcessing::getDesignSpecif
   return designSpecifications;
 }
 
-void ConstantRelaxationPostProcessing::setDesignSpecification(Eigen::VectorXd &q)
+void
+ConstantRelaxationPostProcessing::setDesignSpecification(Eigen::VectorXd &q)
 {
   _designSpecification = q;
   ERROR("Design specification for constant relaxation is not supported yet.");
 }
-}
-}
-} // namespace precice, cplscheme, impl
+} // namespace impl
+} // namespace cplscheme
+} // namespace precice

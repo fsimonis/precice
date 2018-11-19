@@ -17,12 +17,14 @@ MPIPortsCommunicationFactory::MPIPortsCommunicationFactory(std::string const &ad
   }
 }
 
-PtrCommunication MPIPortsCommunicationFactory::newCommunication()
+PtrCommunication
+MPIPortsCommunicationFactory::newCommunication()
 {
   return std::make_shared<MPIPortsCommunication>(_addressDirectory);
 }
 
-std::string MPIPortsCommunicationFactory::addressDirectory()
+std::string
+MPIPortsCommunicationFactory::addressDirectory()
 {
   return _addressDirectory;
 }

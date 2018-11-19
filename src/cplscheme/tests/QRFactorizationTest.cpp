@@ -1,17 +1,18 @@
 #ifndef PRECICE_NO_MPI
 #include <mpi.h>
 #endif
-#include <Eigen/Core>
 #include "cplscheme/impl/BaseQNPostProcessing.hpp"
 #include "cplscheme/impl/QRFactorization.hpp"
 #include "testing/Testing.hpp"
+#include <Eigen/Core>
 
 BOOST_AUTO_TEST_SUITE(CplSchemeTests)
 
 using namespace precice;
 using namespace cplscheme;
 
-void testQRequalsA(
+void
+testQRequalsA(
     Eigen::MatrixXd &Q,
     Eigen::MatrixXd &R,
     Eigen::MatrixXd &A)
@@ -25,7 +26,8 @@ void testQRequalsA(
   }
 }
 
-void testQTQequalsIdentity(Eigen::MatrixXd &Q)
+void
+testQTQequalsIdentity(Eigen::MatrixXd &Q)
 {
   Eigen::MatrixXd QTQ = Q.transpose() * Q;
 
@@ -34,7 +36,8 @@ void testQTQequalsIdentity(Eigen::MatrixXd &Q)
     for (int j = 0; j < QTQ.cols(); j++) {
       if (i == j) {
         BOOST_TEST(testing::equals(QTQ(i, j), 1.0, 1e-12));
-      } else {
+      }
+      else {
         BOOST_TEST(testing::equals(QTQ(i, j), 0.0, 1e-12));
       }
     }

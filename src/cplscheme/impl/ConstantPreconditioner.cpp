@@ -13,7 +13,8 @@ ConstantPreconditioner::ConstantPreconditioner(std::vector<double> factors)
 {
 }
 
-void ConstantPreconditioner::initialize(std::vector<size_t> & svs)
+void
+ConstantPreconditioner::initialize(std::vector<size_t> &svs)
 {
   TRACE();
   Preconditioner::initialize(svs);
@@ -34,13 +35,14 @@ void ConstantPreconditioner::initialize(std::vector<size_t> & svs)
   }
 }
 
-void ConstantPreconditioner::_update_(bool timestepComplete,
-                                      const Eigen::VectorXd &oldValues,
-                                      const Eigen::VectorXd &res)
+void
+ConstantPreconditioner::_update_(bool                   timestepComplete,
+                                 const Eigen::VectorXd &oldValues,
+                                 const Eigen::VectorXd &res)
 {
 
   //nothing to do here
 }
-}
-}
-} // namespace precice, cplscheme
+} // namespace impl
+} // namespace cplscheme
+} // namespace precice

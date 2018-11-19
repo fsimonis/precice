@@ -1,18 +1,20 @@
 #include "DataConfiguration.hpp"
 #include "mesh/Data.hpp"
 #include "mesh/PropertyContainer.hpp"
-#include "xml/XMLAttribute.hpp"
 #include "xml/ValidatorEquals.hpp"
 #include "xml/ValidatorOr.hpp"
+#include "xml/XMLAttribute.hpp"
 
-namespace precice {
-namespace mesh {
+namespace precice
+{
+namespace mesh
+{
 
-DataConfiguration:: DataConfiguration(xml::XMLTag& parent)
+DataConfiguration::DataConfiguration(xml::XMLTag &parent)
 {
   using namespace xml;
   std::string doc;
-  XMLTag tagScalar(*this, VALUE_SCALAR, XMLTag::OCCUR_ARBITRARY, TAG);
+  XMLTag      tagScalar(*this, VALUE_SCALAR, XMLTag::OCCUR_ARBITRARY, TAG);
   doc = "Defines a scalar data set to be assigned to meshes.";
   tagScalar.setDocumentation(doc);
   XMLTag tagVector(*this, VALUE_VECTOR, XMLTag::OCCUR_ARBITRARY, TAG);
@@ -31,38 +33,39 @@ DataConfiguration:: DataConfiguration(xml::XMLTag& parent)
   parent.addSubtag(tagVector);
 }
 
-void DataConfiguration:: setDimensions
-(
-  int dimensions )
+void
+DataConfiguration::setDimensions(
+    int dimensions)
 {
   TRACE(dimensions);
   assertion((dimensions == 2) || (dimensions == 3), dimensions);
   _dimensions = dimensions;
 }
 
-const std::vector<DataConfiguration::ConfiguredData>&
-DataConfiguration:: data() const
+const std::vector<DataConfiguration::ConfiguredData> &
+DataConfiguration::data() const
 {
-   return _data;
+  return _data;
 }
 
-DataConfiguration::ConfiguredData DataConfiguration:: getRecentlyConfiguredData() const
+DataConfiguration::ConfiguredData
+DataConfiguration::getRecentlyConfiguredData() const
 {
   assertion(_data.size() > 0);
   assertion(_indexLastConfigured >= 0);
-  assertion(_indexLastConfigured < (int)_data.size());
+  assertion(_indexLastConfigured < (int) _data.size());
   return _data[_indexLastConfigured];
 }
 
-void DataConfiguration:: xmlTagCallback
-(
-  xml::XMLTag& tag )
+void
+DataConfiguration::xmlTagCallback(
+    xml::XMLTag &tag)
 {
-  if (tag.getNamespace() == TAG){
+  if (tag.getNamespace() == TAG) {
     assertion(_dimensions != 0);
-    std::string name = tag.getStringAttributeValue(ATTR_NAME);
-    std::string typeName = tag.getName();
-    int dataDimensions = getDataDimensions(typeName);
+    std::string name           = tag.getStringAttributeValue(ATTR_NAME);
+    std::string typeName       = tag.getName();
+    int         dataDimensions = getDataDimensions(typeName);
     addData(name, dataDimensions);
   }
   else {
@@ -70,29 +73,29 @@ void DataConfiguration:: xmlTagCallback
   }
 }
 
-void DataConfiguration:: xmlEndTagCallback
-(
-  xml::XMLTag& tag )
+void
+DataConfiguration::xmlEndTagCallback(
+    xml::XMLTag &tag)
 {
 }
 
-void DataConfiguration:: addData
-(
-  const std::string& name,
-  int                dataDimensions )
+void
+DataConfiguration::addData(
+    const std::string &name,
+    int                dataDimensions)
 {
   ConfiguredData data(name, dataDimensions);
 
   // Check, if data with same name has been added already
-  for (auto & elem : _data) {
-    CHECK ( elem.name != data.name, "Data \"" << data.name << "\" uses non-unique name!" );
+  for (auto &elem : _data) {
+    CHECK(elem.name != data.name, "Data \"" << data.name << "\" uses non-unique name!");
   }
-  _data.push_back ( data );
+  _data.push_back(data);
 }
 
-int DataConfiguration:: getDataDimensions
-(
-  const std::string& typeName ) const
+int
+DataConfiguration::getDataDimensions(
+    const std::string &typeName) const
 {
   if (typeName == VALUE_VECTOR) {
     return _dimensions;
@@ -100,9 +103,8 @@ int DataConfiguration:: getDataDimensions
   else if (typeName == VALUE_SCALAR) {
     return 1;
   }
-  ERROR("Unknown data type!" );
+  ERROR("Unknown data type!");
 }
 
-
-
-}} // namespace precice, mesh
+} // namespace mesh
+} // namespace precice

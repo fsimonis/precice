@@ -19,7 +19,8 @@ ScaleByAreaAction::ScaleByAreaAction(
 {
 }
 
-void ScaleByAreaAction::performAction(
+void
+ScaleByAreaAction::performAction(
     double time,
     double dt,
     double computedPartFullDt,
@@ -42,7 +43,8 @@ void ScaleByAreaAction::performAction(
         targetValues[valueIndex] /= areas[i];
       }
     }
-  } else if (_scaling == SCALING_MULTIPLY_BY_AREA) {
+  }
+  else if (_scaling == SCALING_MULTIPLY_BY_AREA) {
     for (int i = 0; i < areas.size(); i++) {
       for (int dim = 0; dim < dimensions; dim++) {
         int valueIndex = i * dimensions + dim;

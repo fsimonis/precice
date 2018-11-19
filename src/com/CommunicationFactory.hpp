@@ -1,8 +1,8 @@
 #pragma once
 
+#include "com/SharedPointer.hpp"
 #include <stdexcept>
 #include <string>
-#include "com/SharedPointer.hpp"
 
 namespace precice
 {
@@ -14,9 +14,11 @@ class CommunicationFactory
 public:
   virtual ~CommunicationFactory(){};
 
-  virtual PtrCommunication newCommunication() = 0;
+  virtual PtrCommunication
+  newCommunication() = 0;
 
-  virtual std::string addressDirectory()
+  virtual std::string
+  addressDirectory()
   {
     throw std::runtime_error("Not available!");
   }

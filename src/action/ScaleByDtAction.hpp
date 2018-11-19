@@ -9,10 +9,11 @@ namespace precice
 namespace action
 {
 
-class ScaleByDtAction : public Action
+class ScaleByDtAction: public Action
 {
 public:
-  enum Scaling {
+  enum Scaling
+  {
     /// Scales data by ratio of last computed timestep to full timestep length.
     SCALING_BY_COMPUTED_DT_RATIO,
     /// Scales data by last computed timestep
@@ -42,7 +43,8 @@ public:
    * At the moment, only a division of a property value by the associated area
    * of the neighboring edges (2D) is possible.
    */
-  virtual void performAction(
+  virtual void
+  performAction(
       double time,
       double dt,
       double computedPartFullDt,

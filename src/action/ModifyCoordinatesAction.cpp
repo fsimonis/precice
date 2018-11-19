@@ -19,7 +19,8 @@ ModifyCoordinatesAction::ModifyCoordinatesAction(
 {
 }
 
-void ModifyCoordinatesAction::performAction(
+void
+ModifyCoordinatesAction::performAction(
     double time,
     double dt,
     double computedPartFullDt,
@@ -38,7 +39,8 @@ void ModifyCoordinatesAction::performAction(
       data += vertex.getCoords();
       vertex.setCoords(data);
     }
-  } else if (_mode == SUBTRACT_FROM_COORDINATES_MODE) {
+  }
+  else if (_mode == SUBTRACT_FROM_COORDINATES_MODE) {
     DEBUG("Subtracting data from coordinates");
     for (mesh::Vertex &vertex : getMesh()->vertices()) {
       data = vertex.getCoords();
@@ -47,7 +49,8 @@ void ModifyCoordinatesAction::performAction(
       }
       vertex.setCoords(data);
     }
-  } else {
+  }
+  else {
     ERROR("Unknown mode type!");
   }
   getMesh()->computeState();

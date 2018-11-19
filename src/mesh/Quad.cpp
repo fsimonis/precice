@@ -19,9 +19,9 @@ Quad::Quad(
     Edge &edgeThree,
     Edge &edgeFour,
     int   id)
-  : _edges({&edgeOne, &edgeTwo, &edgeThree, &edgeFour}),
-    _id(id),
-    _normal(Eigen::VectorXd::Zero(edgeOne.getDimensions()))
+    : _edges({&edgeOne, &edgeTwo, &edgeThree, &edgeFour}),
+      _id(id),
+      _normal(Eigen::VectorXd::Zero(edgeOne.getDimensions()))
 {
   assertion(edgeOne.getDimensions() == edgeTwo.getDimensions(),
             edgeOne.getDimensions(), edgeTwo.getDimensions());
@@ -39,13 +39,16 @@ Quad::Quad(
   if (&edge(1).vertex(0) == &v0) {
     _vertexMap[0] = 1;
     _vertexMap[1] = 0;
-  } else if (&edge(1).vertex(1) == &v0) {
+  }
+  else if (&edge(1).vertex(1) == &v0) {
     _vertexMap[0] = 1;
     _vertexMap[1] = 1;
-  } else if (&edge(1).vertex(0) == &v1) {
+  }
+  else if (&edge(1).vertex(0) == &v1) {
     _vertexMap[0] = 0;
     _vertexMap[1] = 0;
-  } else {
+  }
+  else {
     assertion(&edge(1).vertex(1) == &v1);
     _vertexMap[0] = 0;
     _vertexMap[1] = 1;
@@ -55,14 +58,17 @@ Quad::Quad(
   if (_vertexMap[1] == 0) {
     if (&edge(2).vertex(0) == &edge(1).vertex(1)) {
       _vertexMap[2] = 0;
-    } else {
+    }
+    else {
       assertion(&edge(2).vertex(1) == &edge(1).vertex(1));
       _vertexMap[2] = 1;
     }
-  } else if (_vertexMap[1] == 1) {
+  }
+  else if (_vertexMap[1] == 1) {
     if (&edge(2).vertex(0) == &edge(1).vertex(0)) {
       _vertexMap[2] = 0;
-    } else {
+    }
+    else {
       assertion(&edge(2).vertex(1) == &edge(1).vertex(0));
       _vertexMap[2] = 1;
     }
@@ -72,14 +78,17 @@ Quad::Quad(
   if (_vertexMap[2] == 0) {
     if (&edge(3).vertex(0) == &edge(2).vertex(1)) {
       _vertexMap[3] = 0;
-    } else {
+    }
+    else {
       assertion(&edge(3).vertex(1) == &edge(2).vertex(1));
       _vertexMap[3] = 1;
     }
-  } else if (_vertexMap[2] == 1) {
+  }
+  else if (_vertexMap[2] == 1) {
     if (&edge(3).vertex(0) == &edge(2).vertex(0)) {
       _vertexMap[3] = 0;
-    } else {
+    }
+    else {
       assertion(&edge(3).vertex(1) == &edge(2).vertex(0));
       _vertexMap[3] = 1;
     }
@@ -98,22 +107,26 @@ Quad::Quad(
   assertion((_vertexMap[2] == 0) || (_vertexMap[2] == 1), _vertexMap[3]);
 }
 
-int Quad::getDimensions() const
+int
+Quad::getDimensions() const
 {
   return _edges[0]->getDimensions();
 }
 
-const Eigen::VectorXd &Quad::getNormal() const
+const Eigen::VectorXd &
+Quad::getNormal() const
 {
   return _normal;
 }
 
-const Eigen::VectorXd Quad::getCenter() const
+const Eigen::VectorXd
+Quad::getCenter() const
 {
   return (_edges[0]->getCenter() + _edges[1]->getCenter() + _edges[2]->getCenter() + _edges[3]->getCenter()) / 4;
 }
 
-double Quad::getEnclosingRadius() const
+double
+Quad::getEnclosingRadius() const
 {
   auto center = getCenter();
   return std::max({(center - vertex(0).getCoords()).norm(),
@@ -122,27 +135,30 @@ double Quad::getEnclosingRadius() const
                    (center - vertex(3).getCoords()).norm()});
 }
 
-bool Quad::operator==(const Quad& other) const
+bool
+Quad::operator==(const Quad &other) const
 {
-    return math::equals(_normal, other._normal) &&
-        std::is_permutation(_edges.begin(), _edges.end(), other._edges.begin(),
-                [](const Edge* e1, const Edge* e2){return *e1 == *e2;});
+  return math::equals(_normal, other._normal) &&
+         std::is_permutation(_edges.begin(), _edges.end(), other._edges.begin(),
+                             [](const Edge *e1, const Edge *e2) { return *e1 == *e2; });
 }
 
-bool Quad::operator!=(const Quad& other) const
+bool
+Quad::operator!=(const Quad &other) const
 {
   return !(*this == other);
 }
 
-std::ostream& operator<<(std::ostream& os, const Quad& q)
+std::ostream &
+operator<<(std::ostream &os, const Quad &q)
 {
-    os << "POLYGON ((";
-    for (int i = 0; i < 4; i++){
-        os << q.vertex(i).getCoords().transpose();
-        if (i < 3)
-            os << ", ";
-    }
-    return os <<", " << q.vertex(0).getCoords().transpose() << "))";
+  os << "POLYGON ((";
+  for (int i = 0; i < 4; i++) {
+    os << q.vertex(i).getCoords().transpose();
+    if (i < 3)
+      os << ", ";
+  }
+  return os << ", " << q.vertex(0).getCoords().transpose() << "))";
 }
 
 } // namespace mesh

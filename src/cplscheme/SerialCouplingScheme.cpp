@@ -1,29 +1,29 @@
 #include "SerialCouplingScheme.hpp"
 #include "impl/PostProcessing.hpp"
-#include "utils/EigenHelperFunctions.hpp"
-#include "utils/MasterSlave.hpp"
 #include "m2n/M2N.hpp"
 #include "math/math.hpp"
+#include "utils/EigenHelperFunctions.hpp"
+#include "utils/MasterSlave.hpp"
 
-namespace precice {
-namespace cplscheme {
+namespace precice
+{
+namespace cplscheme
+{
 
-SerialCouplingScheme::SerialCouplingScheme
-(
-  double                      maxTime,
-  int                         maxTimesteps,
-  double                      timestepLength,
-  int                         validDigits,
-  const std::string&          firstParticipant,
-  const std::string&          secondParticipant,
-  const std::string&          localParticipant,
-  m2n::PtrM2N                 m2n,
-  constants::TimesteppingMethod dtMethod,
-  CouplingMode                cplMode,
-  int                         maxIterations)
-  :
-  BaseCouplingScheme(maxTime, maxTimesteps, timestepLength, validDigits, firstParticipant,
-                     secondParticipant, localParticipant, m2n, maxIterations, dtMethod)
+SerialCouplingScheme::SerialCouplingScheme(
+    double                        maxTime,
+    int                           maxTimesteps,
+    double                        timestepLength,
+    int                           validDigits,
+    const std::string &           firstParticipant,
+    const std::string &           secondParticipant,
+    const std::string &           localParticipant,
+    m2n::PtrM2N                   m2n,
+    constants::TimesteppingMethod dtMethod,
+    CouplingMode                  cplMode,
+    int                           maxIterations)
+    : BaseCouplingScheme(maxTime, maxTimesteps, timestepLength, validDigits, firstParticipant,
+                         secondParticipant, localParticipant, m2n, maxIterations, dtMethod)
 {
   _couplingMode = cplMode;
   // Coupling mode must be either Explicit or Implicit when using SerialCouplingScheme.
@@ -33,10 +33,10 @@ SerialCouplingScheme::SerialCouplingScheme
   }
 }
 
-void SerialCouplingScheme::initialize
-(
-  double startTime,
-  int    startTimestep)
+void
+SerialCouplingScheme::initialize(
+    double startTime,
+    int    startTimestep)
 {
   TRACE(startTime, startTimestep);
   assertion(not isInitialized());
@@ -49,25 +49,25 @@ void SerialCouplingScheme::initialize
     CHECK(not getSendData().empty(), "No send data configured! Use explicit scheme for one-way coupling.");
     if (not doesFirstStep()) {
       if (not _convergenceMeasures.empty()) {
-        setupConvergenceMeasures(); // needs _couplingData configured
+        setupConvergenceMeasures();       // needs _couplingData configured
         setupDataMatrices(getSendData()); // Reserve memory and initialize data with zero
       }
       if (getPostProcessing().get() != nullptr) {
-        CHECK(getPostProcessing()->getDataIDs().size()<2,
+        CHECK(getPostProcessing()->getDataIDs().size() < 2,
               "For serial coupling, the number of post-processing data vectors has to be 1 (or 0 for constant underrelaxation)");
         getPostProcessing()->initialize(getSendData()); // Reserve memory, initialize
       }
     }
-    else if (getPostProcessing().get() != nullptr && getPostProcessing()->getDataIDs().size()>0) {
+    else if (getPostProcessing().get() != nullptr && getPostProcessing()->getDataIDs().size() > 0) {
       int dataID = *(getPostProcessing()->getDataIDs().begin());
       CHECK(getSendData(dataID) == nullptr,
             "In case of serial coupling, post-processing can be defined for "
-            << "data of second participant only!");
+                << "data of second participant only!");
     }
     requireAction(constants::actionWriteIterationCheckpoint());
   }
 
-  for (DataMap::value_type & pair : getSendData()) {
+  for (DataMap::value_type &pair : getSendData()) {
     if (pair.second->initialize) {
       CHECK(not doesFirstStep(), "Only second participant can initialize data!");
       DEBUG("Initialized data to be written");
@@ -76,7 +76,7 @@ void SerialCouplingScheme::initialize
     }
   }
 
-  for (DataMap::value_type & pair : getReceiveData()) {
+  for (DataMap::value_type &pair : getReceiveData()) {
     if (pair.second->initialize) {
       CHECK(doesFirstStep(), "Only first participant can receive initial data!");
       DEBUG("Initialized data to be received");
@@ -101,8 +101,8 @@ void SerialCouplingScheme::initialize
   setIsInitialized(true);
 }
 
-
-void SerialCouplingScheme::initializeData()
+void
+SerialCouplingScheme::initializeData()
 {
   TRACE();
   CHECK(isInitialized(), "initializeData() can be called after initialize() only!");
@@ -114,12 +114,12 @@ void SerialCouplingScheme::initializeData()
 
   DEBUG("Initializing Data ...");
 
-  CHECK(not (hasToSendInitData() && isActionRequired(constants::actionWriteInitialData())),
+  CHECK(not(hasToSendInitData() && isActionRequired(constants::actionWriteInitialData())),
         "InitialData has to be written to preCICE before calling initializeData()");
 
   setHasDataBeenExchanged(false);
 
-  if (hasToReceiveInitData() && isCouplingOngoing() )  {
+  if (hasToReceiveInitData() && isCouplingOngoing()) {
     assertion(doesFirstStep());
     DEBUG("Receiving data");
     receiveData(getM2N());
@@ -128,7 +128,7 @@ void SerialCouplingScheme::initializeData()
 
   if (hasToSendInitData() && isCouplingOngoing()) {
     assertion(not doesFirstStep());
-    for (DataMap::value_type & pair : getSendData()) {
+    for (DataMap::value_type &pair : getSendData()) {
       if (pair.second->oldValues.cols() == 0)
         break;
       pair.second->oldValues.col(0) = *pair.second->values;
@@ -150,20 +150,21 @@ void SerialCouplingScheme::initializeData()
   setHasToReceiveInitData(false);
 }
 
-void SerialCouplingScheme::advance()
+void
+SerialCouplingScheme::advance()
 {
   TRACE(getTimesteps(), getTime());
-  #ifndef NDEBUG
-  for (const DataMap::value_type & pair : getReceiveData()) {
-    Eigen::VectorXd& values = *pair.second->values;
-    int max = values.size();
+#ifndef NDEBUG
+  for (const DataMap::value_type &pair : getReceiveData()) {
+    Eigen::VectorXd &  values = *pair.second->values;
+    int                max    = values.size();
     std::ostringstream stream;
-    for (int i=0; (i < max) && (i < 10); i++){
+    for (int i = 0; (i < max) && (i < 10); i++) {
       stream << values[i] << " ";
     }
-    DEBUG("Begin advance, first New Values: " << stream.str() );
+    DEBUG("Begin advance, first New Values: " << stream.str());
   }
-  #endif
+#endif
   checkCompletenessRequiredActions();
 
   CHECK(not hasToReceiveInitData() && not hasToSendInitData(),
@@ -190,9 +191,9 @@ void SerialCouplingScheme::advance()
     }
   }
   else if (_couplingMode == Implicit) {
-    bool convergence = true;
+    bool convergence                   = true;
     bool convergenceCoarseOptimization = true;
-    bool doOnlySolverEvaluation = false;
+    bool doOnlySolverEvaluation        = false;
 
     if (math::equals(getThisTimestepRemainder(), 0.0, _eps)) {
       DEBUG("Computed full length of iteration");
@@ -218,7 +219,7 @@ void SerialCouplingScheme::advance()
         }
         // measure convergence of coupling iteration
         // measure convergence for coarse model optimization
-        if(_isCoarseModelOptimizationActive){
+        if (_isCoarseModelOptimizationActive) {
           DEBUG("measure convergence of coarse model optimization.");
           // in case of multilevel post processing only: measure the convergence of the coarse model optimization
           convergenceCoarseOptimization = measureConvergenceCoarseModelOptimization(designSpecifications);
@@ -229,22 +230,24 @@ void SerialCouplingScheme::advance()
           convergence = false;
           // in case of multilevel PP only: if coarse model optimization converged
           // steering the requests for evaluation of coarse and fine model, respectively
-          if(convergenceCoarseOptimization){
+          if (convergenceCoarseOptimization) {
             _isCoarseModelOptimizationActive = false;
-            doOnlySolverEvaluation = true;
-          }else{
+            doOnlySolverEvaluation           = true;
+          }
+          else {
             _isCoarseModelOptimizationActive = true;
           }
         }
         // measure convergence of coupling iteration
-        else{
+        else {
           DEBUG("measure convergence.");
           doOnlySolverEvaluation = false;
 
           // measure convergence of the coupling iteration,
           convergence = measureConvergence(designSpecifications);
           // Stop, when maximal iteration count (given in config) is reached
-          if (maxIterationsReached())   convergence = true;
+          if (maxIterationsReached())
+            convergence = true;
         }
 
         // passed by reference, modified in MM post processing. No-op for all other post-processings
@@ -254,8 +257,7 @@ void SerialCouplingScheme::advance()
 
         // for multi-level case, i.e., manifold mapping: after convergence of coarse problem
         // we only want to evaluate the fine model for the new input, no post-processing etc..
-        if (not doOnlySolverEvaluation)
-        {
+        if (not doOnlySolverEvaluation) {
           // coupling iteration converged for current time step. Advance in time.
           if (convergence) {
             if (getPostProcessing().get() != nullptr) {
@@ -266,7 +268,8 @@ void SerialCouplingScheme::advance()
             timestepCompleted();
 
             // no convergence achieved for the coupling iteration within the current time step
-          } else if (getPostProcessing().get() != nullptr) {
+          }
+          else if (getPostProcessing().get() != nullptr) {
             getPostProcessing()->performPostProcessing(getSendData());
           }
 
@@ -275,12 +278,12 @@ void SerialCouplingScheme::advance()
             extrapolateData(getSendData()); // Also stores data
           }
           else { // Store data for conv. measurement, post-processing, or extrapolation
-            for (DataMap::value_type& pair : getSendData()) {
+            for (DataMap::value_type &pair : getSendData()) {
               if (pair.second->oldValues.size() > 0) {
                 pair.second->oldValues.col(0) = *pair.second->values;
               }
             }
-            for (DataMap::value_type& pair : getReceiveData()) {
+            for (DataMap::value_type &pair : getReceiveData()) {
               if (pair.second->oldValues.size() > 0) {
                 pair.second->oldValues.col(0) = *pair.second->values;
               }
@@ -298,18 +301,19 @@ void SerialCouplingScheme::advance()
           //}
            */
 
-        // only fine model solver evaluation is done, no PP
-        } else {
+          // only fine model solver evaluation is done, no PP
+        }
+        else {
 
           // if the coarse model problem converged within the first iteration, i.e., no post-processing at all
           // we need to register the coarse initialized data again on the fine input data,
           // otherwise the fine input data would be zero in this case, neither anything has been computed so far for the fine
           // model nor the post processing did any data registration
           // ATTENTION: assumes that coarse data is defined after fine data in same ordering.
-          if(_iterationsCoarseOptimization == 1   && getPostProcessing().get() != nullptr){
+          if (_iterationsCoarseOptimization == 1 && getPostProcessing().get() != nullptr) {
             auto fineIDs = getPostProcessing()->getDataIDs();
-            for (auto& fineID : fineIDs) {
-              (*getSendData(fineID)->values) = getSendData(fineID+fineIDs.size()+1)->oldValues.col(0);
+            for (auto &fineID : fineIDs) {
+              (*getSendData(fineID)->values) = getSendData(fineID + fineIDs.size() + 1)->oldValues.col(0);
             }
           }
         }
@@ -319,7 +323,7 @@ void SerialCouplingScheme::advance()
         getM2N()->send(_isCoarseModelOptimizationActive);
 
         sendData(getM2N());
-        
+
         // the second participant does not want new data in the last iteration of the last timestep
         if (isCouplingOngoing() || not convergence) {
           receiveAndSetDt();
@@ -339,10 +343,8 @@ void SerialCouplingScheme::advance()
       updateTimeAndIterations(convergence, convergenceCoarseOptimization);
       setComputedTimestepPart(0.0);
     } //subcycling completed
-
   }
 }
 
-
-
-}}
+} // namespace cplscheme
+} // namespace precice

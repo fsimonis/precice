@@ -8,13 +8,13 @@
 
 #ifndef PRECICE_NO_MPI
 
-#include <Eigen/Dense>
-#include <fstream>
 #include "ParallelMatrixOperations.hpp"
 #include "Preconditioner.hpp"
 #include "QRFactorization.hpp"
 #include "SharedPointer.hpp"
 #include "logging/Logger.hpp"
+#include <Eigen/Dense>
+#include <fstream>
 
 // ------- CLASS DEFINITION
 
@@ -53,8 +53,9 @@ public:
     *  and overrides the internal SVD representation. After the update, the SVD is
     *  truncated according to the threshold _truncationEps
     */
-  template <typename Derived1, typename Derived2>
-  void update(
+  template<typename Derived1, typename Derived2>
+  void
+  update(
       const Eigen::MatrixBase<Derived1> &A,
       const Eigen::MatrixBase<Derived2> &B)
   {
@@ -68,7 +69,8 @@ public:
     if (_initialSVD) {
       assertion(A.rows() == _rows, A.rows(), _rows);
       assertion(B.rows() == _rows, B.rows(), _rows);
-    } else {
+    }
+    else {
       assertion(A.rows() == B.rows(), A.rows(), B.rows());
       assertion(A.cols() == B.cols(), A.cols(), B.cols());
       _rows  = A.rows();
@@ -178,45 +180,56 @@ public:
     * @brief: initializes the updated SVD factorization, i.e., sets the object for
     * parallel matrix-matrix operations and the number of global rows.
     */
-  void initialize(PtrParMatrixOps parMatOps, int globalRows);
+  void
+  initialize(PtrParMatrixOps parMatOps, int globalRows);
 
   /**
     * @brief: resets the SVD factorization
     */
-  void reset();
+  void
+  reset();
 
   /**
     * @brief: returns a matrix representation of the orthogonal matrix Psi, A = Psi * Sigma * Phi^T
     */
-  Matrix &matrixPsi();
+  Matrix &
+  matrixPsi();
 
   /**
     * @brief: returns a matrix representation of the orthogonal matrix Sigma, A = Psi * Sigma * Phi^T
     */
-  Vector &singularValues();
+  Vector &
+  singularValues();
 
   /**
     * @brief: returns a matrix representation of the orthogonal matrix Phi, A = Psi * Sigma * Phi^T
     */
-  Matrix &matrixPhi();
+  Matrix &
+  matrixPhi();
 
   /// @brief: returns the number of columns in the QR-decomposition
-  int cols();
+  int
+  cols();
 
   /// @brief: returns the number of rows in the QR-decomposition
-  int rows();
+  int
+  rows();
 
   /// @brief: returns the rank of the truncated SVD factorization
-  int rank();
+  int
+  rank();
 
   /// @brief: returns the total number of truncated modes since last call to this method
-  int getWaste();
+  int
+  getWaste();
 
   /// @brief: sets the threshold for the truncation of the SVD factorization
-  void setThreshold(double eps);
+  void
+  setThreshold(double eps);
 
   /// @brief: returns the truncation threshold for the SVD
-  double getThreshold();
+  double
+  getThreshold();
 
   /// @brief: applies the preconditioner to the factorized and truncated representation of the Jacobian matrix
   //void applyPreconditioner();
@@ -224,17 +237,21 @@ public:
   /// @brief: appplies the inverse preconditioner to the factorized and truncated representation of the Jacobian matrix
   //void revertPreconditioner();
 
-  void setPrecondApplied(bool b);
+  void
+  setPrecondApplied(bool b);
 
   /// @brief: enables or disables an additional QR-2 filter for the QR-decomposition
-  void setApplyFilterQR(bool b, double eps = 1e-3);
+  void
+  setApplyFilterQR(bool b, double eps = 1e-3);
 
   //bool isPrecondApplied();
 
-  bool isSVDinitialized();
+  bool
+  isSVDinitialized();
 
   /// Optional file-stream for logging output
-  void setfstream(std::fstream *stream);
+  void
+  setfstream(std::fstream *stream);
 
 private:
   /** @brief: computes the QR decomposition of a matrix A of type A = PSI^T*A \in R^(rank x n)
@@ -249,7 +266,8 @@ private:
    *  The threshold parameter eps, indicates whether a column is seen to be in the column space
    *  of Q via the criterium ||v_orth|| / ||v|| <= eps (cmp. QR2 Filter)
    */
-  void computeQRdecomposition(Matrix const &A, Matrix &Q, Matrix &R);
+  void
+  computeQRdecomposition(Matrix const &A, Matrix &Q, Matrix &R);
 
   logging::Logger _log{"cplscheme::impl::SVDFactorization"};
 
@@ -297,8 +315,8 @@ private:
   std::fstream *_infostream;
   bool          _fstream_set = false;
 };
-}
-}
-} // namespace precice, cplscheme, impl
+} // namespace impl
+} // namespace cplscheme
+} // namespace precice
 
 #endif /* PRECICE_NO_MPI */

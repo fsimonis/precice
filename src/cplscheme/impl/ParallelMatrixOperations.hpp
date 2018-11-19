@@ -23,12 +23,14 @@ public:
   virtual ~ParallelMatrixOperations(){};
 
   /// Initializes the post-processing.
-  void initialize(com::PtrCommunication leftComm,
-                  com::PtrCommunication rightComm,
-                  bool                  needcyclicComm);
+  void
+  initialize(com::PtrCommunication leftComm,
+             com::PtrCommunication rightComm,
+             bool                  needcyclicComm);
 
-  template <typename Derived1, typename Derived2>
-  void multiply(
+  template<typename Derived1, typename Derived2>
+  void
+  multiply(
       Eigen::PlainObjectBase<Derived1> &leftMatrix,
       Eigen::PlainObjectBase<Derived2> &rightMatrix,
       Eigen::PlainObjectBase<Derived2> &result,
@@ -45,7 +47,8 @@ public:
       result.noalias() = leftMatrix * rightMatrix;
 
       // if parallel computation on p processors, i.e., master-slave mode
-    } else {
+    }
+    else {
       assertion(utils::MasterSlave::_communication.get() != NULL);
       assertion(utils::MasterSlave::_communication->isConnected());
 
@@ -63,7 +66,8 @@ public:
 
         // case p != r, i.e., usually p = number of columns of the least squares system
         // perform parallel multiplication based on dot-product
-      } else {
+      }
+      else {
         if (dotProductComputation)
           _multiplyNM_dotProduct(leftMatrix, rightMatrix, result, offsets, p, q, r);
         else
@@ -84,8 +88,9 @@ public:
     * @param[in] r - second dimension, i.e., overall (global) number cols of result matrix
     *
     */
-  template <typename Derived1, typename Derived2, typename Derived3>
-  void multiply(
+  template<typename Derived1, typename Derived2, typename Derived3>
+  void
+  multiply(
       const Eigen::MatrixBase<Derived1> &leftMatrix,
       const Eigen::MatrixBase<Derived2> &rightMatrix,
       Eigen::PlainObjectBase<Derived3> & result,
@@ -103,7 +108,8 @@ public:
     // if serial computation on single processor, i.e, no master-slave mode
     if (not utils::MasterSlave::_masterMode && not utils::MasterSlave::_slaveMode) {
       result = localResult;
-    } else {
+    }
+    else {
       utils::MasterSlave::allreduceSum(localResult.data(), result.data(), localResult.size());
     }
   }
@@ -112,8 +118,9 @@ private:
   logging::Logger _log{"cplscheme::impl::ParallelMatrixOperations"};
 
   // @brief multiplies matrices based on a cyclic communication and block-wise matrix multiplication with a quadratic result matrix
-  template <typename Derived1, typename Derived2>
-  void _multiplyNN(
+  template<typename Derived1, typename Derived2>
+  void
+  _multiplyNN(
       Eigen::PlainObjectBase<Derived1> &leftMatrix,
       Eigen::PlainObjectBase<Derived2> &rightMatrix,
       Eigen::PlainObjectBase<Derived2> &result,
@@ -216,8 +223,9 @@ private:
   }
 
   // @brief multiplies matrices based on a dot-product computation with a rectangular result matrix
-  template <typename Derived1, typename Derived2>
-  void _multiplyNM_dotProduct(
+  template<typename Derived1, typename Derived2>
+  void
+  _multiplyNM_dotProduct(
       Eigen::PlainObjectBase<Derived1> &leftMatrix,
       Eigen::PlainObjectBase<Derived2> &rightMatrix,
       Eigen::PlainObjectBase<Derived2> &result,
@@ -253,8 +261,9 @@ private:
   }
 
   /// Multiplies matrices based on a SAXPY-like block-wise computation with a rectangular result matrix of dimension n x m
-  template <typename Derived1, typename Derived2>
-  void _multiplyNM_block(
+  template<typename Derived1, typename Derived2>
+  void
+  _multiplyNM_block(
       Eigen::PlainObjectBase<Derived1> &leftMatrix,
       Eigen::PlainObjectBase<Derived2> &rightMatrix,
       Eigen::PlainObjectBase<Derived2> &result,
@@ -313,8 +322,8 @@ private:
 
   bool _needCycliclComm = true;
 };
-}
-}
-} // namespace precice, cplscheme, impl
+} // namespace impl
+} // namespace cplscheme
+} // namespace precice
 
 #endif

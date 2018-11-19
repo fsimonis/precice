@@ -1,28 +1,29 @@
 #include "TransformToVRML.hpp"
 
-#include <iostream>
 #include <fstream>
+#include <iostream>
 #include <vector>
 
 #include "IGES2Vrml.hpp"
 #include "STEP2Vrml.hpp"
 
-#include  "TransformToVRML.hpp"
+#include "TransformToVRML.hpp"
 
-int main ( int argc, char** argv )
+int
+main(int argc, char **argv)
 {
-  if ( argc != 3 ) {
+  if (argc != 3) {
     std::cout << " Usage: ./DataConverter inputFileName outputFilename" << std::endl;
-    abort ();
+    abort();
   }
 
-  std::string inputFileName ( argv[1] );
-  std::string outputFileName ( argv[2] );
+  std::string inputFileName(argv[1]);
+  std::string outputFileName(argv[2]);
 
-  TransformToVRML myTransformer( inputFileName, outputFileName );
+  TransformToVRML myTransformer(inputFileName, outputFileName);
 
-  if ( myTransformer.parseFileType () ) {
-    if ( myTransformer.doTransform() ) {
+  if (myTransformer.parseFileType()) {
+    if (myTransformer.doTransform()) {
       std::cout << " Transform to VRML succeed!" << std::endl;
     }
     else {
@@ -35,5 +36,3 @@ int main ( int argc, char** argv )
   }
   return 1;
 }
-
-

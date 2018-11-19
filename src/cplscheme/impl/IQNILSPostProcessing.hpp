@@ -22,7 +22,7 @@ namespace impl
  * IQN-related data. The data is called "secondary" henceforth and additional
  * old value and data matrices are needed for it.
  */
-class IQNILSPostProcessing : public BaseQNPostProcessing
+class IQNILSPostProcessing: public BaseQNPostProcessing
 {
 public:
   IQNILSPostProcessing(
@@ -38,7 +38,8 @@ public:
   virtual ~IQNILSPostProcessing() {}
 
   /// Initializes the post-processing.
-  virtual void initialize(DataMap &cplData);
+  virtual void
+  initialize(DataMap &cplData);
 
   /**
     * @brief Marks a iteration sequence as converged.
@@ -46,7 +47,8 @@ public:
     * called by the iterationsConverged() method in the BaseQNPostProcessing class
     * handles the postprocessing sepcific action after the convergence of one iteration
     */
-  virtual void specializedIterationsConverged(DataMap &cplData);
+  virtual void
+  specializedIterationsConverged(DataMap &cplData);
 
 private:
   /// Secondary data solver output from last iteration.
@@ -59,17 +61,21 @@ private:
   std::map<int, Eigen::MatrixXd> _secondaryMatricesWBackup;
 
   /// updates the V, W matrices (as well as the matrices for the secondary data)
-  virtual void updateDifferenceMatrices(DataMap &cplData);
+  virtual void
+  updateDifferenceMatrices(DataMap &cplData);
 
   /// computes the IQN-ILS update using QR decomposition
-  virtual void computeQNUpdate(DataMap &cplData, Eigen::VectorXd &xUpdate);
+  virtual void
+  computeQNUpdate(DataMap &cplData, Eigen::VectorXd &xUpdate);
 
   /// computes underrelaxation for the secondary data
-  virtual void computeUnderrelaxationSecondaryData(DataMap &cplData);
+  virtual void
+  computeUnderrelaxationSecondaryData(DataMap &cplData);
 
   /// Removes one iteration from V,W matrices and adapts _matrixCols.
-  virtual void removeMatrixColumn(int columnIndex);
+  virtual void
+  removeMatrixColumn(int columnIndex);
 };
-}
-}
-} // namespace precice, cplscheme, impl
+} // namespace impl
+} // namespace cplscheme
+} // namespace precice

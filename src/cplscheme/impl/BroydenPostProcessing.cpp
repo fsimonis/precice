@@ -1,6 +1,6 @@
 #include "BroydenPostProcessing.hpp"
-#include <Eigen/Core>
 #include "cplscheme/CouplingData.hpp"
+#include <Eigen/Core>
 
 namespace precice
 {
@@ -26,7 +26,8 @@ BroydenPostProcessing::BroydenPostProcessing(
       _maxColumns(maxIterationsUsed)
 {}
 
-void BroydenPostProcessing::initialize(
+void
+BroydenPostProcessing::initialize(
     DataMap &cplData)
 {
   // do common QN post processing initialization
@@ -38,7 +39,8 @@ void BroydenPostProcessing::initialize(
   _oldInvJacobian = Eigen::MatrixXd::Zero(entries, entries);
 }
 
-void BroydenPostProcessing::computeUnderrelaxationSecondaryData(
+void
+BroydenPostProcessing::computeUnderrelaxationSecondaryData(
     DataMap &cplData)
 {
   // Perform underrelaxation with initial relaxation factor for secondary data
@@ -53,11 +55,13 @@ void BroydenPostProcessing::computeUnderrelaxationSecondaryData(
   }
 }
 
-void BroydenPostProcessing::updateDifferenceMatrices(
+void
+BroydenPostProcessing::updateDifferenceMatrices(
     DataMap &cplData)
 {
   if (_firstIteration && _firstTimeStep) {
-  } else {
+  }
+  else {
     if (not _firstIteration) {
       _currentColumns++;
     }
@@ -67,7 +71,8 @@ void BroydenPostProcessing::updateDifferenceMatrices(
   BaseQNPostProcessing::updateDifferenceMatrices(cplData);
 }
 
-void BroydenPostProcessing::computeQNUpdate(PostProcessing::DataMap &cplData, Eigen::VectorXd &xUpdate)
+void
+BroydenPostProcessing::computeQNUpdate(PostProcessing::DataMap &cplData, Eigen::VectorXd &xUpdate)
 {
   TRACE();
 
@@ -76,7 +81,8 @@ void BroydenPostProcessing::computeQNUpdate(PostProcessing::DataMap &cplData, Ei
     ERROR("truncated IMVJ no longer supported, needs to be parallelized and datastructures need to be changed to Eigen datastructures.");
     DEBUG("compute update with QR-dec");
     //computeNewtonFactorsQRDecomposition(cplData, xUpdate);
-  } else {
+  }
+  else {
     DEBUG("compute update with Broyden");
     // ------------- update inverse Jacobian -----------
     // ------------- Broyden Update
@@ -113,13 +119,14 @@ void BroydenPostProcessing::computeQNUpdate(PostProcessing::DataMap &cplData, Ei
   }
 }
 
-void BroydenPostProcessing::specializedIterationsConverged(
+void
+BroydenPostProcessing::specializedIterationsConverged(
     DataMap &cplData)
 {
   _currentColumns = 0;
   // store old Jacobian
   _oldInvJacobian = _invJacobian;
 }
-}
-}
-} // namespace precice, cplscheme, impl
+} // namespace impl
+} // namespace cplscheme
+} // namespace precice

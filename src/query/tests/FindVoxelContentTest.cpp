@@ -13,7 +13,8 @@ using namespace precice::query;
 BOOST_AUTO_TEST_SUITE(QueryTests)
 BOOST_AUTO_TEST_SUITE(FindVoxelContentTests)
 
-void performTestVertices(
+void
+performTestVertices(
     int                    testDim,
     bool                   positive,
     const Eigen::VectorXd &offset)
@@ -120,7 +121,8 @@ void performTestVertices(
   BOOST_TEST(size == 2);
 }
 
-void performTestEdges(
+void
+performTestEdges(
     int                    testDim,
     bool                   positive,
     const Eigen::VectorXd &offset)
@@ -240,7 +242,8 @@ void performTestEdges(
   BOOST_TEST(sizeEdges == 3);
 }
 
-void performTestTriangles(
+void
+performTestTriangles(
     int  testDim,
     int  secondDimension,
     bool positive)

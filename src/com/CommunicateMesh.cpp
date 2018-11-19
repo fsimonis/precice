@@ -1,12 +1,12 @@
 #include "CommunicateMesh.hpp"
-#include <map>
-#include <vector>
 #include "Communication.hpp"
 #include "com/SharedPointer.hpp"
 #include "mesh/Edge.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/Triangle.hpp"
 #include "mesh/Vertex.hpp"
+#include <map>
+#include <vector>
 
 namespace precice
 {
@@ -18,7 +18,8 @@ CommunicateMesh::CommunicateMesh(
 {
 }
 
-void CommunicateMesh::sendMesh(
+void
+CommunicateMesh::sendMesh(
     const mesh::Mesh &mesh,
     int               rankReceiver)
 {
@@ -29,7 +30,7 @@ void CommunicateMesh::sendMesh(
   _communication->send(numberOfVertices, rankReceiver);
   if (not mesh.vertices().empty()) {
     std::vector<double> coords(numberOfVertices * dim);
-    std::vector<int> globalIDs(numberOfVertices);
+    std::vector<int>    globalIDs(numberOfVertices);
     for (int i = 0; i < numberOfVertices; i++) {
       for (int d = 0; d < dim; d++) {
         coords[i * dim + d] = mesh.vertices()[i].getCoords()[d];
@@ -82,7 +83,8 @@ void CommunicateMesh::sendMesh(
   }
 }
 
-void CommunicateMesh::receiveMesh(
+void
+CommunicateMesh::receiveMesh(
     mesh::Mesh &mesh,
     int         rankSender)
 {
@@ -97,7 +99,7 @@ void CommunicateMesh::receiveMesh(
 
   if (numberOfVertices > 0) {
     std::vector<double> vertexCoords;
-    std::vector<int> globalIDs;
+    std::vector<int>    globalIDs;
     _communication->receive(vertexCoords, rankSender);
     _communication->receive(globalIDs, rankSender);
     for (int i = 0; i < numberOfVertices; i++) {
@@ -164,7 +166,8 @@ void CommunicateMesh::receiveMesh(
   }
 }
 
-void CommunicateMesh::broadcastSendMesh(const mesh::Mesh &mesh)
+void
+CommunicateMesh::broadcastSendMesh(const mesh::Mesh &mesh)
 {
   TRACE(mesh.getName());
   int dim = mesh.getDimensions();
@@ -173,7 +176,7 @@ void CommunicateMesh::broadcastSendMesh(const mesh::Mesh &mesh)
   _communication->broadcast(numberOfVertices);
   if (numberOfVertices > 0) {
     std::vector<double> coords(numberOfVertices * dim);
-    std::vector<int> globalIDs(numberOfVertices);
+    std::vector<int>    globalIDs(numberOfVertices);
     for (int i = 0; i < numberOfVertices; i++) {
       for (int d = 0; d < dim; d++) {
         coords[i * dim + d] = mesh.vertices()[i].getCoords()[d];
@@ -226,7 +229,8 @@ void CommunicateMesh::broadcastSendMesh(const mesh::Mesh &mesh)
   }
 }
 
-void CommunicateMesh::broadcastReceiveMesh(
+void
+CommunicateMesh::broadcastReceiveMesh(
     mesh::Mesh &mesh)
 {
   TRACE(mesh.getName());
@@ -240,7 +244,7 @@ void CommunicateMesh::broadcastReceiveMesh(
 
   if (numberOfVertices > 0) {
     std::vector<double> vertexCoords;
-    std::vector<int> globalIDs;
+    std::vector<int>    globalIDs;
     _communication->broadcast(vertexCoords, rankBroadcaster);
     _communication->broadcast(globalIDs, rankBroadcaster);
     for (int i = 0; i < numberOfVertices; i++) {
@@ -304,7 +308,8 @@ void CommunicateMesh::broadcastReceiveMesh(
   }
 }
 
-void CommunicateMesh::sendBoundingBox(
+void
+CommunicateMesh::sendBoundingBox(
     const mesh::Mesh::BoundingBox &bb,
     int                            rankReceiver)
 {
@@ -316,7 +321,8 @@ void CommunicateMesh::sendBoundingBox(
   }
 }
 
-void CommunicateMesh::receiveBoundingBox(
+void
+CommunicateMesh::receiveBoundingBox(
     mesh::Mesh::BoundingBox &bb,
     int                      rankSender)
 {

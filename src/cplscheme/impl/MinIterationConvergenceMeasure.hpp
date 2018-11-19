@@ -11,16 +11,18 @@ namespace cplscheme
 namespace impl
 {
 
-class MinIterationConvergenceMeasure : public ConvergenceMeasure
+class MinIterationConvergenceMeasure: public ConvergenceMeasure
 {
 public:
   explicit MinIterationConvergenceMeasure(int minimumIterationCount);
 
   virtual ~MinIterationConvergenceMeasure() {}
 
-  virtual void newMeasurementSeries();
+  virtual void
+  newMeasurementSeries();
 
-  virtual void measure(
+  virtual void
+  measure(
       const Eigen::VectorXd &oldValues,
       const Eigen::VectorXd &newValues,
       const Eigen::VectorXd &designSpecification)
@@ -31,12 +33,14 @@ public:
     DEBUG("Iteration number = " << _currentIteration << ", convergence = " << _isConvergence);
   }
 
-  virtual bool isConvergence() const
+  virtual bool
+  isConvergence() const
   {
     return _isConvergence;
   }
 
-  virtual std::string printState()
+  virtual std::string
+  printState()
   {
     std::ostringstream os;
     os << "min iteration convergence measure: ";
@@ -58,6 +62,6 @@ private:
 
   bool _isConvergence = false;
 };
-}
-}
-} // namespace precice, cplscheme, impl
+} // namespace impl
+} // namespace cplscheme
+} // namespace precice

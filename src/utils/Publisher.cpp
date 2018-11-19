@@ -38,32 +38,38 @@ Publisher::ScopedChangePrefixDirectory::~ScopedChangePrefixDirectory()
   Publisher::changePrefixDirectory(_pdp);
 }
 
-std::string Publisher::parentPath(std::string const &p)
+std::string
+Publisher::parentPath(std::string const &p)
 {
   return boost::filesystem::path(p).parent_path().string();
 }
 
-bool Publisher::createDirectory(std::string const &dp)
+bool
+Publisher::createDirectory(std::string const &dp)
 {
   return boost::filesystem::create_directory(dp);
 }
 
-bool Publisher::exists(std::string const &p)
+bool
+Publisher::exists(std::string const &p)
 {
   return boost::filesystem::exists(p);
 }
 
-bool Publisher::remove(std::string const &p)
+bool
+Publisher::remove(std::string const &p)
 {
   return boost::filesystem::remove(p);
 }
 
-void Publisher::rename(std::string const &op, std::string const &np)
+void
+Publisher::rename(std::string const &op, std::string const &np)
 {
   boost::filesystem::rename(op, np);
 }
 
-bool Publisher::pushDirectory(std::string const &dp)
+bool
+Publisher::pushDirectory(std::string const &dp)
 {
   using boost::filesystem::path;
 
@@ -76,7 +82,8 @@ bool Publisher::pushDirectory(std::string const &dp)
   return false;
 }
 
-bool Publisher::popDirectory()
+bool
+Publisher::popDirectory()
 {
   if (not _dps.empty()) {
     _dps.pop();
@@ -87,12 +94,14 @@ bool Publisher::popDirectory()
   return false;
 }
 
-void Publisher::changePrefixDirectory(std::string const &pdp)
+void
+Publisher::changePrefixDirectory(std::string const &pdp)
 {
   _pdp = boost::filesystem::path(pdp).string();
 }
 
-std::string const & Publisher::prefixDirectoryPath()
+std::string const &
+Publisher::prefixDirectoryPath()
 {
   return _pdp;
 }
@@ -102,7 +111,8 @@ Publisher::Publisher(std::string const &fp)
 {
 }
 
-std::string Publisher::read() const
+std::string
+Publisher::read() const
 {
   std::ifstream ifs;
   std::string   data;
@@ -121,7 +131,8 @@ std::string Publisher::read() const
   return data;
 }
 
-void Publisher::write(std::string const &data) const
+void
+Publisher::write(std::string const &data) const
 {
   createDirectory(parentPath(filePath()));
 
@@ -137,12 +148,14 @@ void Publisher::write(std::string const &data) const
   rename(filePath() + "~", filePath());
 }
 
-std::string const & Publisher::filePath() const
+std::string const &
+Publisher::filePath() const
 {
   return _fp;
 }
 
-std::string Publisher::buildFilePath(std::string const &fp)
+std::string
+Publisher::buildFilePath(std::string const &fp)
 {
   using boost::filesystem::path;
 

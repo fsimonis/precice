@@ -13,7 +13,7 @@
  */
 
 #ifdef __cplusplus
-extern"C" {
+extern "C" {
 #endif
 
 /**
@@ -30,15 +30,16 @@ extern"C" {
  * IN:  participantNameA, participantNameF, configFileName, solverProcessIndex, solverProcessSize
  * OUT: -
  */
-void precice_fastest_create_(
-  const char* participantNameA,
-  const char* participantNameF,
-  const char* configFileName,
-  const int*  solverProcessIndex,
-  const int*  solverProcessSize,
-  int   lengthAccessorNameA,
-  int   lengthAccessorNameF,
-  int   lengthConfigFileName );
+void
+precice_fastest_create_(
+    const char *participantNameA,
+    const char *participantNameF,
+    const char *configFileName,
+    const int * solverProcessIndex,
+    const int * solverProcessSize,
+    int         lengthAccessorNameA,
+    int         lengthAccessorNameF,
+    int         lengthConfigFileName);
 
 /**
  * @brief See precice::SolverInterface::initialize().
@@ -49,7 +50,8 @@ void precice_fastest_create_(
  * IN: useF (1: this is the F interface , 0: this is the A interface)
  * OUT: timestepLengthLimit
  */
-void precice_fastest_initialize_( double* timestepLengthLimit, const int*  useF );
+void
+precice_fastest_initialize_(double *timestepLengthLimit, const int *useF);
 
 /**
  * @brief See precice::SolverInterface::initializeData().
@@ -60,7 +62,8 @@ void precice_fastest_initialize_( double* timestepLengthLimit, const int*  useF 
  * IN: useF (1: this is the F interface , 0: this is the A interface)
  * OUT: -
  */
-void precice_fastest_initialize_data_(const int*  useF);
+void
+precice_fastest_initialize_data_(const int *useF);
 
 /**
  * @brief See precice::SolverInterface::advance().
@@ -72,8 +75,8 @@ void precice_fastest_initialize_data_(const int*  useF);
  * IN:  useF (1: this is the F interface , 0: this is the A interface)
  * OUT: timestepLengthLimit
  */
-void precice_fastest_advance_( double* timestepLengthLimit, const int*  useF );
-
+void
+precice_fastest_advance_(double *timestepLengthLimit, const int *useF);
 
 /**
  * @brief See precice::SolverInterface::finalize().
@@ -83,7 +86,8 @@ void precice_fastest_advance_( double* timestepLengthLimit, const int*  useF );
  *
  * IN:  useF (1: this is the F interface , 0: this is the A interface)
  */
-void precice_fastest_finalize_(const int*  useF);
+void
+precice_fastest_finalize_(const int *useF);
 
 /**
  * @brief See precice::SolverInterface::isActionRequired().
@@ -98,11 +102,12 @@ void precice_fastest_finalize_(const int*  useF);
  * IN:  useF (1: this is the F interface , 0: this is the A interface)
  * OUT: isRequired(1:true, 0:false)
  */
-void precice_fastest_action_required_(
-  const char* action,
-  int*        isRequired,
-  const int*  useF,
-  int         lengthAction );
+void
+precice_fastest_action_required_(
+    const char *action,
+    int *       isRequired,
+    const int * useF,
+    int         lengthAction);
 
 /**
  * @brief See precice::SolverInterface::fulfilledAction().
@@ -114,10 +119,11 @@ void precice_fastest_action_required_(
  * IN:  useF (1: this is the F interface , 0: this is the A interface)
  * OUT: -
  */
-void precice_fastest_fulfilled_action_(
-  const char* action,
-  const int*  useF,
-  int         lengthAction );
+void
+precice_fastest_fulfilled_action_(
+    const char *action,
+    const int * useF,
+    int         lengthAction);
 
 /**
  * @brief See precice::SolverInterface::getMeshID().
@@ -132,12 +138,12 @@ void precice_fastest_fulfilled_action_(
  * IN:  useF (1: this is the F interface , 0: this is the A interface)
  * OUT: meshID
  */
-void precice_fastest_get_mesh_id_(
-  const char* meshName,
-  int*        meshID,
-  const int*  useF,
-  int         lengthMeshName );
-
+void
+precice_fastest_get_mesh_id_(
+    const char *meshName,
+    int *       meshID,
+    const int * useF,
+    int         lengthMeshName);
 
 /**
  * @brief See precice::SolverInterface::getDataID().
@@ -158,12 +164,13 @@ void precice_fastest_get_mesh_id_(
  * IN:  useF (1: this is the F interface , 0: this is the A interface)
  * OUT: dataID
  */
-void precice_fastest_get_data_id_(
-  const char* dataName,
-  const int*  meshID,
-  int*        dataID,
-  const int*  useF,
-  int         lengthDataName);
+void
+precice_fastest_get_data_id_(
+    const char *dataName,
+    const int * meshID,
+    int *       dataID,
+    const int * useF,
+    int         lengthDataName);
 
 /**
  * @brief See precice::SolverInterface::setMeshVertex().
@@ -179,11 +186,12 @@ void precice_fastest_get_data_id_(
  * IN:  useF (1: this is the F interface , 0: this is the A interface)
  * OUT: vertexID
  */
-void precice_fastest_set_vertex_(
-  const int*    meshID,
-  const double* position,
-  int*          vertexID,
-  const int*    useF);
+void
+precice_fastest_set_vertex_(
+    const int *   meshID,
+    const double *position,
+    int *         vertexID,
+    const int *   useF);
 
 /**
  * @brief See precice::SolverInterface::setMeshVertices().
@@ -200,13 +208,13 @@ void precice_fastest_set_vertex_(
  * IN:  useF (1: this is the F interface , 0: this is the A interface)
  * OUT: positionIDs
  */
-void precice_fastest_set_vertices_(
-  const int*    meshID,
-  const int*    size,
-  double*       positions,
-  int*          positionIDs,
-  const int*    useF);
-
+void
+precice_fastest_set_vertices_(
+    const int *meshID,
+    const int *size,
+    double *   positions,
+    int *      positionIDs,
+    const int *useF);
 
 /**
  * @brief See precice::SolverInterface::writeBlockVectorData.
@@ -223,12 +231,13 @@ void precice_fastest_set_vertices_(
  * IN:  useF (1: this is the F interface , 0: this is the A interface)
  * OUT: -
  */
-void precice_fastest_write_bvdata_(
-  const int* dataID,
-  const int* size,
-  int*       valueIndices,
-  double*    values,
-  const int* useF);
+void
+precice_fastest_write_bvdata_(
+    const int *dataID,
+    const int *size,
+    int *      valueIndices,
+    double *   values,
+    const int *useF);
 
 /**
  * @brief precice::SolverInterface::writeVectorData.
@@ -244,11 +253,12 @@ void precice_fastest_write_bvdata_(
  * IN:  useF (1: this is the F interface , 0: this is the A interface)
  * OUT: -
  */
-void precice_fastest_write_vdata_(
-  const int*    dataID,
-  const int*    valueIndex,
-  const double* dataValue,
-  const int*    useF);
+void
+precice_fastest_write_vdata_(
+    const int *   dataID,
+    const int *   valueIndex,
+    const double *dataValue,
+    const int *   useF);
 
 /**
  * @brief See precice::SolverInterface::writeBlockScalarData.
@@ -265,12 +275,13 @@ void precice_fastest_write_vdata_(
  * IN:  useF (1: this is the F interface , 0: this is the A interface)
  * OUT: -
  */
-void precice_fastest_write_bsdata_(
-  const int* dataID,
-  const int* size,
-  int*       valueIndices,
-  double*    values,
-  const int* useF);
+void
+precice_fastest_write_bsdata_(
+    const int *dataID,
+    const int *size,
+    int *      valueIndices,
+    double *   values,
+    const int *useF);
 
 /**
  * @brief precice::SolverInterface::writeScalarData.
@@ -286,11 +297,12 @@ void precice_fastest_write_bsdata_(
  * IN:  useF (1: this is the F interface , 0: this is the A interface)
  * OUT: -
  */
-void precice_fastest_write_sdata_(
-  const int*    dataID,
-  const int*    valueIndex,
-  const double* dataValue,
-  const int*    useF);
+void
+precice_fastest_write_sdata_(
+    const int *   dataID,
+    const int *   valueIndex,
+    const double *dataValue,
+    const int *   useF);
 
 /**
  * @brief See precice::SolverInterface::readBlockVectorData.
@@ -307,12 +319,13 @@ void precice_fastest_write_sdata_(
  * IN:  useF (1: this is the F interface , 0: this is the A interface)
  * OUT: values
  */
-void precice_fastest_read_bvdata_(
-  const int* dataID,
-  const int* size,
-  int*       valueIndices,
-  double*    values,
-  const int* useF);
+void
+precice_fastest_read_bvdata_(
+    const int *dataID,
+    const int *size,
+    int *      valueIndices,
+    double *   values,
+    const int *useF);
 
 /**
  * @brief precice::SolverInterface::readVectorData.
@@ -328,11 +341,12 @@ void precice_fastest_read_bvdata_(
  * IN:  useF (1: this is the F interface , 0: this is the A interface)
  * OUT: dataValue
  */
-void precice_fastest_read_vdata_(
-  const int* dataID,
-  const int* valueIndex,
-  double*    dataValue,
-  const int* useF);
+void
+precice_fastest_read_vdata_(
+    const int *dataID,
+    const int *valueIndex,
+    double *   dataValue,
+    const int *useF);
 
 /**
  * @brief See precice::SolverInterface::readBlockScalarData.
@@ -349,12 +363,13 @@ void precice_fastest_read_vdata_(
  * IN:  useF (1: this is the F interface , 0: this is the A interface)
  * OUT: values
  */
-void precice_fastest_read_bsdata_(
-  const int* dataID,
-  const int* size,
-  int*       valueIndices,
-  double*    values,
-  const int* useF);
+void
+precice_fastest_read_bsdata_(
+    const int *dataID,
+    const int *size,
+    int *      valueIndices,
+    double *   values,
+    const int *useF);
 
 /**
  * @brief precice::SolverInterface::readScalarData.
@@ -370,12 +385,12 @@ void precice_fastest_read_bsdata_(
  * IN:  useF (1: this is the F interface , 0: this is the A interface)
  * OUT: dataValue
  */
-void precice_fastest_read_sdata_(
-  const int* dataID,
-  const int* valueIndex,
-  double*    dataValue,
-  const int* useF);
-
+void
+precice_fastest_read_sdata_(
+    const int *dataID,
+    const int *valueIndex,
+    double *   dataValue,
+    const int *useF);
 
 #ifdef __cplusplus
 }

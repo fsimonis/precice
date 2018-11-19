@@ -1,14 +1,14 @@
 #include "Import.hpp"
 
-namespace precice {
-namespace io {
+namespace precice
+{
+namespace io
+{
 
-
-Import:: Import
-(
-  const std::string& location )
-:
-  _location ( location )
+Import::Import(
+    const std::string &location)
+    : _location(location)
 {}
 
-}} // namespace precice, io
+} // namespace io
+} // namespace precice

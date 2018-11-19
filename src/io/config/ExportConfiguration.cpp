@@ -1,16 +1,18 @@
 #include "ExportConfiguration.hpp"
 #include "io/Export.hpp"
-#include "xml/XMLTag.hpp"
 #include "xml/XMLAttribute.hpp"
+#include "xml/XMLTag.hpp"
 
-namespace precice {
-namespace io {
+namespace precice
+{
+namespace io
+{
 
-ExportConfiguration:: ExportConfiguration(xml::XMLTag& parent)
+ExportConfiguration::ExportConfiguration(xml::XMLTag &parent)
 {
   using namespace xml;
-  std::string doc;
-  std::list<XMLTag> tags;
+  std::string        doc;
+  std::list<XMLTag>  tags;
   XMLTag::Occurrence occ = XMLTag::OCCUR_ARBITRARY;
   {
     XMLTag tag(*this, VALUE_VTK, occ, TAG);
@@ -43,7 +45,7 @@ ExportConfiguration:: ExportConfiguration(xml::XMLTag& parent)
   attrEveryIteration.setDocumentation(doc);
   attrEveryIteration.setDefaultValue(false);
 
-  for (XMLTag& tag : tags){
+  for (XMLTag &tag : tags) {
     tag.addAttribute(attrLocation);
     tag.addAttribute(attrTimestepInterval);
     tag.addAttribute(attrTriggerSolver);
@@ -53,22 +55,21 @@ ExportConfiguration:: ExportConfiguration(xml::XMLTag& parent)
   }
 }
 
-void ExportConfiguration:: xmlTagCallback
-(
-  xml::XMLTag& tag )
+void
+ExportConfiguration::xmlTagCallback(
+    xml::XMLTag &tag)
 {
-  if ( tag.getNamespace() == TAG ){
+  if (tag.getNamespace() == TAG) {
     ExportContext context;
-    context.location = tag.getStringAttributeValue(ATTR_LOCATION);
-    context.triggerSolverPlot =  tag.getBooleanAttributeValue(ATTR_TRIGGER_SOLVER);
-    context.timestepInterval = tag.getIntAttributeValue(ATTR_TIMESTEP_INTERVAL);
-    context.plotNormals = tag.getBooleanAttributeValue(ATTR_NORMALS);
-    context.everyIteration = tag.getBooleanAttributeValue(ATTR_EVERY_ITERATION);
-    context.type = tag.getName();
+    context.location          = tag.getStringAttributeValue(ATTR_LOCATION);
+    context.triggerSolverPlot = tag.getBooleanAttributeValue(ATTR_TRIGGER_SOLVER);
+    context.timestepInterval  = tag.getIntAttributeValue(ATTR_TIMESTEP_INTERVAL);
+    context.plotNormals       = tag.getBooleanAttributeValue(ATTR_NORMALS);
+    context.everyIteration    = tag.getBooleanAttributeValue(ATTR_EVERY_ITERATION);
+    context.type              = tag.getName();
     _contexts.push_back(context);
   }
 }
 
-
-}} // namespace precice, io
-
+} // namespace io
+} // namespace precice

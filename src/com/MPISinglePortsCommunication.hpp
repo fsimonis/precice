@@ -1,9 +1,9 @@
 #pragma once
 #ifndef PRECICE_NO_MPI
 
-#include <vector>
 #include "MPICommunication.hpp"
 #include "logging/Logger.hpp"
+#include <vector>
 
 namespace precice
 {
@@ -29,40 +29,48 @@ namespace com
  *
  * If we agree, that acceptConnection / requestConnection just does 1:1 connection, we can rewrite and simplifiy the code.
 **/
-class MPISinglePortsCommunication : public MPICommunication
+class MPISinglePortsCommunication: public MPICommunication
 {
 public:
   explicit MPISinglePortsCommunication(std::string const &addressDirectory = ".");
 
   virtual ~MPISinglePortsCommunication();
 
-  virtual size_t getRemoteCommunicatorSize() override;
+  virtual size_t
+  getRemoteCommunicatorSize() override;
 
-  virtual void acceptConnection(std::string const &acceptorName,
-                                std::string const &requesterName,
-                                int                acceptorRank) override;
+  virtual void
+  acceptConnection(std::string const &acceptorName,
+                   std::string const &requesterName,
+                   int                acceptorRank) override;
 
-  virtual void acceptConnectionAsServer(std::string const &acceptorName,
-                                        std::string const &requesterName,
-                                        int                acceptorRank,
-                                        int                requesterCommunicatorSize) override;
+  virtual void
+  acceptConnectionAsServer(std::string const &acceptorName,
+                           std::string const &requesterName,
+                           int                acceptorRank,
+                           int                requesterCommunicatorSize) override;
 
-  virtual void requestConnection(std::string const &acceptorName,
-                                 std::string const &requesterName,
-                                 int                requesterRank,
-                                 int                requesterCommunicatorSize) override;
+  virtual void
+  requestConnection(std::string const &acceptorName,
+                    std::string const &requesterName,
+                    int                requesterRank,
+                    int                requesterCommunicatorSize) override;
 
-  virtual void requestConnectionAsClient(std::string      const &acceptorName,
-                                         std::string      const &requesterName,
-                                         std::set<int>    const &acceptorRanks,
-                                         int                     requesterRank) override;
+  virtual void
+  requestConnectionAsClient(std::string const &  acceptorName,
+                            std::string const &  requesterName,
+                            std::set<int> const &acceptorRanks,
+                            int                  requesterRank) override;
 
-  virtual void closeConnection() override;
+  virtual void
+  closeConnection() override;
 
 private:
-  virtual MPI_Comm &communicator(int rank) override;
+  virtual MPI_Comm &
+  communicator(int rank) override;
 
-  virtual int rank(int rank) override;
+  virtual int
+  rank(int rank) override;
 
   logging::Logger _log{"com::MPISinglePortsCommunication"};
 
@@ -75,7 +83,6 @@ private:
   std::string _portName = std::string(MPI_MAX_PORT_NAME, '\0');
 
   bool _isAcceptor = false;
-
 };
 } // namespace com
 } // namespace precice

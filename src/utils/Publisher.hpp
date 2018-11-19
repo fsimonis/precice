@@ -19,15 +19,16 @@ namespace utils
 class Publisher
 {
 public:
-
-  struct ScopedPushDirectory {
+  struct ScopedPushDirectory
+  {
     explicit ScopedPushDirectory(std::string const &dp);
 
     ~ScopedPushDirectory();
   };
 
   /// Sets the address publishing directory. Resets it, when object leaves scope.
-  struct ScopedChangePrefixDirectory {
+  struct ScopedChangePrefixDirectory
+  {
     explicit ScopedChangePrefixDirectory(std::string const &pdp);
 
     ~ScopedChangePrefixDirectory();
@@ -36,35 +37,48 @@ public:
   };
 
 public:
-  static std::string parentPath(std::string const &p);
+  static std::string
+  parentPath(std::string const &p);
 
-  static bool createDirectory(std::string const &dp);
+  static bool
+  createDirectory(std::string const &dp);
 
-  static bool exists(std::string const &p);
+  static bool
+  exists(std::string const &p);
 
-  static bool remove(std::string const &p);
+  static bool
+  remove(std::string const &p);
 
-  static void rename(std::string const &op, std::string const &np);
+  static void
+  rename(std::string const &op, std::string const &np);
 
-  static bool pushDirectory(std::string const &dp);
+  static bool
+  pushDirectory(std::string const &dp);
 
-  static bool popDirectory();
+  static bool
+  popDirectory();
 
-  static void changePrefixDirectory(std::string const &pdp);
+  static void
+  changePrefixDirectory(std::string const &pdp);
 
-  static std::string const &prefixDirectoryPath();
+  static std::string const &
+  prefixDirectoryPath();
 
 public:
   explicit Publisher(std::string const &fp);
 
-  std::string read() const;
+  std::string
+  read() const;
 
-  void write(std::string const &data) const;
+  void
+  write(std::string const &data) const;
 
-  std::string const &filePath() const;
+  std::string const &
+  filePath() const;
 
 private:
-  static std::string buildFilePath(std::string const &fp);
+  static std::string
+  buildFilePath(std::string const &fp);
 
   static std::string _pdp;
 
@@ -74,7 +88,7 @@ private:
   std::string _fp;
 };
 
-class ScopedPublisher : public Publisher
+class ScopedPublisher: public Publisher
 {
 public:
   explicit ScopedPublisher(std::string const &fp);

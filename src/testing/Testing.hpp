@@ -10,10 +10,11 @@ namespace testing
 {
 
 namespace bt = boost::unit_test;
-using Par = precice::utils::Parallel;
+using Par    = precice::utils::Parallel;
 
 /// Fixture to set and reset MPI communicator
-struct MPICommRestrictFixture {
+struct MPICommRestrictFixture
+{
   explicit MPICommRestrictFixture(std::vector<int> &ranks)
   {
     // Restriction MUST always be called on all ranks, otherwise we hang
@@ -35,7 +36,8 @@ struct MPICommRestrictFixture {
  * SingleRankFixture restricts every rank to itself. Effectively using MPI_COMM_SELF as communicator on each rank.
  * We don't use MPI_COMM_SELF because this causes errors when it's freed.
  */
-struct SingleRankFixture {
+struct SingleRankFixture
+{
   explicit SingleRankFixture()
   {
     // Restriction MUST always be called on all ranks, otherwise we hang
@@ -48,9 +50,9 @@ struct SingleRankFixture {
   }
 };
 
-
 /// Fixture to sync procceses before and after test
-struct SyncProcessesFixture {
+struct SyncProcessesFixture
+{
   SyncProcessesFixture()
   {
     Par::synchronizeProcesses();
@@ -62,12 +64,11 @@ struct SyncProcessesFixture {
   }
 };
 
-
 /// Boost.Test decorator that makes the test run only on specfic ranks.
 /*
  * This does not restrict the communicator, which must be done by installing the MPICommrestrictFixture.
  */
-class OnRanks : public bt::decorator::base
+class OnRanks: public bt::decorator::base
 {
 public:
   explicit OnRanks(const std::vector<int> &ranks)
@@ -76,10 +77,11 @@ public:
   }
 
 private:
-  virtual void apply(bt::test_unit &tu)
+  virtual void
+  apply(bt::test_unit &tu)
   {
     size_t myRank = Par::getProcessRank();
-    size_t size = Par::getCommunicatorSize();
+    size_t size   = Par::getCommunicatorSize();
 
     // If current rank is not in requested ranks
     if (std::find(_ranks.begin(), _ranks.end(), myRank) == _ranks.end()) {
@@ -101,7 +103,8 @@ private:
     //     new bt::class_based_fixture<MPICommRestrictFixture, std::vector<int>>(_ranks)));
   }
 
-  virtual bt::decorator::base_ptr clone() const
+  virtual bt::decorator::base_ptr
+  clone() const
   {
     return bt::decorator::base_ptr(new OnRanks(_ranks));
   }
@@ -110,7 +113,7 @@ private:
 };
 
 /// Boost.Test decorator that makes the test run only on the master aka rank 0
-class OnMaster : public OnRanks
+class OnMaster: public OnRanks
 {
 public:
   explicit OnMaster()
@@ -120,7 +123,7 @@ public:
 };
 
 /// Boost.Test decorator that makes the test run only on a specific MPI size
-class OnSize : public bt::decorator::base
+class OnSize: public bt::decorator::base
 {
 public:
   explicit OnSize(const int size)
@@ -128,7 +131,8 @@ public:
   {
   }
 
-  virtual void apply(bt::test_unit &tu)
+  virtual void
+  apply(bt::test_unit &tu)
   {
     if (givenSize != Par::getCommunicatorSize()) {
       bt::framework::get<bt::test_suite>(tu.p_parent_id).remove(tu.p_id);
@@ -136,7 +140,8 @@ public:
     }
   }
 
-  virtual bt::decorator::base_ptr clone() const
+  virtual bt::decorator::base_ptr
+  clone() const
   {
     return bt::decorator::base_ptr(new OnSize(givenSize));
   }
@@ -148,7 +153,7 @@ public:
 /*
  * This does not restrict the communicator, which must be done by installing the MPICommrestrictFixture.
  */
-class MinRanks : public bt::decorator::base
+class MinRanks: public bt::decorator::base
 {
 public:
   explicit MinRanks(const int minimumSize)
@@ -157,7 +162,8 @@ public:
   }
 
 private:
-  virtual void apply(bt::test_unit &tu)
+  virtual void
+  apply(bt::test_unit &tu)
   {
     if (minSize > Par::getCommunicatorSize()) {
       bt::framework::get<bt::test_suite>(tu.p_parent_id).remove(tu.p_id);
@@ -165,7 +171,8 @@ private:
     }
   }
 
-  virtual bt::decorator::base_ptr clone() const
+  virtual bt::decorator::base_ptr
+  clone() const
   {
     return bt::decorator::base_ptr(new MinRanks(minSize));
   }
@@ -173,37 +180,36 @@ private:
   const int minSize;
 };
 
-
 /// Boost.Test decorator that unconditionally deletes the test.
-class Deleted : public bt::decorator::base
+class Deleted: public bt::decorator::base
 {
 private:
-  virtual void apply(bt::test_unit &tu)
+  virtual void
+  apply(bt::test_unit &tu)
   {
     bt::framework::get<bt::test_suite>(tu.p_parent_id).remove(tu.p_id);
   }
 
-  virtual bt::decorator::base_ptr clone() const
+  virtual bt::decorator::base_ptr
+  clone() const
   {
     return bt::decorator::base_ptr(new Deleted());
   }
 };
 
-
-
-
 /// equals to be used in tests. Prints both operatorans on failure
-template <class DerivedA, class DerivedB>
-boost::test_tools::predicate_result equals(const Eigen::MatrixBase<DerivedA> &A,
-                                           const Eigen::MatrixBase<DerivedB> &B,
-                                           double tolerance = math::NUMERICAL_ZERO_DIFFERENCE)
+template<class DerivedA, class DerivedB>
+boost::test_tools::predicate_result
+equals(const Eigen::MatrixBase<DerivedA> &A,
+       const Eigen::MatrixBase<DerivedB> &B,
+       double                             tolerance = math::NUMERICAL_ZERO_DIFFERENCE)
 {
   if (not math::equals(A, B, tolerance)) {
     boost::test_tools::predicate_result res(false);
-    Eigen::IOFormat format;
+    Eigen::IOFormat                     format;
     if (A.cols() == 1) {
       format.rowSeparator = ", ";
-      format.rowPrefix = "  ";
+      format.rowPrefix    = "  ";
     }
     res.message() << "\n"
                   << A.format(format) << " != \n"
@@ -214,8 +220,9 @@ boost::test_tools::predicate_result equals(const Eigen::MatrixBase<DerivedA> &A,
 }
 
 /// equals to be used in tests. Prints both operatorans on failure
-template <class Scalar>
-typename std::enable_if<std::is_arithmetic<Scalar>::value, boost::test_tools::predicate_result>::type equals(const Scalar a, const Scalar b, const Scalar tolerance = math::NUMERICAL_ZERO_DIFFERENCE)
+template<class Scalar>
+typename std::enable_if<std::is_arithmetic<Scalar>::value, boost::test_tools::predicate_result>::type
+equals(const Scalar a, const Scalar b, const Scalar tolerance = math::NUMERICAL_ZERO_DIFFERENCE)
 {
   if (not math::equals(a, b, tolerance)) {
     boost::test_tools::predicate_result res(false);
@@ -226,8 +233,8 @@ typename std::enable_if<std::is_arithmetic<Scalar>::value, boost::test_tools::pr
 }
 
 /// Returns $PRECICE_ROOT/src, the base path to the sources.
-std::string getPathToSources();
+std::string
+getPathToSources();
 
 } // namespace testing
 } // namespace precice
-

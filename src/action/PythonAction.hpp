@@ -2,8 +2,8 @@
 #ifndef PRECICE_NO_PYTHON
 
 #include "action/Action.hpp"
-#include "mesh/SharedPointer.hpp"
 #include "logging/Logger.hpp"
+#include "mesh/SharedPointer.hpp"
 #include <string>
 
 struct _object;
@@ -15,7 +15,7 @@ namespace action
 {
 
 /// Action whose implementation is given in a Python file.
-class PythonAction : public Action
+class PythonAction: public Action
 {
 public:
   PythonAction(
@@ -28,7 +28,8 @@ public:
 
   virtual ~PythonAction();
 
-  virtual void performAction(
+  virtual void
+  performAction(
       double time,
       double dt,
       double computedPartFullDt,
@@ -61,11 +62,13 @@ private:
 
   PyObject *_vertexCallback = nullptr;
 
-  PyObject *_postAction = nullptr; 
+  PyObject *_postAction = nullptr;
 
-  void initialize();
+  void
+  initialize();
 
-  int makeNumPyArraysAvailable();
+  int
+  makeNumPyArraysAvailable();
 };
 
 } // namespace action

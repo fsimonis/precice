@@ -8,13 +8,14 @@ namespace precice
 namespace m2n
 {
 
-class PointToPointComFactory : public DistributedComFactory
+class PointToPointComFactory: public DistributedComFactory
 {
 
 public:
   explicit PointToPointComFactory(com::PtrCommunicationFactory comFactory);
 
-  DistributedCommunication::SharedPointer newDistributedCommunication(
+  DistributedCommunication::SharedPointer
+  newDistributedCommunication(
       mesh::PtrMesh mesh);
 
 private:

@@ -97,7 +97,8 @@ QRFactorization::QRFactorization(
 {
 }
 
-void QRFactorization::applyFilter(double singularityLimit, std::vector<int> &delIndices, Eigen::MatrixXd &V)
+void
+QRFactorization::applyFilter(double singularityLimit, std::vector<int> &delIndices, Eigen::MatrixXd &V)
 {
   TRACE();
   delIndices.resize(0);
@@ -134,7 +135,8 @@ void QRFactorization::applyFilter(double singularityLimit, std::vector<int> &del
         }
       }
     }
-  } else if (_filter == PostProcessing::QR2FILTER) {
+  }
+  else if (_filter == PostProcessing::QR2FILTER) {
     _Q.resize(0, 0);
     _R.resize(0, 0);
     _cols = 0;
@@ -157,7 +159,8 @@ void QRFactorization::applyFilter(double singularityLimit, std::vector<int> &del
  * updates the factorization A=Q[1:n,1:m]R[1:m,1:n] when the kth column of A is deleted. 
  * Returns the deleted column v(1:n)
  */
-void QRFactorization::deleteColumn(int k)
+void
+QRFactorization::deleteColumn(int k)
 {
 
   TRACE();
@@ -199,7 +202,8 @@ void QRFactorization::deleteColumn(int k)
 }
 
 // ATTENTION: This method works on the memory of vector v, thus changes the vector v.
-bool QRFactorization::insertColumn(int k, const Eigen::VectorXd &vec, double singularityLimit)
+bool
+QRFactorization::insertColumn(int k, const Eigen::VectorXd &vec, double singularityLimit)
 {
   TRACE(k);
 
@@ -305,7 +309,8 @@ bool QRFactorization::insertColumn(int k, const Eigen::VectorXd &vec, double sin
  *   new vector to the existing system. If more then 4 iterations were needed, -1 is
  *   returned and the new column should not be inserted into the system.
  */
-int QRFactorization::orthogonalize(
+int
+QRFactorization::orthogonalize(
     Eigen::VectorXd &v,
     Eigen::VectorXd &r,
     double &         rho,
@@ -315,7 +320,8 @@ int QRFactorization::orthogonalize(
 
   if (not utils::MasterSlave::_masterMode && not utils::MasterSlave::_slaveMode) {
     assertion(_globalRows == _rows, _globalRows, _rows);
-  } else {
+  }
+  else {
     assertion(_globalRows != _rows, _globalRows, _rows, utils::MasterSlave::_rank);
   }
 
@@ -399,7 +405,8 @@ int QRFactorization::orthogonalize(
       rho0 = rho1;
 
       // termination, i.e., (rho0 + _omega * t < _theta *rho1)
-    } else {
+    }
+    else {
       termination = true;
     }
   }
@@ -422,7 +429,8 @@ int QRFactorization::orthogonalize(
  *   new vector to the existing system. If more then 4 iterations were needed, -1 is
  *   returned and the new column should not be inserted into the system.
  */
-int QRFactorization::orthogonalize_stable(
+int
+QRFactorization::orthogonalize_stable(
     Eigen::VectorXd &v,
     Eigen::VectorXd &r,
     double &         rho,
@@ -434,7 +442,8 @@ int QRFactorization::orthogonalize_stable(
   if (not utils::MasterSlave::_masterMode && not utils::MasterSlave::_slaveMode) {
     assertion(_globalRows == _rows, _globalRows, _rows);
     // master-slave case
-  } else {
+  }
+  else {
     assertion(_globalRows != _rows, _globalRows, _rows, utils::MasterSlave::_rank);
   }
 
@@ -589,7 +598,8 @@ int QRFactorization::orthogonalize_stable(
         // insert rho1 at position k with smallest u(i) = Q(i,:) * Q(i,:)
         if (not utils::MasterSlave::_masterMode && not utils::MasterSlave::_slaveMode) {
           v(k) = rho1;
-        } else {
+        }
+        else {
           if (utils::MasterSlave::_rank == rank)
             v(global_k) = rho1;
         }
@@ -598,7 +608,8 @@ int QRFactorization::orthogonalize_stable(
       rho0 = rho1;
 
       // termination, i.e., (rho0 + _omega * t < _theta *rho1)
-    } else {
+    }
+    else {
       termination = true;
     }
   }
@@ -613,7 +624,8 @@ int QRFactorization::orthogonalize_stable(
 /**
  * @short computes parameters for givens matrix G for which  (x,y)G = (z,0). replaces (x,y) by (z,0)
  */
-void QRFactorization::computeReflector(
+void
+QRFactorization::computeReflector(
     QRFactorization::givensRot &grot,
     double &                    x,
     double &                    y)
@@ -623,7 +635,8 @@ void QRFactorization::computeReflector(
   if (v == 0) {
     grot.sigma = 0;
     grot.gamma = 1;
-  } else {
+  }
+  else {
     double mu = std::max(std::fabs(u), std::fabs(v));
     double t  = mu * std::sqrt(std::pow(u / mu, 2) + std::pow(v / mu, 2));
     t *= (u < 0) ? -1 : 1;
@@ -638,7 +651,8 @@ void QRFactorization::computeReflector(
  *  @short this procedure replaces the two column matrix [p(k:l-1), q(k:l-1)] by [p(k:l), q(k:l)]*G, 
  *  where G is the Givens matrix grot, determined by sigma and gamma. 
  */
-void QRFactorization::applyReflector(
+void
+QRFactorization::applyReflector(
     const QRFactorization::givensRot &grot,
     int                               k,
     int                               l,
@@ -655,32 +669,38 @@ void QRFactorization::applyReflector(
   }
 }
 
-void QRFactorization::setGlobalRows(int gr)
+void
+QRFactorization::setGlobalRows(int gr)
 {
   _globalRows = gr;
 }
 
-Eigen::MatrixXd &QRFactorization::matrixQ()
+Eigen::MatrixXd &
+QRFactorization::matrixQ()
 {
   return _Q;
 }
 
-Eigen::MatrixXd &QRFactorization::matrixR()
+Eigen::MatrixXd &
+QRFactorization::matrixR()
 {
   return _R;
 }
 
-int QRFactorization::cols()
+int
+QRFactorization::cols()
 {
   return _cols;
 }
 
-int QRFactorization::rows()
+int
+QRFactorization::rows()
 {
   return _rows;
 }
 
-void QRFactorization::reset()
+void
+QRFactorization::reset()
 {
   _Q.resize(0, 0);
   _R.resize(0, 0);
@@ -689,7 +709,8 @@ void QRFactorization::reset()
   _globalRows = 0;
 }
 
-void QRFactorization::reset(
+void
+QRFactorization::reset(
     Eigen::MatrixXd const &Q,
     Eigen::MatrixXd const &R,
     int                    rows,
@@ -712,7 +733,8 @@ void QRFactorization::reset(
   assertion(_Q.rows() == _rows, _Q.rows(), _rows);
 }
 
-void QRFactorization::reset(
+void
+QRFactorization::reset(
     Eigen::MatrixXd const &A,
     int                    globalRows,
     double                 omega,
@@ -746,36 +768,42 @@ void QRFactorization::reset(
   assertion(_cols == m, _cols, m);
 }
 
-void QRFactorization::pushFront(const Eigen::VectorXd &v)
+void
+QRFactorization::pushFront(const Eigen::VectorXd &v)
 {
   insertColumn(0, v);
 }
 
-void QRFactorization::pushBack(const Eigen::VectorXd &v)
+void
+QRFactorization::pushBack(const Eigen::VectorXd &v)
 {
   insertColumn(_cols, v);
 }
 
-void QRFactorization::popFront()
+void
+QRFactorization::popFront()
 {
   deleteColumn(0);
 }
 
-void QRFactorization::popBack()
+void
+QRFactorization::popBack()
 {
   deleteColumn(_cols - 1);
 }
 
-void QRFactorization::setfstream(std::fstream *stream)
+void
+QRFactorization::setfstream(std::fstream *stream)
 {
   _infostream  = stream;
   _fstream_set = true;
 }
 
-void QRFactorization::setFilter(int filter)
+void
+QRFactorization::setFilter(int filter)
 {
   _filter = filter;
 }
-}
-}
-} // namespace precice, cplscheme, impl
+} // namespace impl
+} // namespace cplscheme
+} // namespace precice

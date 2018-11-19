@@ -18,7 +18,8 @@ public:
   virtual ~CommunicationConfiguration() {}
 
   /// Returns a communication object of given type.
-  PtrCommunication createCommunication(const xml::XMLTag &tag) const;
+  PtrCommunication
+  createCommunication(const xml::XMLTag &tag) const;
 
 private:
   mutable logging::Logger _log{"com::CommunicationConfiguration"};

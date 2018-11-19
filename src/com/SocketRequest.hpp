@@ -10,16 +10,19 @@ namespace precice
 {
 namespace com
 {
-class SocketRequest : public Request
+class SocketRequest: public Request
 {
 public:
   SocketRequest();
 
-  void complete();
+  void
+  complete();
 
-  bool test() override;
+  bool
+  test() override;
 
-  void wait() override;
+  void
+  wait() override;
 
 private:
   bool _complete;

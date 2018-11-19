@@ -31,12 +31,14 @@ M2N::~M2N()
   }
 }
 
-bool M2N::isConnected()
+bool
+M2N::isConnected()
 {
   return _isMasterConnected;
 }
 
-void M2N::acceptMasterConnection(
+void
+M2N::acceptMasterConnection(
     const std::string &acceptorName,
     const std::string &requesterName)
 {
@@ -53,7 +55,8 @@ void M2N::acceptMasterConnection(
   utils::MasterSlave::broadcast(_isMasterConnected);
 }
 
-void M2N::requestMasterConnection(
+void
+M2N::requestMasterConnection(
     const std::string &acceptorName,
     const std::string &requesterName)
 {
@@ -73,7 +76,8 @@ void M2N::requestMasterConnection(
   utils::MasterSlave::broadcast(_isMasterConnected);
 }
 
-void M2N::acceptSlavesConnection(
+void
+M2N::acceptSlavesConnection(
     const std::string &acceptorName,
     const std::string &requesterName)
 {
@@ -88,7 +92,8 @@ void M2N::acceptSlavesConnection(
   assertion(_areSlavesConnected);
 }
 
-void M2N::requestSlavesConnection(
+void
+M2N::requestSlavesConnection(
     const std::string &acceptorName,
     const std::string &requesterName)
 {
@@ -103,7 +108,8 @@ void M2N::requestSlavesConnection(
   assertion(_areSlavesConnected);
 }
 
-void M2N::closeConnection()
+void
+M2N::closeConnection()
 {
   TRACE();
   if (not utils::MasterSlave::_slaveMode && _masterCom->isConnected()) {
@@ -123,19 +129,22 @@ void M2N::closeConnection()
   }
 }
 
-com::PtrCommunication M2N::getMasterCommunication()
+com::PtrCommunication
+M2N::getMasterCommunication()
 {
   assertion(not utils::MasterSlave::_slaveMode);
   return _masterCom; /// @todo maybe it would be a nicer design to not offer this
 }
 
-void M2N::createDistributedCommunication(mesh::PtrMesh mesh)
+void
+M2N::createDistributedCommunication(mesh::PtrMesh mesh)
 {
   DistributedCommunication::SharedPointer distCom = _distrFactory->newDistributedCommunication(mesh);
   _distComs[mesh->getID()]                        = distCom;
 }
 
-void M2N::send(
+void
+M2N::send(
     double *itemsToSend,
     int     size,
     int     meshID,
@@ -156,13 +165,15 @@ void M2N::send(
     }
 
     _distComs[meshID]->send(itemsToSend, size, valueDimension);
-  } else { //coupling mode
+  }
+  else { //coupling mode
     assertion(_isMasterConnected);
     _masterCom->send(itemsToSend, size, 0);
   }
 }
 
-void M2N::send(bool itemToSend)
+void
+M2N::send(bool itemToSend)
 {
   TRACE(utils::MasterSlave::_rank);
   if (not utils::MasterSlave::_slaveMode) {
@@ -170,7 +181,8 @@ void M2N::send(bool itemToSend)
   }
 }
 
-void M2N::send(double itemToSend)
+void
+M2N::send(double itemToSend)
 {
   TRACE(utils::MasterSlave::_rank);
   if (not utils::MasterSlave::_slaveMode) {
@@ -178,10 +190,11 @@ void M2N::send(double itemToSend)
   }
 }
 
-void M2N::receive(double *itemsToReceive,
-                  int     size,
-                  int     meshID,
-                  int     valueDimension)
+void
+M2N::receive(double *itemsToReceive,
+             int     size,
+             int     meshID,
+             int     valueDimension)
 {
   if (utils::MasterSlave::_slaveMode || utils::MasterSlave::_masterMode) {
     assertion(_areSlavesConnected);
@@ -199,13 +212,15 @@ void M2N::receive(double *itemsToReceive,
     }
 
     _distComs[meshID]->receive(itemsToReceive, size, valueDimension);
-  } else { //coupling mode
+  }
+  else { //coupling mode
     assertion(_isMasterConnected);
     _masterCom->receive(itemsToReceive, size, 0);
   }
 }
 
-void M2N::receive(bool &itemToReceive)
+void
+M2N::receive(bool &itemToReceive)
 {
   TRACE(utils::MasterSlave::_rank);
   if (not utils::MasterSlave::_slaveMode) {
@@ -217,7 +232,8 @@ void M2N::receive(bool &itemToReceive)
   DEBUG("receive(bool): " << itemToReceive);
 }
 
-void M2N::receive(double &itemToReceive)
+void
+M2N::receive(double &itemToReceive)
 {
   TRACE(utils::MasterSlave::_rank);
   if (not utils::MasterSlave::_slaveMode) { //coupling mode

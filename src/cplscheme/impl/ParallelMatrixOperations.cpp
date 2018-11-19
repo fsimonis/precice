@@ -11,7 +11,8 @@ namespace cplscheme
 namespace impl
 {
 
-void ParallelMatrixOperations::initialize(
+void
+ParallelMatrixOperations::initialize(
     com::PtrCommunication leftComm,
     com::PtrCommunication rightComm,
     bool                  needCyclicComm)
@@ -32,8 +33,8 @@ void ParallelMatrixOperations::initialize(
     }
   }
 }
-}
-}
-} // namespace precice, cplscheme, impl
+} // namespace impl
+} // namespace cplscheme
+} // namespace precice
 
 #endif

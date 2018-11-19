@@ -7,7 +7,8 @@ namespace math
 namespace barycenter
 {
 
-BarycentricCoordsAndProjected calcBarycentricCoordsForEdge(
+BarycentricCoordsAndProjected
+calcBarycentricCoordsForEdge(
     const Eigen::VectorXd &edgeA,
     const Eigen::VectorXd &edgeB,
     const Eigen::VectorXd &edgeNormal,
@@ -49,7 +50,8 @@ BarycentricCoordsAndProjected calcBarycentricCoordsForEdge(
       std::swap(barycentricCoords(0), barycentricCoords(1));
       return {barycentricCoords, projected};
     }
-  } else { // 3D
+  }
+  else { // 3D
     assertion(dimensions == 3, dimensions);
     // Get parameters for parametric triangle representation: p(s) = a + s(b-a)
     Vector3d a3D  = edgeA;
@@ -80,10 +82,12 @@ BarycentricCoordsAndProjected calcBarycentricCoordsForEdge(
     if (indexToRemove == 0) {
       indices[0] = 1;
       indices[1] = 2;
-    } else if (indexToRemove == 1) {
+    }
+    else if (indexToRemove == 1) {
       indices[0] = 0;
       indices[1] = 2;
-    } else {
+    }
+    else {
       assertion(indexToRemove == 2, indexToRemove);
       indices[0] = 0;
       indices[1] = 1;
@@ -115,7 +119,8 @@ BarycentricCoordsAndProjected calcBarycentricCoordsForEdge(
     projected = ab;                    // = b - a
     projected *= barycentricCoords[0]; // = bary0 * (b - a)
     projected += a;                    // = a + bary0 * (b - a)
-  } else {
+  }
+  else {
     projected = edgeB;                 // = b
     projected -= edgeA;                // = b - a
     projected *= barycentricCoords[0]; // = bary0 * (b - a)
@@ -126,7 +131,8 @@ BarycentricCoordsAndProjected calcBarycentricCoordsForEdge(
   return {barycentricCoords, projected};
 }
 
-BarycentricCoordsAndProjected calcBarycentricCoordsForTriangle(
+BarycentricCoordsAndProjected
+calcBarycentricCoordsForTriangle(
     const Eigen::VectorXd &a,
     const Eigen::VectorXd &b,
     const Eigen::VectorXd &c,
@@ -157,10 +163,12 @@ BarycentricCoordsAndProjected calcBarycentricCoordsForTriangle(
   if (iMax == 0) {
     indices[0] = 1;
     indices[1] = 2;
-  } else if (iMax == 1) {
+  }
+  else if (iMax == 1) {
     indices[0] = 0;
     indices[1] = 2;
-  } else {
+  }
+  else {
     assertion(iMax == 2, iMax);
     indices[0] = 0;
     indices[1] = 1;
@@ -183,7 +191,8 @@ BarycentricCoordsAndProjected calcBarycentricCoordsForTriangle(
   return {barycentricCoords, projected};
 }
 
-BarycentricCoordsAndProjected calcBarycentricCoordsForQuad(
+BarycentricCoordsAndProjected
+calcBarycentricCoordsForQuad(
     const Eigen::VectorXd &a,
     const Eigen::VectorXd &b,
     const Eigen::VectorXd &c,

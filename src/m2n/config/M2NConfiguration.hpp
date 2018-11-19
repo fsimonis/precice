@@ -16,7 +16,7 @@ namespace m2n
 {
 
 /// Configuration for communication channels between solvers.
-class M2NConfiguration : public xml::XMLTag::Listener
+class M2NConfiguration: public xml::XMLTag::Listener
 {
 public:
   using SharedPointer = std::shared_ptr<M2NConfiguration>;
@@ -33,19 +33,24 @@ public:
     * Exits with an error message, when no object is configured for the given
     * user names.
     */
-  m2n::PtrM2N getM2N(
+  m2n::PtrM2N
+  getM2N(
       const std::string &from,
       const std::string &to);
 
   /// Returns all configured communication objects.
-  std::vector<M2NTuple> &m2ns()
+  std::vector<M2NTuple> &
+  m2ns()
   {
     return _m2ns;
   }
 
-  virtual void xmlTagCallback(xml::XMLTag &callingTag);
+  virtual void
+  xmlTagCallback(xml::XMLTag &callingTag);
 
-  virtual void xmlEndTagCallback(xml::XMLTag &callingTag) {}
+  virtual void
+  xmlEndTagCallback(xml::XMLTag &callingTag)
+  {}
 
 private:
   logging::Logger _log{"m2n::M2NConfiguration"};
@@ -59,7 +64,8 @@ private:
 
   std::vector<M2NTuple> _m2ns;
 
-  void checkDuplicates(
+  void
+  checkDuplicates(
       const std::string &from,
       const std::string &to);
 };

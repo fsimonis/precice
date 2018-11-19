@@ -2,60 +2,65 @@
 
 #include "action/Action.hpp"
 #include "action/SharedPointer.hpp"
-#include "xml/XMLTag.hpp"
 #include "logging/Logger.hpp"
 #include "mesh/SharedPointer.hpp"
-#include <string>
+#include "xml/XMLTag.hpp"
 #include <list>
+#include <string>
 
-namespace precice {
-namespace action {
+namespace precice
+{
+namespace action
+{
 
 /**
  * @brief Configures an Action subclass object.
  */
-class ActionConfiguration : public xml::XMLTag::Listener
+class ActionConfiguration: public xml::XMLTag::Listener
 {
 public:
-
-  ActionConfiguration (
-    xml::XMLTag&                    parent,
-    const mesh::PtrMeshConfiguration& meshConfig );
-
-  /**
-   * @brief Callback function required for use of automatic configuration.
-   *
-   * @return True, if successful.
-   */
-  virtual void xmlTagCallback ( xml::XMLTag& callingTag );
+  ActionConfiguration(
+      xml::XMLTag &                     parent,
+      const mesh::PtrMeshConfiguration &meshConfig);
 
   /**
    * @brief Callback function required for use of automatic configuration.
    *
    * @return True, if successful.
    */
-  virtual void xmlEndTagCallback ( xml::XMLTag& callingTag );
+  virtual void
+  xmlTagCallback(xml::XMLTag &callingTag);
+
+  /**
+   * @brief Callback function required for use of automatic configuration.
+   *
+   * @return True, if successful.
+   */
+  virtual void
+  xmlEndTagCallback(xml::XMLTag &callingTag);
 
   /**
    * @brief Returns the id of the mesh used in the data action.
    */
-  int getUsedMeshID() const;
+  int
+  getUsedMeshID() const;
 
   /**
    * @brief Returns the configured action.
    */
-  const std::list<PtrAction>& actions() const
+  const std::list<PtrAction> &
+  actions() const
   {
     return _actions;
   }
 
-  void resetActions()
+  void
+  resetActions()
   {
     _actions.clear();
   }
 
 private:
-
   /**
    * @brief Stores configuration information temporarily to create the Action.
    */
@@ -66,8 +71,8 @@ private:
     std::string sourceData;
     std::string targetData;
     std::string mesh;
-    double convergenceTolerance = 0;
-    int maxIterations = 0;
+    double      convergenceTolerance = 0;
+    int         maxIterations        = 0;
     std::string path;
     std::string module;
   };
@@ -93,11 +98,11 @@ private:
   const std::string TAG_MODULE_PATH;
   const std::string TAG_MODULE_NAME;
 
-  const std::string ATTR_TYPE = "type";
+  const std::string ATTR_TYPE   = "type";
   const std::string ATTR_TIMING = "timing";
-  const std::string ATTR_NAME = "name";
-  const std::string ATTR_VALUE = "value";
-  const std::string ATTR_MESH = "mesh";
+  const std::string ATTR_NAME   = "name";
+  const std::string ATTR_VALUE  = "value";
+  const std::string ATTR_MESH   = "mesh";
 
   const std::string VALUE_REGULAR_PRIOR;
   const std::string VALUE_REGULAR_POST;
@@ -111,19 +116,22 @@ private:
 
   std::list<PtrAction> _actions;
 
-//  /**
-//   * @brief Adds all required subtags to the main action tag.
-//   */
-//  void addSubtags (
-//    std::list<xml::XMLTag>& tags,
-//    const std::string&        type );
+  //  /**
+  //   * @brief Adds all required subtags to the main action tag.
+  //   */
+  //  void addSubtags (
+  //    std::list<xml::XMLTag>& tags,
+  //    const std::string&        type );
 
   /**
    * @brief Creates the Action object.
    */
-  void createAction();
+  void
+  createAction();
 
-  Action::Timing getTiming() const;
+  Action::Timing
+  getTiming() const;
 };
 
-}} // namespace precice, action
+} // namespace action
+} // namespace precice

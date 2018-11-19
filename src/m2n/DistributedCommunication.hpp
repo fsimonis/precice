@@ -41,7 +41,8 @@ public:
   virtual ~DistributedCommunication() {}
 
   /// Returns true, if a connection to a remote participant has been setup.
-  virtual bool isConnected() = 0;
+  virtual bool
+  isConnected() = 0;
 
   /**
    * @brief Connects to another participant, which has to call requestConnection().
@@ -49,7 +50,8 @@ public:
    * @param[in] acceptorName Name of calling participant.
    * @param[in] requesterName Name of remote participant to connect to.
    */
-  virtual void acceptConnection(
+  virtual void
+  acceptConnection(
       const std::string &acceptorName,
       const std::string &requesterName) = 0;
 
@@ -59,7 +61,8 @@ public:
    * @param[in] acceptorName Name of remote participant to connect to.
    * @param[in] requesterName Name of calling participant.
    */
-  virtual void requestConnection(
+  virtual void
+  requestConnection(
       const std::string &acceptorName,
       const std::string &requesterName) = 0;
 
@@ -68,16 +71,19 @@ public:
    *
    * This method is called on destruction.
    */
-  virtual void closeConnection() = 0;
+  virtual void
+  closeConnection() = 0;
 
   /// Sends an array of double values from all slaves (different for each slave).
-  virtual void send(
+  virtual void
+  send(
       double *itemsToSend,
       size_t  size,
       int     valueDimension) = 0;
 
   /// All slaves receive an array of doubles (different for each slave).
-  virtual void receive(
+  virtual void
+  receive(
       double *itemsToReceive,
       size_t  size,
       int     valueDimension) = 0;

@@ -10,10 +10,11 @@ namespace action
 {
 
 /// Modifies a mesh's coordinates by using a coupling data set.
-class ModifyCoordinatesAction : public Action
+class ModifyCoordinatesAction: public Action
 {
 public:
-  enum Mode {
+  enum Mode
+  {
     ADD_TO_COORDINATES_MODE,
     SUBTRACT_FROM_COORDINATES_MODE
   };
@@ -26,7 +27,8 @@ public:
 
   virtual ~ModifyCoordinatesAction(){};
 
-  virtual void performAction(
+  virtual void
+  performAction(
       double time,
       double dt,
       double computedPartFullDt,

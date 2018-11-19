@@ -1,5 +1,4 @@
 #include "MMPostProcessing.hpp"
-#include <Eigen/Dense>
 #include "QRFactorization.hpp"
 #include "com/Communication.hpp"
 #include "cplscheme/CouplingData.hpp"
@@ -8,6 +7,7 @@
 #include "utils/EigenHelperFunctions.hpp"
 #include "utils/Helpers.hpp"
 #include "utils/MasterSlave.hpp"
+#include <Eigen/Dense>
 //#include "utils/NumericalCompare.hpp"
 
 namespace precice
@@ -61,7 +61,8 @@ MMPostProcessing::MMPostProcessing(
  * @brief: Initializes all the needed variables and data
  *  ---------------------------------------------------------------------------------------------
  */
-void MMPostProcessing::initialize(DataMap &cplData)
+void
+MMPostProcessing::initialize(DataMap &cplData)
 {
   TRACE(cplData.size());
   size_t              entries       = 0;
@@ -189,7 +190,8 @@ void MMPostProcessing::initialize(DataMap &cplData)
  *         for the fine model evaluation step.
  *  ---------------------------------------------------------------------------------------------
  */
-void MMPostProcessing::registerSolutionCoarseModelOptimization(
+void
+MMPostProcessing::registerSolutionCoarseModelOptimization(
     DataMap &cplData)
 {
   TRACE();
@@ -230,7 +232,8 @@ void MMPostProcessing::registerSolutionCoarseModelOptimization(
  *         i.e., x_star = argmin_x || f(x) - q ||
  *  ---------------------------------------------------------------------------------------------
  */
-void MMPostProcessing::setDesignSpecification(
+void
+MMPostProcessing::setDesignSpecification(
     Eigen::VectorXd &q)
 {
   TRACE();
@@ -250,8 +253,10 @@ void MMPostProcessing::setDesignSpecification(
  *         manifold mapping cycle. This information is needed for convergence measurements in the
  *         coupling scheme.
  *  ---------------------------------------------------------------------------------------------
- */ /// @todo: change to call by ref when Eigen is used.
-std::map<int, Eigen::VectorXd> MMPostProcessing::getDesignSpecification(
+ */
+/// @todo: change to call by ref when Eigen is used.
+std::map<int, Eigen::VectorXd>
+MMPostProcessing::getDesignSpecification(
     DataMap &cplData)
 {
   std::map<int, Eigen::VectorXd> designSpecifications;
@@ -287,7 +292,8 @@ std::map<int, Eigen::VectorXd> MMPostProcessing::getDesignSpecification(
  *         updates the difference matrices F and C. Also stores the residuals
  *  ---------------------------------------------------------------------------------------------
  */
-void MMPostProcessing::updateDifferenceMatrices(
+void
+MMPostProcessing::updateDifferenceMatrices(
     DataMap &cplData)
 {
   TRACE();
@@ -321,7 +327,8 @@ void MMPostProcessing::updateDifferenceMatrices(
       utils::appendFront(_matrixC, colC);
 
       _matrixCols.front()++;
-    } else {
+    }
+    else {
       utils::shiftSetFirst(_matrixF, colF);
       utils::shiftSetFirst(_matrixC, colC);
 
@@ -347,7 +354,8 @@ void MMPostProcessing::updateDifferenceMatrices(
  *         of fine and coarse model evaluations and also calls the coarse model optimization.
  *  ---------------------------------------------------------------------------------------------
  */
-void MMPostProcessing::performPostProcessing(
+void
+MMPostProcessing::performPostProcessing(
     DataMap &cplData)
 {
   TRACE(_dataIDs.size(), cplData.size());
@@ -514,7 +522,8 @@ void MMPostProcessing::performPostProcessing(
  *     	   i. e., q_k = c(x_k) - T_k * (f(x_k) - q), q = 0 is the fine model design specification
  *  ---------------------------------------------------------------------------------------------
  */
-void MMPostProcessing::computeCoarseModelDesignSpecifiaction()
+void
+MMPostProcessing::computeCoarseModelDesignSpecifiaction()
 {
   TRACE();
 
@@ -595,7 +604,8 @@ void MMPostProcessing::computeCoarseModelDesignSpecifiaction()
           _MMMappingMatrix = _MMMappingMatrix_prev + (_matrixC - _MMMappingMatrix_prev * _matrixF) * pseudoMatrixF;
 
           // if no previous Jacobian exists, set up Jacobian with IQN-ILS update rule + stabilization term
-        } else {
+        }
+        else {
           _MMMappingMatrix = _matrixC * pseudoMatrixF + (I - U_C * U_C.transpose()) * (I - U_F * U_F.transpose());
         }
 
@@ -610,13 +620,15 @@ void MMPostProcessing::computeCoarseModelDesignSpecifiaction()
     assertion(getLSSystemCols() <= 0, getLSSystemCols());
     if (_estimateJacobian && (_MMMappingMatrix_prev.rows() == getLSSystemRows())) {
       _coarseModel_designSpecification -= _MMMappingMatrix_prev * alpha;
-    } else {
+    }
+    else {
       _coarseModel_designSpecification -= alpha;
     }
   }
 }
 
-void MMPostProcessing::concatenateCouplingData(
+void
+MMPostProcessing::concatenateCouplingData(
     DataMap &cplData)
 {
   TRACE();
@@ -648,7 +660,8 @@ void MMPostProcessing::concatenateCouplingData(
  *   @brief indicates whether the design specification has been set and is valid
  *  -----------------------------------------------------------------------------------
  */
-bool MMPostProcessing::isSet(Eigen::VectorXd &designSpec)
+bool
+MMPostProcessing::isSet(Eigen::VectorXd &designSpec)
 {
   // design specification is considered to be set and active if
   // 1. its size is larger then zero (i. e., it must be equal to the number of unknowns)
@@ -667,7 +680,8 @@ bool MMPostProcessing::isSet(Eigen::VectorXd &designSpec)
  *         updates F and C according to the number of reused time steps
  *  ---------------------------------------------------------------------------------------------
  */
-void MMPostProcessing::iterationsConverged(
+void
+MMPostProcessing::iterationsConverged(
     DataMap &cplData)
 {
   TRACE();
@@ -729,7 +743,8 @@ void MMPostProcessing::iterationsConverged(
     _matrixF.resize(0, 0);
     _matrixC.resize(0, 0);
     _matrixCols.clear();
-  } else if ((int) _matrixCols.size() > _timestepsReused) {
+  }
+  else if ((int) _matrixCols.size() > _timestepsReused) {
     int toRemove = _matrixCols.back();
     assertion(toRemove > 0, toRemove);
     DEBUG("Removing " << toRemove << " cols from mannifold mapping least-squares system with " << getLSSystemCols() << " cols");
@@ -754,7 +769,8 @@ void MMPostProcessing::iterationsConverged(
  * @brief: removes a column from the least squares system, i. e., from the matrices F and C
  *  ---------------------------------------------------------------------------------------------
  */
-void MMPostProcessing::removeMatrixColumn(
+void
+MMPostProcessing::removeMatrixColumn(
     int columnIndex)
 {
   TRACE(columnIndex, _matrixF.cols());
@@ -783,22 +799,26 @@ void MMPostProcessing::removeMatrixColumn(
   }
 }
 
-void MMPostProcessing::exportState(
+void
+MMPostProcessing::exportState(
     io::TXTWriter &writer)
 {
 }
 
-void MMPostProcessing::importState(
+void
+MMPostProcessing::importState(
     io::TXTReader &reader)
 {
 }
 
-int MMPostProcessing::getDeletedColumns()
+int
+MMPostProcessing::getDeletedColumns()
 {
   return deletedColumns;
 }
 
-int MMPostProcessing::getLSSystemCols()
+int
+MMPostProcessing::getLSSystemCols()
 {
   int cols = 0;
   for (int col : _matrixCols) {
@@ -812,7 +832,8 @@ int MMPostProcessing::getLSSystemCols()
   return cols;
 }
 
-int MMPostProcessing::getLSSystemRows()
+int
+MMPostProcessing::getLSSystemRows()
 {
   if (utils::MasterSlave::_masterMode || utils::MasterSlave::_slaveMode) {
     return _dimOffsets.back();
@@ -820,6 +841,6 @@ int MMPostProcessing::getLSSystemRows()
   return _fineResiduals.size();
   //return _matrixF.rows();
 }
-}
-}
-} // namespace precice, cplscheme, impl
+} // namespace impl
+} // namespace cplscheme
+} // namespace precice

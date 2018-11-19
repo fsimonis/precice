@@ -31,7 +31,8 @@ BOOST_AUTO_TEST_SUITE(IOTests)
 
 using namespace precice;
 
-struct SetupMasterSlaveFixture {
+struct SetupMasterSlaveFixture
+{
   SetupMasterSlaveFixture()
   {
     assertion(utils::Parallel::getCommunicatorSize() == 4);
@@ -48,19 +49,22 @@ struct SetupMasterSlaveFixture {
       utils::MasterSlave::_masterMode = true;
       utils::MasterSlave::_slaveMode  = false;
       utils::MasterSlave::_rank       = 0;
-    } else if (utils::Parallel::getProcessRank() == 1) {
+    }
+    else if (utils::Parallel::getProcessRank() == 1) {
       utils::Parallel::splitCommunicator("Slaves");
       masterSlaveCom->requestConnection("Master", "Slaves", 0, 3);
       utils::MasterSlave::_masterMode = false;
       utils::MasterSlave::_slaveMode  = true;
       utils::MasterSlave::_rank       = 1;
-    } else if (utils::Parallel::getProcessRank() == 2) {
+    }
+    else if (utils::Parallel::getProcessRank() == 2) {
       utils::Parallel::splitCommunicator("Slaves");
       masterSlaveCom->requestConnection("Master", "Slaves", 1, 3);
       utils::MasterSlave::_masterMode = false;
       utils::MasterSlave::_slaveMode  = true;
       utils::MasterSlave::_rank       = 2;
-    } else if (utils::Parallel::getProcessRank() == 3) {
+    }
+    else if (utils::Parallel::getProcessRank() == 3) {
       utils::Parallel::splitCommunicator("Slaves");
       masterSlaveCom->requestConnection("Master", "Slaves", 2, 3);
       utils::MasterSlave::_masterMode = false;
@@ -106,9 +110,10 @@ BOOST_AUTO_TEST_CASE(ExportPolygonalMesh)
     mesh.getVertexDistribution()[1] = {};
     mesh.getVertexDistribution()[2] = {3, 4, 5};
     mesh.getVertexDistribution()[3] = {6};
-  } else if (utils::Parallel::getProcessRank() == 1) {
-
-  } else if (utils::Parallel::getProcessRank() == 2) {
+  }
+  else if (utils::Parallel::getProcessRank() == 1) {
+  }
+  else if (utils::Parallel::getProcessRank() == 2) {
     mesh::Vertex &  v1      = mesh.createVertex(Eigen::VectorXd::Constant(dim, 1));
     mesh::Vertex &  v2      = mesh.createVertex(Eigen::VectorXd::Constant(dim, 2));
     Eigen::VectorXd coords3 = Eigen::VectorXd::Zero(dim);
@@ -118,7 +123,8 @@ BOOST_AUTO_TEST_CASE(ExportPolygonalMesh)
     mesh.createEdge(v1, v2);
     mesh.createEdge(v2, v3);
     mesh.createEdge(v3, v1);
-  } else if (utils::Parallel::getProcessRank() == 3) {
+  }
+  else if (utils::Parallel::getProcessRank() == 3) {
     mesh.createVertex(Eigen::VectorXd::Constant(dim, 3.0));
   }
 
@@ -153,9 +159,10 @@ BOOST_AUTO_TEST_CASE(ExportTriangulatedMesh)
     mesh.getVertexDistribution()[1] = {};
     mesh.getVertexDistribution()[2] = {3, 4, 5};
     mesh.getVertexDistribution()[3] = {6};
-  } else if (utils::Parallel::getProcessRank() == 1) {
-
-  } else if (utils::Parallel::getProcessRank() == 2) {
+  }
+  else if (utils::Parallel::getProcessRank() == 1) {
+  }
+  else if (utils::Parallel::getProcessRank() == 2) {
     mesh::Vertex &  v1      = mesh.createVertex(Eigen::VectorXd::Constant(dim, 1));
     mesh::Vertex &  v2      = mesh.createVertex(Eigen::VectorXd::Constant(dim, 2));
     Eigen::VectorXd coords3 = Eigen::VectorXd::Zero(dim);
@@ -166,7 +173,8 @@ BOOST_AUTO_TEST_CASE(ExportTriangulatedMesh)
     mesh::Edge &e2 = mesh.createEdge(v2, v3);
     mesh::Edge &e3 = mesh.createEdge(v3, v1);
     mesh.createTriangle(e1, e2, e3);
-  } else if (utils::Parallel::getProcessRank() == 3) {
+  }
+  else if (utils::Parallel::getProcessRank() == 3) {
     mesh.createVertex(Eigen::VectorXd::Constant(dim, 3.0));
   }
 
@@ -191,7 +199,8 @@ BOOST_AUTO_TEST_CASE(ExportQuadMesh)
     mesh.getVertexDistribution()[1] = {0, 1, 2, 3};
     mesh.getVertexDistribution()[2] = {4, 5, 6, 7, 8, 9};
     mesh.getVertexDistribution()[3] = {};
-  } else if (utils::Parallel::getProcessRank() == 1) {
+  }
+  else if (utils::Parallel::getProcessRank() == 1) {
     // z=0 plane
     Vertex &v0 = mesh.createVertex(Eigen::Vector3d(0.0, 0.0, 0.0));
     Vertex &v1 = mesh.createVertex(Eigen::Vector3d(1.0, 0.0, 0.0));
@@ -207,7 +216,8 @@ BOOST_AUTO_TEST_CASE(ExportQuadMesh)
     Edge &e9 = mesh.createEdge(v1, v5);
     // x-z plane
     mesh.createQuad(e0, e9, e4, e8);
-  } else if (utils::Parallel::getProcessRank() == 2) {
+  }
+  else if (utils::Parallel::getProcessRank() == 2) {
     // z=0 plane
     Vertex &v1 = mesh.createVertex(Eigen::Vector3d(1.0, 0.0, 0.0));
     Vertex &v2 = mesh.createVertex(Eigen::Vector3d(1.0, 1.0, 0.0));
@@ -230,7 +240,8 @@ BOOST_AUTO_TEST_CASE(ExportQuadMesh)
     mesh.createQuad(e11, e6, e10, e2);
     // y-z plane
     mesh.createQuad(e9, e1, e10, e5);
-  } else if (utils::Parallel::getProcessRank() == 3) {
+  }
+  else if (utils::Parallel::getProcessRank() == 3) {
   }
 
   mesh.computeState();

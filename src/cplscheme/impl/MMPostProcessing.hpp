@@ -1,11 +1,11 @@
 #pragma once
 
-#include <Eigen/Core>
-#include <deque>
 #include "PostProcessing.hpp"
 #include "Preconditioner.hpp"
 #include "SharedPointer.hpp"
 #include "logging/Logger.hpp"
+#include <Eigen/Core>
+#include <deque>
 
 namespace precice
 {
@@ -15,7 +15,7 @@ namespace impl
 {
 
 /// Base Class for quasi-Newton post processing schemes
-class MMPostProcessing : public PostProcessing
+class MMPostProcessing: public PostProcessing
 {
 public:
   MMPostProcessing(
@@ -34,26 +34,30 @@ public:
   }
 
   /// Returns all MM involved fine model data IDs.
-  virtual std::vector<int> getDataIDs() const
+  virtual std::vector<int>
+  getDataIDs() const
   {
     return _fineDataIDs;
   }
 
   /// Returns all MM involved coarse model data IDs.
-  std::vector<int> getCoarseDataIDs() const
+  std::vector<int>
+  getCoarseDataIDs() const
   {
     return _coarseDataIDs;
   }
 
   /// Initializes the post-processing.
-  virtual void initialize(DataMap &cplData);
+  virtual void
+  initialize(DataMap &cplData);
 
   /**
    * @brief Performs one post-processing step.
    *
    * Has to be called after every implicit coupling iteration.
    */
-  virtual void performPostProcessing(DataMap &cplData);
+  virtual void
+  performPostProcessing(DataMap &cplData);
 
   /**
    * @brief Marks a iteration sequence as converged.
@@ -61,7 +65,8 @@ public:
    * Since convergence measurements are done outside the post-processing, this
    * method has to be used to signalize convergence to the post-processing.
    */
-  virtual void iterationsConverged(DataMap &cplData);
+  virtual void
+  iterationsConverged(DataMap &cplData);
 
   /**
    * @brief sets the design specification we want to meet for the objective function,
@@ -69,40 +74,48 @@ public:
    *     Usually we want to solve for a fixed-point of H, thus solving for argmin_x ||R(x)||
    *     with q=0.
    */
-  virtual void setDesignSpecification(Eigen::VectorXd &q);
+  virtual void
+  setDesignSpecification(Eigen::VectorXd &q);
 
   /**
    * @brief Returns the design specification for the optimization problem.
    *        Information needed to measure the convergence.
    *        In case of manifold mapping it also returns the design specification
    *        for the surrogate model which is updated in every iteration.
-   */ /// @todo: change to call by ref when Eigen is used.
-  virtual std::map<int, Eigen::VectorXd> getDesignSpecification(DataMap &cplData);
+   */
+  /// @todo: change to call by ref when Eigen is used.
+  virtual std::map<int, Eigen::VectorXd>
+  getDesignSpecification(DataMap &cplData);
 
   /**
    * @brief Sets whether the solver has to evaluate the coarse or the fine model representation
    * steers the coupling scheme and the post processing.
    */
-  virtual void setCoarseModelOptimizationActive(bool *coarseOptActive)
+  virtual void
+  setCoarseModelOptimizationActive(bool *coarseOptActive)
   {
     _isCoarseModelOptimizationActive = coarseOptActive;
   }
 
   /// Exports the current state of the post-processing to a file.
-  virtual void exportState(io::TXTWriter &writer);
+  virtual void
+  exportState(io::TXTWriter &writer);
 
   /**
    * @brief Imports the last exported state of the post-processing from file.
    *
    * Is empty at the moment!!!
    */
-  virtual void importState(io::TXTReader &reader);
+  virtual void
+  importState(io::TXTReader &reader);
 
   // delete this:
-  virtual int getDeletedColumns();
+  virtual int
+  getDeletedColumns();
 
   /// Indicates whether the given post processing is based on a multi-level approach
-  virtual bool isMultilevelBasedApproach()
+  virtual bool
+  isMultilevelBasedApproach()
   {
     return true;
   }
@@ -244,36 +257,45 @@ private:
    * 		  is needed for master-slave communication.
    * 		  Number of its =! _cols in general.
    */
-  int getLSSystemCols();
-  int getLSSystemRows();
+  int
+  getLSSystemCols();
+  int
+  getLSSystemRows();
 
   /// updates the V, W matrices (as well as the matrices for the secondary data)
-  void updateDifferenceMatrices(
+  void
+  updateDifferenceMatrices(
       DataMap &cplData);
 
   /** @brief registers the new solution x_k+1 (x_star) from the coarse model optimization
    *         problem as new input data for the fine model evaluation step. This has to be done
    *         in each iteration that performs the coarse model optimization.
    */
-  void registerSolutionCoarseModelOptimization(DataMap &cplData);
+  void
+  registerSolutionCoarseModelOptimization(DataMap &cplData);
 
   /** @brief: computes/updates the design specification for the coarse model optimization problem
    *     	   i. e., q_k = c(x_k) - T_k * (f(x_k) - q), q = 0 is the fine model design specification
    */
-  void computeCoarseModelDesignSpecifiaction();
+  void
+  computeCoarseModelDesignSpecifiaction();
 
   /// computes the quasi-Newton update using the specified pp scheme (MVQN, IQNILS)
-  void computeQNUpdate(DataMap &cplData, Eigen::VectorXd &xUpdate);
+  void
+  computeQNUpdate(DataMap &cplData, Eigen::VectorXd &xUpdate);
 
   /// Removes one iteration from V,W matrices and adapts _matrixCols.
-  void removeMatrixColumn(int columnIndex);
+  void
+  removeMatrixColumn(int columnIndex);
 
   /// concatenates all coupling data involved in the QN system in a single vector
-  void concatenateCouplingData(DataMap &cplData);
+  void
+  concatenateCouplingData(DataMap &cplData);
 
   /// Indicates whether the design specification has been set and is active or not
-  bool isSet(Eigen::VectorXd &designSpec);
+  bool
+  isSet(Eigen::VectorXd &designSpec);
 };
-}
-}
-} // namespace precice, cplscheme, impl
+} // namespace impl
+} // namespace cplscheme
+} // namespace precice

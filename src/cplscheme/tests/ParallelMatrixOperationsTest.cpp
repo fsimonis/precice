@@ -1,6 +1,5 @@
 #ifndef PRECICE_NO_MPI
 
-#include <Eigen/Core>
 #include "../impl/ParallelMatrixOperations.hpp"
 #include "com/Communication.hpp"
 #include "com/MPIDirectCommunication.hpp"
@@ -10,6 +9,7 @@
 #include "testing/Testing.hpp"
 #include "utils/MasterSlave.hpp"
 #include "utils/Parallel.hpp"
+#include <Eigen/Core>
 
 BOOST_AUTO_TEST_SUITE(CplSchemeTests)
 
@@ -18,7 +18,8 @@ using namespace precice;
 BOOST_AUTO_TEST_SUITE(ParallelMatrixOperations,
                       *testing::OnSize(4))
 
-void validate_result_equals_reference(
+void
+validate_result_equals_reference(
     Eigen::MatrixXd & result_local,
     Eigen::MatrixXd & reference_global,
     std::vector<int> &offsets,
@@ -30,7 +31,8 @@ void validate_result_equals_reference(
       if (partitionedRowWise) {
         BOOST_TEST(testing::equals(result_local(i, j), reference_global(i + off, j)),
                    "Failed: (" << i + off << ", " << j << ") result, reference:" << result_local(i, j) << ", " << reference_global(i + off, j));
-      } else {
+      }
+      else {
         BOOST_TEST(testing::equals(result_local(i, j), reference_global(i, j + off)),
                    "Failed: (" << i << ", " << j + off << ") result, reference:" << result_local(i, j) << ", " << reference_global(i, j + off));
       }
@@ -38,7 +40,7 @@ void validate_result_equals_reference(
   }
 }
 
-BOOST_AUTO_TEST_CASE(ParVectorOperations, * boost::unit_test::fixture<testing::MasterComFixture>())
+BOOST_AUTO_TEST_CASE(ParVectorOperations, *boost::unit_test::fixture<testing::MasterComFixture>())
 {
   int              n_global = 10;
   int              n_local;
@@ -78,13 +80,16 @@ BOOST_AUTO_TEST_CASE(ParVectorOperations, * boost::unit_test::fixture<testing::M
   if (utils::Parallel::getProcessRank() == 0) {
     n_local = 3;
     a       = 1;
-  } else if (utils::Parallel::getProcessRank() == 1) {
+  }
+  else if (utils::Parallel::getProcessRank() == 1) {
     n_local = 4;
     a       = 2;
-  } else if (utils::Parallel::getProcessRank() == 2) {
+  }
+  else if (utils::Parallel::getProcessRank() == 2) {
     n_local = 0;
     a       = 3;
-  } else if (utils::Parallel::getProcessRank() == 3) {
+  }
+  else if (utils::Parallel::getProcessRank() == 3) {
     n_local = 3;
     a       = 4;
   }
@@ -150,7 +155,7 @@ BOOST_AUTO_TEST_CASE(ParVectorOperations, * boost::unit_test::fixture<testing::M
   BOOST_TEST(testing::equals(dotproduct, 7.069617899295469));
 }
 
-BOOST_AUTO_TEST_CASE(ParallelMatrixMatrixOp,  * boost::unit_test::fixture<testing::MasterComFixture>())
+BOOST_AUTO_TEST_CASE(ParallelMatrixMatrixOp, *boost::unit_test::fixture<testing::MasterComFixture>())
 {
   com::PtrCommunication _cyclicCommLeft  = com::PtrCommunication(new com::MPIPortsCommunication("."));
   com::PtrCommunication _cyclicCommRight = com::PtrCommunication(new com::MPIPortsCommunication("."));
@@ -160,7 +165,8 @@ BOOST_AUTO_TEST_CASE(ParallelMatrixMatrixOp,  * boost::unit_test::fixture<testin
   if ((utils::Parallel::getProcessRank() % 2) == 0) {
     _cyclicCommLeft->acceptConnection("cyclicComm-" + std::to_string(prevProc), "", utils::Parallel::getProcessRank());
     _cyclicCommRight->requestConnection("cyclicComm-" + std::to_string(utils::Parallel::getProcessRank()), "", 0, 1);
-  } else {
+  }
+  else {
     _cyclicCommRight->requestConnection("cyclicComm-" + std::to_string(utils::Parallel::getProcessRank()), "", 0, 1);
     _cyclicCommLeft->acceptConnection("cyclicComm-" + std::to_string(prevProc), "", utils::Parallel::getProcessRank());
   }
@@ -252,11 +258,14 @@ BOOST_AUTO_TEST_CASE(ParallelMatrixMatrixOp,  * boost::unit_test::fixture<testin
 
   if (utils::Parallel::getProcessRank() == 0) {
     n_local = 3;
-  } else if (utils::Parallel::getProcessRank() == 1) {
+  }
+  else if (utils::Parallel::getProcessRank() == 1) {
     n_local = 4;
-  } else if (utils::Parallel::getProcessRank() == 2) {
+  }
+  else if (utils::Parallel::getProcessRank() == 2) {
     n_local = 0;
-  } else if (utils::Parallel::getProcessRank() == 3) {
+  }
+  else if (utils::Parallel::getProcessRank() == 3) {
     n_local = 3;
   }
 
@@ -333,7 +342,8 @@ BOOST_AUTO_TEST_CASE(ParallelMatrixMatrixOp,  * boost::unit_test::fixture<testin
     if ((utils::Parallel::getProcessRank() % 2) == 0) {
       _cyclicCommLeft->closeConnection();
       _cyclicCommRight->closeConnection();
-    } else {
+    }
+    else {
       _cyclicCommRight->closeConnection();
       _cyclicCommLeft->closeConnection();
     }

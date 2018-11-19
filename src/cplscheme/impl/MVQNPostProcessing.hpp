@@ -2,11 +2,11 @@
 
 #pragma once
 
-#include <deque>
 #include "BaseQNPostProcessing.hpp"
 #include "ParallelMatrixOperations.hpp"
 #include "SVDFactorization.hpp"
 #include "com/SharedPointer.hpp"
+#include <deque>
 
 // ----------------------------------------------------------- CLASS DEFINITION
 
@@ -30,7 +30,7 @@ namespace impl
  * MVQN-related data. The data is called "secondary" henceforth and additional
  * old value and data matrices are needed for it.
  */
-class MVQNPostProcessing : public BaseQNPostProcessing
+class MVQNPostProcessing: public BaseQNPostProcessing
 {
 public:
   static const int NO_RESTART = 0;
@@ -65,7 +65,8 @@ public:
   /**
     * @brief Initializes the post-processing.
     */
-  virtual void initialize(DataMap &cplData);
+  virtual void
+  initialize(DataMap &cplData);
 
   /**
     * @brief Marks a iteration sequence as converged.
@@ -73,7 +74,8 @@ public:
     * called by the iterationsConverged() method in the BaseQNPostProcessing class
     * handles the postprocessing sepcific action after the convergence of one iteration
     */
-  virtual void specializedIterationsConverged(DataMap &cplData);
+  virtual void
+  specializedIterationsConverged(DataMap &cplData);
 
 private:
   /// @brief stores the approximation of the inverse Jacobian of the system at current time step.
@@ -151,13 +153,16 @@ private:
   /** @brief: comptes the MVQN update using QR decomposition of V,
     *        furthermore it updates the inverse of the system jacobian
     */
-  virtual void computeQNUpdate(DataMap &cplData, Eigen::VectorXd &xUpdate);
+  virtual void
+  computeQNUpdate(DataMap &cplData, Eigen::VectorXd &xUpdate);
 
   /// @brief: updates the V, W matrices (as well as the matrices for the secondary data)
-  virtual void updateDifferenceMatrices(DataMap &cplData);
+  virtual void
+  updateDifferenceMatrices(DataMap &cplData);
 
   /// @brief: computes underrelaxation for the secondary data
-  virtual void computeUnderrelaxationSecondaryData(DataMap &cplData);
+  virtual void
+  computeUnderrelaxationSecondaryData(DataMap &cplData);
 
   /** @brief: computes the quasi-Newton update vector based on the matrices V and W using a QR
     *  decomposition of V. The decomposition is not re-computed en-block in every iteration
@@ -166,7 +171,8 @@ private:
     *  This method rebuilds the Jacobian matrix and the matrix W_til in each iteration
     *  which is not necessary and thus inefficient.
     */
-  void computeNewtonUpdate(DataMap &cplData, Eigen::VectorXd &update);
+  void
+  computeNewtonUpdate(DataMap &cplData, Eigen::VectorXd &update);
 
   /** @brief: computes the quasi-Newton update vector based on the same numerics as above.
     *  However, it exploits the fact that the matrix W_til can be updated according to V and W
@@ -176,19 +182,23 @@ private:
     *  The Jacobian matrix only needs to be set up in the very last iteration of one time step, i.e.
     *  in iterationsConverged.
     */
-  void computeNewtonUpdateEfficient(DataMap &cplData, Eigen::VectorXd &update);
+  void
+  computeNewtonUpdateEfficient(DataMap &cplData, Eigen::VectorXd &update);
 
   /** @brief: computes the pseudo inverse of V multiplied with V^T, i.e., Z = (V^TV)^-1V^T via QR-dec
     */
-  void pseudoInverse(Eigen::MatrixXd &pseudoInverse);
+  void
+  pseudoInverse(Eigen::MatrixXd &pseudoInverse);
 
   /** @brief: computes a explicit representation of the Jacobian, i.e., n x n matrix
     */
-  void buildJacobian();
+  void
+  buildJacobian();
 
   /** @brief: re-computes the matrix _Wtil = ( W - J_prev * V) instead of updating it according to V
     */
-  void buildWtil();
+  void
+  buildWtil();
 
   /** @brief: restarts the imvj method, i.e., drops all stored matrices Wtil and Z and computes a
     *  initial guess of the Jacobian based on the given restart strategy:
@@ -196,16 +206,19 @@ private:
     *  RS-SVD:  Update a truncated SVD decomposition of the SVD with rank-1 modifications from Wtil*Z
     *  RS-Zero: Start with zero information, initial guess J = 0.
     */
-  void restartIMVJ();
+  void
+  restartIMVJ();
 
   /// @brief: Removes one iteration from V,W matrices and adapts _matrixCols.
-  virtual void removeMatrixColumn(int columnIndex);
+  virtual void
+  removeMatrixColumn(int columnIndex);
 
   /// @brief: Removes one column form the V_RSLS and W_RSLS matrices and adapts _matrixCols_RSLS
-  void removeMatrixColumnRSLS(int columnINdex);
+  void
+  removeMatrixColumnRSLS(int columnINdex);
 };
-}
-}
-} // namespace precice, cplscheme, impl
+} // namespace impl
+} // namespace cplscheme
+} // namespace precice
 
 #endif /* PRECICE_NO_MPI */

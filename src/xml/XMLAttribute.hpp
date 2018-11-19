@@ -1,20 +1,20 @@
 #pragma once
 
-#include <iostream>
-#include <string>
 #include "Validator.hpp"
 #include "logging/Logger.hpp"
 #include "math/math.hpp"
+#include "utils/String.hpp"
 #include "utils/TypeNames.hpp"
 #include "utils/assertion.hpp"
-#include "utils/String.hpp"
+#include <iostream>
+#include <string>
 
 namespace precice
 {
 namespace xml
 {
 
-template <typename ATTRIBUTE_T>
+template<typename ATTRIBUTE_T>
 class XMLAttribute
 {
 public:
@@ -35,54 +35,70 @@ public:
   };
 
   /// Sets a documentation string for the attribute.
-  void setDocumentation(const std::string &documentation);
+  void
+  setDocumentation(const std::string &documentation);
 
-  const std::string &getUserDocumentation() const
+  const std::string &
+  getUserDocumentation() const
   {
     return _doc;
   }
 
-  void setValidator(const Validator<ATTRIBUTE_T> &validator);
+  void
+  setValidator(const Validator<ATTRIBUTE_T> &validator);
 
-  void setDefaultValue(const ATTRIBUTE_T &defaultValue);
+  void
+  setDefaultValue(const ATTRIBUTE_T &defaultValue);
 
-  void readValue(std::map<std::string, std::string> &aAttributes);
+  void
+  readValue(std::map<std::string, std::string> &aAttributes);
 
-  void readValueSpecific(std::string &rawValue, double &value);
+  void
+  readValueSpecific(std::string &rawValue, double &value);
 
-  void readValueSpecific(std::string &rawValue, int &value);
+  void
+  readValueSpecific(std::string &rawValue, int &value);
 
-  void readValueSpecific(std::string &rawValue, std::string &value);
+  void
+  readValueSpecific(std::string &rawValue, std::string &value);
 
-  void readValueSpecific(std::string &rawValue, bool &value);
+  void
+  readValueSpecific(std::string &rawValue, bool &value);
 
-  void readValueSpecific(std::string &rawValue, Eigen::VectorXd &value);
+  void
+  readValueSpecific(std::string &rawValue, Eigen::VectorXd &value);
 
   //Eigen::VectorXd getAttributeValueAsEigenVectorXd(std::string& rawValue);
 
-  const std::string &getName() const
+  const std::string &
+  getName() const
   {
     return _name;
   };
 
-  const ATTRIBUTE_T &getValue() const
+  const ATTRIBUTE_T &
+  getValue() const
   {
     return _value;
   };
 
-  void setRead(bool read)
+  void
+  setRead(bool read)
   {
     _read = read;
   };
 
-  bool isRead() const
+  bool
+  isRead() const
   {
     return _read;
   };
 
   /// Returns a documentation string about the attribute.
-  std::string printDocumentation() const;
-  std::string printDTD(const std::string &ElementName) const;
+  std::string
+  printDocumentation() const;
+  std::string
+  printDTD(const std::string &ElementName) const;
 
 private:
   logging::Logger _log{"xml::XMLAttribute"};
@@ -104,31 +120,31 @@ private:
   Validator<ATTRIBUTE_T> *_validator = nullptr;
 
   /// Sets non Eigen::VectorXd type values.
-  template <typename VALUE_T>
+  template<typename VALUE_T>
   typename std::enable_if<
       std::is_same<VALUE_T, ATTRIBUTE_T>::value && not std::is_same<VALUE_T, Eigen::VectorXd>::value, void>::type
   set(ATTRIBUTE_T &toSet, const VALUE_T &setter);
 
   /// Sets Eigen::VectorXd type values by clearing and copy.
-  template <typename VALUE_T>
+  template<typename VALUE_T>
   typename std::enable_if<
       std::is_same<VALUE_T, ATTRIBUTE_T>::value && std::is_same<VALUE_T, Eigen::VectorXd>::value, void>::type
   set(ATTRIBUTE_T &toSet, const VALUE_T &setter);
 };
 
-template <typename ATTRIBUTE_T>
+template<typename ATTRIBUTE_T>
 XMLAttribute<ATTRIBUTE_T>::XMLAttribute()
 {
   assertion(false);
 }
 
-template <typename ATTRIBUTE_T>
+template<typename ATTRIBUTE_T>
 XMLAttribute<ATTRIBUTE_T>::XMLAttribute(const std::string &name)
     : _name(name)
 {
 }
 
-template <typename ATTRIBUTE_T>
+template<typename ATTRIBUTE_T>
 XMLAttribute<ATTRIBUTE_T>::XMLAttribute(const XMLAttribute<ATTRIBUTE_T> &rhs)
     : _name(rhs._name),
       _doc(rhs._doc),
@@ -144,14 +160,16 @@ XMLAttribute<ATTRIBUTE_T>::XMLAttribute(const XMLAttribute<ATTRIBUTE_T> &rhs)
   }
 }
 
-template <typename ATTRIBUTE_T>
-void XMLAttribute<ATTRIBUTE_T>::setDocumentation(const std::string &documentation)
+template<typename ATTRIBUTE_T>
+void
+XMLAttribute<ATTRIBUTE_T>::setDocumentation(const std::string &documentation)
 {
   _doc = documentation;
 }
 
-template <typename ATTRIBUTE_T>
-void XMLAttribute<ATTRIBUTE_T>::setValidator(const Validator<ATTRIBUTE_T> &validator)
+template<typename ATTRIBUTE_T>
+void
+XMLAttribute<ATTRIBUTE_T>::setValidator(const Validator<ATTRIBUTE_T> &validator)
 {
   if (_validator) {
     delete _validator;
@@ -160,16 +178,18 @@ void XMLAttribute<ATTRIBUTE_T>::setValidator(const Validator<ATTRIBUTE_T> &valid
   _hasValidation = true;
 }
 
-template <typename ATTRIBUTE_T>
-void XMLAttribute<ATTRIBUTE_T>::setDefaultValue(const ATTRIBUTE_T &defaultValue)
+template<typename ATTRIBUTE_T>
+void
+XMLAttribute<ATTRIBUTE_T>::setDefaultValue(const ATTRIBUTE_T &defaultValue)
 {
   TRACE(defaultValue);
   _hasDefaultValue = true;
   set(_defaultValue, defaultValue);
 }
 
-template <typename ATTRIBUTE_T>
-void XMLAttribute<ATTRIBUTE_T>::readValue(std::map<std::string, std::string> &aAttributes)
+template<typename ATTRIBUTE_T>
+void
+XMLAttribute<ATTRIBUTE_T>::readValue(std::map<std::string, std::string> &aAttributes)
 {
   TRACE(_name);
   if (_read) {
@@ -183,7 +203,8 @@ void XMLAttribute<ATTRIBUTE_T>::readValue(std::map<std::string, std::string> &aA
       throw "Attribute \"" + _name + "\" missing";
     }
     set(_value, _defaultValue);
-  } else {
+  }
+  else {
     readValueSpecific(aAttributes[getName()], _value);
     if (_validator) {
       if (not _validator->validateValue(_value)) {
@@ -199,8 +220,9 @@ void XMLAttribute<ATTRIBUTE_T>::readValue(std::map<std::string, std::string> &aA
   DEBUG("Read valid attribute \"" << getName() << "\" value = " << _value);
 }
 
-template <typename ATTRIBUTE_T>
-void XMLAttribute<ATTRIBUTE_T>::readValueSpecific(std::string &rawValue, double &value)
+template<typename ATTRIBUTE_T>
+void
+XMLAttribute<ATTRIBUTE_T>::readValueSpecific(std::string &rawValue, double &value)
 {
   try {
     if (rawValue.find("/") != std::string::npos) {
@@ -208,7 +230,8 @@ void XMLAttribute<ATTRIBUTE_T>::readValueSpecific(std::string &rawValue, double 
       std::string right = rawValue.substr(rawValue.find("/") + 1, rawValue.size() - rawValue.find("/") - 1);
 
       value = std::stod(left) / std::stod(right);
-    } else {
+    }
+    else {
       value = std::stod(rawValue);
     }
   } catch (...) {
@@ -216,8 +239,9 @@ void XMLAttribute<ATTRIBUTE_T>::readValueSpecific(std::string &rawValue, double 
   }
 }
 
-template <typename ATTRIBUTE_T>
-void XMLAttribute<ATTRIBUTE_T>::readValueSpecific(std::string &rawValue, int &value)
+template<typename ATTRIBUTE_T>
+void
+XMLAttribute<ATTRIBUTE_T>::readValueSpecific(std::string &rawValue, int &value)
 {
   try {
     value = std::stoi(rawValue);
@@ -226,20 +250,23 @@ void XMLAttribute<ATTRIBUTE_T>::readValueSpecific(std::string &rawValue, int &va
   }
 }
 
-template <typename ATTRIBUTE_T>
-void XMLAttribute<ATTRIBUTE_T>::readValueSpecific(std::string &rawValue, std::string &value)
+template<typename ATTRIBUTE_T>
+void
+XMLAttribute<ATTRIBUTE_T>::readValueSpecific(std::string &rawValue, std::string &value)
 {
   value = rawValue;
 }
 
-template <typename ATTRIBUTE_T>
-void XMLAttribute<ATTRIBUTE_T>::readValueSpecific(std::string &rawValue, bool &value)
+template<typename ATTRIBUTE_T>
+void
+XMLAttribute<ATTRIBUTE_T>::readValueSpecific(std::string &rawValue, bool &value)
 {
   value = precice::utils::convertStringToBool(rawValue);
 }
 
-template <typename ATTRIBUTE_T>
-void XMLAttribute<ATTRIBUTE_T>::readValueSpecific(std::string &rawValue, Eigen::VectorXd &value)
+template<typename ATTRIBUTE_T>
+void
+XMLAttribute<ATTRIBUTE_T>::readValueSpecific(std::string &rawValue, Eigen::VectorXd &value)
 {
   Eigen::VectorXd vec;
 
@@ -252,7 +279,8 @@ void XMLAttribute<ATTRIBUTE_T>::readValueSpecific(std::string &rawValue, Eigen::
     for (int j = 0; j < i; j++) {
       if (tmp1.find(";") != std::string::npos) {
         tmp1.erase(0, tmp1.find(";") + 1);
-      } else {
+      }
+      else {
         componentsLeft = false;
       }
     }
@@ -307,15 +335,17 @@ Eigen::VectorXd XMLAttribute<Eigen::VectorXd>::getAttributeValueAsEigenVectorXd(
   return vec;
 }*/
 
-template <typename ATTRIBUTE_T>
-std::string XMLAttribute<ATTRIBUTE_T>::printDTD(const std::string &ElementName) const
+template<typename ATTRIBUTE_T>
+std::string
+XMLAttribute<ATTRIBUTE_T>::printDTD(const std::string &ElementName) const
 {
   std::ostringstream dtd;
   dtd << "<!ATTLIST " << ElementName << " " << _name << " CDATA ";
 
   if (_hasDefaultValue) {
     dtd << "\"" << _defaultValue << "\"";
-  } else {
+  }
+  else {
     dtd << "#REQUIRED";
   }
 
@@ -324,8 +354,9 @@ std::string XMLAttribute<ATTRIBUTE_T>::printDTD(const std::string &ElementName) 
   return dtd.str();
 }
 
-template <typename ATTRIBUTE_T>
-std::string XMLAttribute<ATTRIBUTE_T>::printDocumentation() const
+template<typename ATTRIBUTE_T>
+std::string
+XMLAttribute<ATTRIBUTE_T>::printDocumentation() const
 {
   std::ostringstream doc;
   doc << _name << "=\"{" << utils::getTypeName(_value);
@@ -340,8 +371,8 @@ std::string XMLAttribute<ATTRIBUTE_T>::printDocumentation() const
   return doc.str();
 }
 
-template <typename ATTRIBUTE_T>
-template <typename VALUE_T>
+template<typename ATTRIBUTE_T>
+template<typename VALUE_T>
 typename std::enable_if<
     std::is_same<VALUE_T, ATTRIBUTE_T>::value && not std::is_same<VALUE_T, Eigen::VectorXd>::value, void>::type
 XMLAttribute<ATTRIBUTE_T>::set(
@@ -351,8 +382,8 @@ XMLAttribute<ATTRIBUTE_T>::set(
   toSet = setter;
 }
 
-template <typename ATTRIBUTE_T>
-template <typename VALUE_T>
+template<typename ATTRIBUTE_T>
+template<typename VALUE_T>
 typename std::enable_if<
     std::is_same<VALUE_T, ATTRIBUTE_T>::value && std::is_same<VALUE_T, Eigen::VectorXd>::value, void>::type
 XMLAttribute<ATTRIBUTE_T>::set(
@@ -361,5 +392,5 @@ XMLAttribute<ATTRIBUTE_T>::set(
 {
   toSet = setter;
 }
-}
-} // namespace precice, xml
+} // namespace xml
+} // namespace precice

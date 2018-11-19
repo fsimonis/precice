@@ -2,8 +2,10 @@
 
 #include <memory>
 
-namespace precice {
-namespace cplscheme {
+namespace precice
+{
+namespace cplscheme
+{
 
 class CouplingScheme;
 class CouplingSchemeConfiguration;
@@ -15,4 +17,5 @@ using PtrCouplingSchemeConfiguration = std::shared_ptr<CouplingSchemeConfigurati
 using PtrPostProcessingConfiguration = std::shared_ptr<PostProcessingConfiguration>;
 using PtrCouplingData                = std::shared_ptr<CouplingData>;
 
-}} // namespace precice, cplscheme
+} // namespace cplscheme
+} // namespace precice

@@ -18,7 +18,8 @@ class Action
 {
 public:
   /// Defines the time and place of application of the action.
-  enum Timing {
+  enum Timing
+  {
     ALWAYS_PRIOR,             // Everytime, before advancing cpl scheme
     ALWAYS_POST,              // Everytime, after advancing cpl scheme
     ON_EXCHANGE_PRIOR,        // On data exchange, before advancing cpl scheme
@@ -44,20 +45,23 @@ public:
     * @param[in] computedPartFullDt Sum of all local timesteps of current global timestep.
     * @param fullDt[in] Current global timestep length.
     */
-  virtual void performAction(
+  virtual void
+  performAction(
       double time,
       double dt,
       double computedPartFullDt,
       double fullDt) = 0;
 
   /// Returns the timing of the action.
-  Timing getTiming() const
+  Timing
+  getTiming() const
   {
     return _timing;
   }
 
   /// Returns the mesh carrying the data used in the action.
-  const mesh::PtrMesh &getMesh() const
+  const mesh::PtrMesh &
+  getMesh() const
   {
     return _mesh;
   }

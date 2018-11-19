@@ -2,8 +2,10 @@
 
 #include "logging/Logger.hpp"
 
-namespace precice {
-namespace utils {
+namespace precice
+{
+namespace utils
+{
 
 /// Utility class for managing PETSc operations.
 class Petsc
@@ -15,38 +17,46 @@ public:
    * @param[in] argc Parameter count, passed to PetscInitialize
    * @param[in] argv Parameter values, passed to PetscInitialize
    */
-  static void initialize (
-    int*               argc,
-    char***            argv);
+  static void
+  initialize(
+      int *   argc,
+      char ***argv);
 
   /// Finalizes Petsc environment.
-  static void finalize();
+  static void
+  finalize();
 
 private:
-  
   /// Whether we have initialized Petsc or if it was initialized by an application calling us.
   static bool weInitialized;
-  
+
   static logging::Logger _log;
 };
-}} // namespace precice, utils
-
+} // namespace utils
+} // namespace precice
 
 #ifndef PRECICE_NO_PETSC
 
 #include <string>
 #include <utility>
 
-#include "petscvec.h"
-#include "petscmat.h"
-#include "petscksp.h"
 #include "petscis.h"
+#include "petscksp.h"
+#include "petscmat.h"
+#include "petscvec.h"
 
-namespace precice {
-namespace utils {
-namespace petsc {
+namespace precice
+{
+namespace utils
+{
+namespace petsc
+{
 
-enum VIEWERFORMAT { ASCII, BINARY };
+enum VIEWERFORMAT
+{
+  ASCII,
+  BINARY
+};
 
 class Matrix;
 
@@ -55,8 +65,12 @@ class Vector
 public:
   Vec vector = nullptr;
 
-  enum LEFTRIGHT { LEFT, RIGHT };
-  
+  enum LEFTRIGHT
+  {
+    LEFT,
+    RIGHT
+  };
+
   /// Creates a new vector on the given MPI communicator.
   explicit Vector(std::string name = "");
 
@@ -64,7 +78,7 @@ public:
   Vector(Vec &v, std::string name = "");
 
   /// Duplicates type, row layout etc. (not values) of v.
-  Vector(Vector &v, std::string name = "");  
+  Vector(Vector &v, std::string name = "");
 
   /// Constructs a vector with the same number of rows (default) or columns.
   Vector(Mat &m, std::string name = "", LEFTRIGHT type = LEFT);
@@ -76,45 +90,57 @@ public:
   /** Copying and assignement of this class would involve copying the pointer to
       the PETSc object and finallly cause double destruction of it.
    */
-  Vector(const Vector&) = delete;
-  Vector& operator=(const Vector&) = delete;
+  Vector(const Vector &) = delete;
+  Vector &
+  operator=(const Vector &) = delete;
 
   ~Vector();
 
   /// Enables implicit conversion into a reference to a PETSc Vec type
-  operator Vec&();
+  operator Vec &();
 
   /// Sets the size and calls VecSetFromOptions
-  void init(PetscInt rows);
+  void
+  init(PetscInt rows);
 
-  int getSize();
+  int
+  getSize();
 
-  int getLocalSize();
-  
-  void setValue(PetscInt row, PetscScalar value);
+  int
+  getLocalSize();
 
-  void arange(double start, double stop);
+  void
+  setValue(PetscInt row, PetscScalar value);
 
-  void fillWithRandoms();
+  void
+  arange(double start, double stop);
+
+  void
+  fillWithRandoms();
 
   /// Sorts the LOCAL partion of the vector
-  void sort();
+  void
+  sort();
 
-  void assemble();
+  void
+  assemble();
 
   /// Returns a pair that mark the beginning and end of the vectors ownership range. Use first und second to access.
-  std::pair<PetscInt, PetscInt> ownerRange();
+  std::pair<PetscInt, PetscInt>
+  ownerRange();
 
   /// Writes the vector to file.
-  void write(std::string filename, VIEWERFORMAT format = ASCII);
+  void
+  write(std::string filename, VIEWERFORMAT format = ASCII);
 
   /// Reads the vector from file.
-  void read(std::string filename, VIEWERFORMAT format = ASCII);
+  void
+  read(std::string filename, VIEWERFORMAT format = ASCII);
 
-  void view();
+  void
+  view();
 };
 
-  
 class Matrix
 {
 public:
@@ -124,112 +150,129 @@ public:
   /** Copying and assignment of this class would involve copying the pointer to
       the PETSc object and finallly cause double destruction of it.
   */
-  Matrix(const Matrix&) = delete;
-  Matrix& operator=(const Matrix&) = delete;
+  Matrix(const Matrix &) = delete;
+  Matrix &
+  operator=(const Matrix &) = delete;
 
   explicit Matrix(std::string name = "");
 
   /// Move constructor, use the implicitly declared.
-  Matrix(Matrix&& other) = default;
+  Matrix(Matrix &&other) = default;
 
   ~Matrix();
 
   /// Enables implicit conversion into a reference to a PETSc Mat type
-  operator Mat&();
+  operator Mat &();
 
-  void assemble(MatAssemblyType type = MAT_FINAL_ASSEMBLY);
-    
+  void
+  assemble(MatAssemblyType type = MAT_FINAL_ASSEMBLY);
+
   /// Initializes matrix of given size and type
   /** @param[in] localRows,localCols The number of rows/cols that are local to the processor
       @param[in] globalRows,globalCols The number of global rows/cols.
       @param[in] type PETSc type of the matrix
       @param[in] doSetup Call MatSetup(). Not calling MatSetup can have performance gains when using preallocation
   */
-  void init(PetscInt localRows, PetscInt localCols, PetscInt globalRows, PetscInt globalCols,
-            MatType type = nullptr, bool doSetup = true);
+  void
+  init(PetscInt localRows, PetscInt localCols, PetscInt globalRows, PetscInt globalCols,
+       MatType type = nullptr, bool doSetup = true);
 
   /// Destroys and recreates the matrix on the same communicator
-  void reset();
-  
+  void
+  reset();
+
   /// Get the MatInfo struct for the matrix.
   /** See http://www.mcs.anl.gov/petsc/petsc-current/docs/manualpages/Mat/MatInfo.html for description of fields. */
-  MatInfo getInfo(MatInfoType flag);
-  
-  void setValue(PetscInt row, PetscInt col, PetscScalar value);
-  
-  void fillWithRandoms();
-  
-  void setColumn(Vector &v, int col);
+  MatInfo
+  getInfo(MatInfoType flag);
+
+  void
+  setValue(PetscInt row, PetscInt col, PetscScalar value);
+
+  void
+  fillWithRandoms();
+
+  void
+  setColumn(Vector &v, int col);
 
   /// Returns (rows, cols) global size
-  std::pair<PetscInt, PetscInt> getSize();
+  std::pair<PetscInt, PetscInt>
+  getSize();
 
   /// Returns (rows, cols) local size
-  std::pair<PetscInt, PetscInt> getLocalSize();
-  
+  std::pair<PetscInt, PetscInt>
+  getLocalSize();
+
   /// Returns a pair that mark the beginning and end of the matrix' ownership range.
-  std::pair<PetscInt, PetscInt> ownerRange();
-  
+  std::pair<PetscInt, PetscInt>
+  ownerRange();
+
   /// Returns a pair that mark the beginning and end of the matrix' column ownership range.
-  std::pair<PetscInt, PetscInt> ownerRangeColumn();
+  std::pair<PetscInt, PetscInt>
+  ownerRangeColumn();
 
   /// Returns the block size of the matrix
-  PetscInt blockSize() const;
-  
+  PetscInt
+  blockSize() const;
+
   /// Writes the matrix to file.
-  void write(std::string filename, VIEWERFORMAT format = ASCII);
+  void
+  write(std::string filename, VIEWERFORMAT format = ASCII);
 
   /// Reads the matrix from file, stored in PETSc binary format
-  void read(std::string filename);
+  void
+  read(std::string filename);
 
   /// Prints the matrix
-  void view();
+  void
+  view();
 
-  void viewDraw();
-
+  void
+  viewDraw();
 };
 
 class KSPSolver
 {
 public:
   KSP ksp;
-  
+
   /// Delete copy and assignment constructor
   /** Copying and assignment of this class would involve copying the pointer to
       the PETSc object and finallly cause double destruction of it.
   */
-  KSPSolver(const KSPSolver&) = delete;
-  KSPSolver& operator=(const KSPSolver&) = delete;
+  KSPSolver(const KSPSolver &) = delete;
+  KSPSolver &
+  operator=(const KSPSolver &) = delete;
 
   explicit KSPSolver(std::string name = "");
 
   /// Move constructor, use the implicitly declared.
-  KSPSolver(KSPSolver&& other) = default;
+  KSPSolver(KSPSolver &&other) = default;
 
   ~KSPSolver();
-  
+
   /// Enables implicit conversion into a reference to a PETSc KSP type
-  operator KSP&();
-  
+  operator KSP &();
+
   /// Destroys and recreates the ksp on the same communicator
-  void reset();
+  void
+  reset();
 
   /// Solves the linear system, returns false it not converged
-  bool solve(Vector &b, Vector &x);
+  bool
+  solve(Vector &b, Vector &x);
 };
 
-
 /// Destroys an KSP, if ksp is not null and PetscIsInitialized
-void destroy(KSP * ksp);
+void
+destroy(KSP *ksp);
 
 /// Destroys an ISLocalToGlobalMapping, if IS is not null and PetscIsInitialized
-void destroy(ISLocalToGlobalMapping * IS);
+void
+destroy(ISLocalToGlobalMapping *IS);
 
-
-}}} // namespace precice, utils, petsc
+} // namespace petsc
+} // namespace utils
+} // namespace precice
 
 #endif // PRECICE_NO_PETSC
-
-
-
-
