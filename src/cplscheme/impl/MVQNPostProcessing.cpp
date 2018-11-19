@@ -1,7 +1,6 @@
 #ifndef PRECICE_NO_MPI
 
 #include "MVQNPostProcessing.hpp"
-#include <Eigen/Core>
 #include "com/Communication.hpp"
 #include "com/MPIPortsCommunication.hpp"
 #include "com/SocketCommunication.hpp"
@@ -11,36 +10,33 @@
 #include "utils/EigenHelperFunctions.hpp"
 #include "utils/MasterSlave.hpp"
 #include "utils/Publisher.hpp"
+#include <Eigen/Core>
 
 #include <fstream>
 #include <sstream>
 
 using precice::utils::Publisher;
 
-namespace precice
-{
-namespace cplscheme
-{
-namespace impl
-{
+namespace precice {
+namespace cplscheme {
+namespace impl {
 
 // ==================================================================================
 MVQNPostProcessing::MVQNPostProcessing(
-    double            initialRelaxation,
-    bool              forceInitialRelaxation,
-    int               maxIterationsUsed,
-    int               timestepsReused,
-    int               filter,
-    double            singularityLimit,
-    std::vector<int>  dataIDs,
+    double initialRelaxation,
+    bool forceInitialRelaxation,
+    int maxIterationsUsed,
+    int timestepsReused,
+    int filter,
+    double singularityLimit,
+    std::vector<int> dataIDs,
     PtrPreconditioner preconditioner,
-    bool              alwaysBuildJacobian,
-    int               imvjRestartType,
-    int               chunkSize,
-    int               RSLSreusedTimesteps,
-    double            RSSVDtruncationEps)
-    : BaseQNPostProcessing(initialRelaxation, forceInitialRelaxation, maxIterationsUsed, timestepsReused,
-                           filter, singularityLimit, dataIDs, preconditioner),
+    bool alwaysBuildJacobian,
+    int imvjRestartType,
+    int chunkSize,
+    int RSLSreusedTimesteps,
+    double RSSVDtruncationEps)
+    : BaseQNPostProcessing(initialRelaxation, forceInitialRelaxation, maxIterationsUsed, timestepsReused, filter, singularityLimit, dataIDs, preconditioner),
       //  _secondaryOldXTildes(),
       _invJacobian(),
       _oldInvJacobian(),
@@ -62,13 +58,11 @@ MVQNPostProcessing::MVQNPostProcessing(
       _usedColumnsPerTstep(5),
       _nbRestarts(0),
       //_info2(),
-      _avgRank(0)
-{
+      _avgRank(0) {
 }
 
 // ==================================================================================
-MVQNPostProcessing::~MVQNPostProcessing()
-{
+MVQNPostProcessing::~MVQNPostProcessing() {
   //if(utils::MasterSlave::_masterMode ||utils::MasterSlave::_slaveMode){ // not possible because of tests, MasterSlave is deactivated when PP is killed
 
   // close and shut down cyclic communication connections
@@ -82,17 +76,16 @@ MVQNPostProcessing::~MVQNPostProcessing()
         _cyclicCommLeft->closeConnection();
       }
       _cyclicCommRight = nullptr;
-      _cyclicCommLeft  = nullptr;
+      _cyclicCommLeft = nullptr;
     }
   }
 }
 
 // ==================================================================================
 void MVQNPostProcessing::initialize(
-    DataMap &cplData)
-{
+    DataMap &cplData) {
   TRACE();
-  
+
   // do common QN post processing initialization
   BaseQNPostProcessing::initialize(cplData);
 
@@ -102,7 +95,7 @@ void MVQNPostProcessing::initialize(
   // only need cyclic communication if no MVJ restart mode is used
   if (not _imvjRestart) {
     if (utils::MasterSlave::_masterMode || utils::MasterSlave::_slaveMode) {
-    /*
+      /*
      * @todo: FIXME: This is a temporary and hacky realization of the cyclic commmunication between slaves
      *        Therefore the requesterName and accessorName are not given (cf solverInterfaceImpl).
      *        The master-slave communication should be modified such that direct communication between
@@ -122,7 +115,7 @@ void MVQNPostProcessing::initialize(
       }
 #endif
 
-      _cyclicCommLeft  = com::PtrCommunication(new com::MPIPortsCommunication());
+      _cyclicCommLeft = com::PtrCommunication(new com::MPIPortsCommunication());
       _cyclicCommRight = com::PtrCommunication(new com::MPIPortsCommunication());
       //_cyclicCommLeft = com::Communication::SharedPointer(new com::SocketCommunication(0, false, "ib0", "."));
       //_cyclicCommRight = com::Communication::SharedPointer(new com::SocketCommunication(0, false, "ib0", "."));
@@ -156,7 +149,7 @@ void MVQNPostProcessing::initialize(
   _parMatrixOps->initialize(_cyclicCommLeft, _cyclicCommRight, not _imvjRestart);
   _svdJ.initialize(_parMatrixOps, getLSSystemRows());
 
-  int entries  = _residuals.size();
+  int entries = _residuals.size();
   int global_n = 0;
 
   if (not utils::MasterSlave::_masterMode && not utils::MasterSlave::_slaveMode) {
@@ -167,7 +160,7 @@ void MVQNPostProcessing::initialize(
 
   if (not _imvjRestart) {
     // only need memory for Jacobain of not in restart mode
-    _invJacobian    = Eigen::MatrixXd::Zero(global_n, entries);
+    _invJacobian = Eigen::MatrixXd::Zero(global_n, entries);
     _oldInvJacobian = Eigen::MatrixXd::Zero(global_n, entries);
   }
   // initialize V, W matrices for the LS restart
@@ -185,31 +178,29 @@ void MVQNPostProcessing::initialize(
 
 // ==================================================================================
 void MVQNPostProcessing::computeUnderrelaxationSecondaryData(
-    DataMap &cplData)
-{
+    DataMap &cplData) {
   // Perform underrelaxation with initial relaxation factor for secondary data
   for (int id : _secondaryDataIDs) {
-    PtrCouplingData  data   = cplData[id];
+    PtrCouplingData data = cplData[id];
     Eigen::VectorXd &values = *(data->values);
     values *= _initialRelaxation; // new * omg
     Eigen::VectorXd &secResiduals = _secondaryResiduals[id];
-    secResiduals                  = data->oldValues.col(0); // old
-    secResiduals *= 1.0 - _initialRelaxation;               // (1-omg) * old
-    values += secResiduals;                                 // (1-omg) * old + new * omg
+    secResiduals = data->oldValues.col(0); // old
+    secResiduals *= 1.0 - _initialRelaxation; // (1-omg) * old
+    values += secResiduals; // (1-omg) * old + new * omg
   }
 }
 
 // ==================================================================================
 void MVQNPostProcessing::updateDifferenceMatrices(
-    DataMap &cplData)
-{
+    DataMap &cplData) {
   /**
    *  Matrices and vectors used in this method as well as the result Wtil are
    *  NOT SCALED by the preconditioner.
    */
 
   TRACE();
-  
+
   // call the base method for common update of V, W matrices
   // important that base method is called before updating _Wtil
   BaseQNPostProcessing::updateDifferenceMatrices(cplData);
@@ -229,7 +220,7 @@ void MVQNPostProcessing::updateDifferenceMatrices(
         // here, we check for _Wtil.cols() as the matrices V, W need to be updated before hand
         // and thus getLSSystemCols() does not yield the correct result.
         bool columnLimitReached = _Wtil.cols() == _maxIterationsUsed;
-        bool overdetermined     = _Wtil.cols() <= getLSSystemRows();
+        bool overdetermined = _Wtil.cols() <= getLSSystemRows();
 
         Eigen::VectorXd wtil = Eigen::VectorXd::Zero(_matrixV.rows());
 
@@ -279,8 +270,7 @@ void MVQNPostProcessing::updateDifferenceMatrices(
 // ==================================================================================
 void MVQNPostProcessing::computeQNUpdate(
     PostProcessing::DataMap &cplData,
-    Eigen::VectorXd &        xUpdate)
-{
+    Eigen::VectorXd &xUpdate) {
   /**
    * The inverse Jacobian
    *
@@ -307,8 +297,7 @@ void MVQNPostProcessing::computeQNUpdate(
 
 // ==================================================================================
 void MVQNPostProcessing::pseudoInverse(
-    Eigen::MatrixXd &pseudoInverse)
-{
+    Eigen::MatrixXd &pseudoInverse) {
   TRACE();
   /**
    *   computation of pseudo inverse matrix Z = (V^TV)^-1 * V^T as solution
@@ -332,7 +321,7 @@ void MVQNPostProcessing::pseudoInverse(
   // backsubstitution
   for (int i = 0; i < Q.rows(); i++) {
     Eigen::VectorXd Qrow = Q.row(i);
-    yVec                 = R.triangularView<Eigen::Upper>().solve<Eigen::OnTheLeft>(Qrow);
+    yVec = R.triangularView<Eigen::Upper>().solve<Eigen::OnTheLeft>(Qrow);
     pseudoInverse.col(i) = yVec;
   } // ----------------
 
@@ -343,8 +332,7 @@ void MVQNPostProcessing::pseudoInverse(
 }
 
 // ==================================================================================
-void MVQNPostProcessing::buildWtil()
-{
+void MVQNPostProcessing::buildWtil() {
   /**
    * PRECONDITION: Assumes that V, W, J_prev are already preconditioned,
    */
@@ -385,8 +373,7 @@ void MVQNPostProcessing::buildWtil()
 }
 
 // ==================================================================================
-void MVQNPostProcessing::buildJacobian()
-{
+void MVQNPostProcessing::buildJacobian() {
   TRACE();
   /**      --- compute inverse Jacobian ---
   *
@@ -426,10 +413,9 @@ void MVQNPostProcessing::buildJacobian()
 // ==================================================================================
 void MVQNPostProcessing::computeNewtonUpdateEfficient(
     PostProcessing::DataMap &cplData,
-    Eigen::VectorXd &        xUpdate)
-{
+    Eigen::VectorXd &xUpdate) {
   TRACE();
-  
+
   /**      --- update inverse Jacobian efficient, ---
   *   If normal mode is used:
   *   Do not recompute W_til in every iteration and do not build
@@ -476,7 +462,7 @@ void MVQNPostProcessing::computeNewtonUpdateEfficient(
    *  parallel:  (m x n_local) * (n x 1) = (m x 1)
    */
   Eigen::VectorXd negativeResiduals = -_residuals;
-  Eigen::VectorXd r_til             = Eigen::VectorXd::Zero(getLSSystemCols());
+  Eigen::VectorXd r_til = Eigen::VectorXd::Zero(getLSSystemCols());
   _parMatrixOps->multiply(Z, negativeResiduals, r_til, getLSSystemCols(), getLSSystemRows(), 1); // --------
 
   /**
@@ -489,7 +475,7 @@ void MVQNPostProcessing::computeNewtonUpdateEfficient(
    */
   Eigen::VectorXd xUptmp(_residuals.size());
   xUpdate = Eigen::VectorXd::Zero(_residuals.size());
-  xUptmp  = _Wtil * r_til; // local product, result is naturally distributed.
+  xUptmp = _Wtil * r_til; // local product, result is naturally distributed.
 
   /**
    *  (5) xUp = J_prev * (-res) + Wtil*Z*(-res)
@@ -524,10 +510,9 @@ void MVQNPostProcessing::computeNewtonUpdateEfficient(
 }
 
 // ==================================================================================
-void MVQNPostProcessing::computeNewtonUpdate(PostProcessing::DataMap &cplData, Eigen::VectorXd &xUpdate)
-{
+void MVQNPostProcessing::computeNewtonUpdate(PostProcessing::DataMap &cplData, Eigen::VectorXd &xUpdate) {
   TRACE();
-  
+
   /**      --- update inverse Jacobian ---
 	*
 	* J_inv = J_inv_n + (W - J_inv_n*V)*(V^T*V)^-1*V^T
@@ -562,10 +547,9 @@ void MVQNPostProcessing::computeNewtonUpdate(PostProcessing::DataMap &cplData, E
 }
 
 // ==================================================================================
-void MVQNPostProcessing::restartIMVJ()
-{
+void MVQNPostProcessing::restartIMVJ() {
   TRACE();
-  
+
   //int used_storage = 0;
   //int theoreticalJ_storage = 2*getLSSystemRows()*_residuals.size() + 3*_residuals.size()*getLSSystemCols() + _residuals.size()*_residuals.size();
   //               ------------ RESTART SVD ------------
@@ -599,9 +583,9 @@ void MVQNPostProcessing::restartIMVJ()
     _WtilChunk.clear();
     _pseudoInverseChunk.clear();
 
-    auto &psi   = _svdJ.matrixPsi();
+    auto &psi = _svdJ.matrixPsi();
     auto &sigma = _svdJ.singularValues();
-    auto &phi   = _svdJ.matrixPhi();
+    auto &phi = _svdJ.matrixPhi();
 
     // multiply sigma * phi^T, phi is distributed block-row wise, phi^T is distributed block-column wise
     // sigma is stored local on each proc, thus, the multiplication is fully local, no communication.
@@ -612,7 +596,7 @@ void MVQNPostProcessing::restartIMVJ()
         Z(i, j) = phi(j, i) * sigma[i];
 
     int rankAfter = _svdJ.rank();
-    int waste     = _svdJ.getWaste();
+    int waste = _svdJ.getWaste();
     _avgRank += rankAfter;
 
     // store factorized truncated SVD of J
@@ -674,15 +658,15 @@ void MVQNPostProcessing::restartIMVJ()
       *   computation of pseudo inverse matrix Z = (V^TV)^-1 * V^T as solution
       *   to the equation R*z = Q^T(i) for all columns i,  via back substitution.
       */
-      auto            Q = qr.matrixQ();
-      auto            R = qr.matrixR();
+      auto Q = qr.matrixQ();
+      auto R = qr.matrixR();
       Eigen::MatrixXd pseudoInverse(qr.cols(), qr.rows());
       Eigen::VectorXd yVec(pseudoInverse.rows());
 
       // backsubstitution
       for (int i = 0; i < Q.rows(); i++) {
         Eigen::VectorXd Qrow = Q.row(i);
-        yVec                 = R.triangularView<Eigen::Upper>().solve<Eigen::OnTheLeft>(Qrow);
+        yVec = R.triangularView<Eigen::Upper>().solve<Eigen::OnTheLeft>(Qrow);
         pseudoInverse.col(i) = yVec;
       }
 
@@ -728,7 +712,7 @@ void MVQNPostProcessing::restartIMVJ()
       _parMatrixOps->multiply(_pseudoInverseChunk.front(), _matrixV, ZV, colsLSSystemBackThen, getLSSystemRows(), _qrV.cols());
       // multiply: Wtil^0 * (Z_0*V)  dimensions: (n x m) * (m x m), fully local and embarrassingly parallel
       Eigen::MatrixXd tmp = Eigen::MatrixXd::Zero(_qrV.rows(), _qrV.cols());
-      tmp                 = _WtilChunk.front() * ZV;
+      tmp = _WtilChunk.front() * ZV;
       _WtilChunk[i] += tmp;
 
       // drop oldest pair Wtil_0 and Z_0
@@ -747,10 +731,9 @@ void MVQNPostProcessing::restartIMVJ()
 
 // ==================================================================================
 void MVQNPostProcessing::specializedIterationsConverged(
-    DataMap &cplData)
-{
+    DataMap &cplData) {
   TRACE();
-  
+
   // truncate V_RSLS and W_RSLS matrices according to _RSLSreusedTimesteps
   if (_imvjRestartType == RS_LS) {
     if (_matrixCols_RSLS.front() == 0) { // Did only one iteration
@@ -766,7 +749,7 @@ void MVQNPostProcessing::specializedIterationsConverged(
       if (_matrixV_RSLS.size() > 0) {
         assertion(_matrixV_RSLS.cols() > toRemove, _matrixV_RSLS.cols(), toRemove);
       }
-      
+
       // remove columns
       for (int i = 0; i < toRemove; i++) {
         utils::removeColumnFromMatrix(_matrixV_RSLS, _matrixV_RSLS.cols() - 1);
@@ -851,8 +834,7 @@ void MVQNPostProcessing::specializedIterationsConverged(
 
 // ==================================================================================
 void MVQNPostProcessing::removeMatrixColumn(
-    int columnIndex)
-{
+    int columnIndex) {
   TRACE(columnIndex, _matrixV.cols());
   assertion(_matrixV.cols() > 1, _matrixV.cols());
   assertion(_Wtil.cols() > 1);
@@ -866,8 +848,7 @@ void MVQNPostProcessing::removeMatrixColumn(
 
 // ==================================================================================
 void MVQNPostProcessing::removeMatrixColumnRSLS(
-    int columnIndex)
-{
+    int columnIndex) {
   TRACE(columnIndex, _matrixV_RSLS.cols());
   assertion(_matrixV_RSLS.cols() > 1);
 
@@ -876,7 +857,7 @@ void MVQNPostProcessing::removeMatrixColumnRSLS(
 
   // Reduce column count
   std::deque<int>::iterator iter = _matrixCols_RSLS.begin();
-  int                       cols = 0;
+  int cols = 0;
   while (iter != _matrixCols_RSLS.end()) {
     cols += *iter;
     if (cols > columnIndex) {
@@ -890,8 +871,8 @@ void MVQNPostProcessing::removeMatrixColumnRSLS(
     iter++;
   }
 }
-}
-}
-} // namespace precice, cplscheme, impl
+} // namespace impl
+} // namespace cplscheme
+} // namespace precice
 
 #endif

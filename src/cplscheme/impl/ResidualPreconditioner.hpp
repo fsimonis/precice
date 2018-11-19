@@ -1,20 +1,16 @@
 #pragma once
 
-#include <Eigen/Core>
 #include "Preconditioner.hpp"
+#include <Eigen/Core>
 
-namespace precice
-{
-namespace cplscheme
-{
-namespace impl
-{
+namespace precice {
+namespace cplscheme {
+namespace impl {
 
 /**
  * @brief Preconditioner that uses the recent residual to scale the quasi-Newton system.
  */
-class ResidualPreconditioner : public Preconditioner
-{
+class ResidualPreconditioner: public Preconditioner {
 public:
   ResidualPreconditioner(
       int maxNonConstTimesteps);
@@ -36,6 +32,6 @@ private:
 
   logging::Logger _log{"cplscheme::ResidualPreconditioner"};
 };
-}
-}
-} // namespace precice, cplscheme, impl
+} // namespace impl
+} // namespace cplscheme
+} // namespace precice

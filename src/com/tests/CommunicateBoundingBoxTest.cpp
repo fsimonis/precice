@@ -12,10 +12,7 @@ BOOST_AUTO_TEST_SUITE(CommunicationTests)
 
 BOOST_AUTO_TEST_SUITE(CommunicateBoundingBoxTests)
 
-BOOST_FIXTURE_TEST_CASE(SendAndReceiveBoundingBox, testing::M2NFixture,
-                        * testing::MinRanks(2)
-                        * boost::unit_test::fixture<testing::MPICommRestrictFixture>(std::vector<int>({0, 1})))
-{
+BOOST_FIXTURE_TEST_CASE(SendAndReceiveBoundingBox, testing::M2NFixture, *testing::MinRanks(2) * boost::unit_test::fixture<testing::MPICommRestrictFixture>(std::vector<int>({0, 1}))) {
   if (utils::Parallel::getCommunicatorSize() != 2)
     return;
 
@@ -44,15 +41,12 @@ BOOST_FIXTURE_TEST_CASE(SendAndReceiveBoundingBox, testing::M2NFixture,
   }
 }
 
-BOOST_FIXTURE_TEST_CASE(SendAndReceiveBoundingBoxMap, testing::M2NFixture,
-                        * testing::MinRanks(2)
-                        * boost::unit_test::fixture<testing::MPICommRestrictFixture>(std::vector<int>({0, 1})))
-{
+BOOST_FIXTURE_TEST_CASE(SendAndReceiveBoundingBoxMap, testing::M2NFixture, *testing::MinRanks(2) * boost::unit_test::fixture<testing::MPICommRestrictFixture>(std::vector<int>({0, 1}))) {
   if (utils::Parallel::getCommunicatorSize() != 2)
     return;
 
   for (int dim = 2; dim <= 3; dim++) {
-    mesh::Mesh::BoundingBox    bb;
+    mesh::Mesh::BoundingBox bb;
     mesh::Mesh::BoundingBoxMap bbm;
 
     for (int rank = 0; rank < 3; rank++) {
@@ -71,7 +65,7 @@ BOOST_FIXTURE_TEST_CASE(SendAndReceiveBoundingBoxMap, testing::M2NFixture,
       comBB.sendBoundingBoxMap(bbm, 0);
     } else if (utils::Parallel::getProcessRank() == 1) {
 
-      mesh::Mesh::BoundingBox    bbCompare;
+      mesh::Mesh::BoundingBox bbCompare;
       mesh::Mesh::BoundingBoxMap bbmCompare;
 
       for (int rank = 0; rank < 3; rank++) {
@@ -95,13 +89,11 @@ BOOST_FIXTURE_TEST_CASE(SendAndReceiveBoundingBoxMap, testing::M2NFixture,
 }
 
 BOOST_AUTO_TEST_CASE(BroadcastSendAndReceiveBoundingBoxMap,
-                     *testing::OnSize(4)
-                     * boost::unit_test::fixture<testing::MasterComFixture>())
-{
+                     *testing::OnSize(4) * boost::unit_test::fixture<testing::MasterComFixture>()) {
 
   // Build BB/BBMap to communicate
 
-  mesh::Mesh::BoundingBox    bb;
+  mesh::Mesh::BoundingBox bb;
   mesh::Mesh::BoundingBoxMap bbm;
 
   for (int i = 0; i < 3; i++) {
@@ -118,7 +110,7 @@ BOOST_AUTO_TEST_CASE(BroadcastSendAndReceiveBoundingBoxMap,
     comBB.broadcastSendBoundingBoxMap(bbm);
   } else {
 
-    mesh::Mesh::BoundingBox    bbCompare;
+    mesh::Mesh::BoundingBox bbCompare;
     mesh::Mesh::BoundingBoxMap bbmCompare;
 
     for (int i = 0; i < 3; i++) {

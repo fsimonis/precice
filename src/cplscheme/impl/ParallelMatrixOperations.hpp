@@ -9,15 +9,11 @@
 #include "utils/assertion.hpp"
 #include <Eigen/Core>
 
-namespace precice
-{
-namespace cplscheme
-{
-namespace impl
-{
+namespace precice {
+namespace cplscheme {
+namespace impl {
 
-class ParallelMatrixOperations
-{
+class ParallelMatrixOperations {
 public:
   /// Destructor, empty.
   virtual ~ParallelMatrixOperations(){};
@@ -25,17 +21,18 @@ public:
   /// Initializes the post-processing.
   void initialize(com::PtrCommunication leftComm,
                   com::PtrCommunication rightComm,
-                  bool                  needcyclicComm);
+                  bool needcyclicComm);
 
-  template <typename Derived1, typename Derived2>
+  template<typename Derived1, typename Derived2>
   void multiply(
       Eigen::PlainObjectBase<Derived1> &leftMatrix,
       Eigen::PlainObjectBase<Derived2> &rightMatrix,
       Eigen::PlainObjectBase<Derived2> &result,
-      const std::vector<int> &          offsets,
-      int p, int q, int r,
-      bool dotProductComputation = true)
-  {
+      const std::vector<int> &offsets,
+      int p,
+      int q,
+      int r,
+      bool dotProductComputation = true) {
     TRACE();
     assertion(result.cols() == rightMatrix.cols(), result.cols(), rightMatrix.cols());
     assertion(leftMatrix.cols() == rightMatrix.rows(), leftMatrix.cols(), rightMatrix.rows());
@@ -84,13 +81,14 @@ public:
     * @param[in] r - second dimension, i.e., overall (global) number cols of result matrix
     *
     */
-  template <typename Derived1, typename Derived2, typename Derived3>
+  template<typename Derived1, typename Derived2, typename Derived3>
   void multiply(
       const Eigen::MatrixBase<Derived1> &leftMatrix,
       const Eigen::MatrixBase<Derived2> &rightMatrix,
-      Eigen::PlainObjectBase<Derived3> & result,
-      int p, int q, int r)
-  {
+      Eigen::PlainObjectBase<Derived3> &result,
+      int p,
+      int q,
+      int r) {
     TRACE();
     assertion(leftMatrix.rows() == p, leftMatrix.rows(), p);
     assertion(leftMatrix.cols() == rightMatrix.rows(), leftMatrix.cols(), rightMatrix.rows());
@@ -112,14 +110,15 @@ private:
   logging::Logger _log{"cplscheme::impl::ParallelMatrixOperations"};
 
   // @brief multiplies matrices based on a cyclic communication and block-wise matrix multiplication with a quadratic result matrix
-  template <typename Derived1, typename Derived2>
+  template<typename Derived1, typename Derived2>
   void _multiplyNN(
       Eigen::PlainObjectBase<Derived1> &leftMatrix,
       Eigen::PlainObjectBase<Derived2> &rightMatrix,
       Eigen::PlainObjectBase<Derived2> &result,
-      const std::vector<int> &          offsets,
-      int p, int q, int r)
-  {
+      const std::vector<int> &offsets,
+      int p,
+      int q,
+      int r) {
     TRACE();
     /*
      * For multiplication W_til * Z = J
@@ -190,8 +189,8 @@ private:
       int sourceProc = (utils::MasterSlave::_rank - cycle < 0) ? utils::MasterSlave::_size + (utils::MasterSlave::_rank - cycle) : utils::MasterSlave::_rank - cycle;
 
       int rows_rcv_nextCycle = (sourceProc_nextCycle > 0) ? offsets[sourceProc_nextCycle + 1] - offsets[sourceProc_nextCycle] : offsets[1];
-      rows_rcv               = (sourceProc > 0) ? offsets[sourceProc + 1] - offsets[sourceProc] : offsets[1];
-      leftMatrix_rcv         = Eigen::MatrixXd::Zero(rows_rcv_nextCycle, q);
+      rows_rcv = (sourceProc > 0) ? offsets[sourceProc + 1] - offsets[sourceProc] : offsets[1];
+      leftMatrix_rcv = Eigen::MatrixXd::Zero(rows_rcv_nextCycle, q);
 
       // initiate asynchronous receive operation for leftMatrix (W_til) from previous processor --> W_til (this data is needed in the next cycle)
       if (cycle < utils::MasterSlave::_size - 1) {
@@ -216,14 +215,15 @@ private:
   }
 
   // @brief multiplies matrices based on a dot-product computation with a rectangular result matrix
-  template <typename Derived1, typename Derived2>
+  template<typename Derived1, typename Derived2>
   void _multiplyNM_dotProduct(
       Eigen::PlainObjectBase<Derived1> &leftMatrix,
       Eigen::PlainObjectBase<Derived2> &rightMatrix,
       Eigen::PlainObjectBase<Derived2> &result,
-      const std::vector<int> &          offsets,
-      int p, int q, int r)
-  {
+      const std::vector<int> &offsets,
+      int p,
+      int q,
+      int r) {
     TRACE();
     for (int i = 0; i < leftMatrix.rows(); i++) {
       int rank = 0;
@@ -239,13 +239,13 @@ private:
 
       for (int j = 0; j < r; j++) {
 
-        Eigen::VectorXd rMCol  = rightMatrix.col(j);
-        double          res_ij = utils::MasterSlave::dot(lMRow, rMCol);
+        Eigen::VectorXd rMCol = rightMatrix.col(j);
+        double res_ij = utils::MasterSlave::dot(lMRow, rMCol);
 
         // find proc that needs to store the result.
         int local_row;
         if (utils::MasterSlave::_rank == rank) {
-          local_row            = i - offsets[rank];
+          local_row = i - offsets[rank];
           result(local_row, j) = res_ij;
         }
       }
@@ -253,14 +253,15 @@ private:
   }
 
   /// Multiplies matrices based on a SAXPY-like block-wise computation with a rectangular result matrix of dimension n x m
-  template <typename Derived1, typename Derived2>
+  template<typename Derived1, typename Derived2>
   void _multiplyNM_block(
       Eigen::PlainObjectBase<Derived1> &leftMatrix,
       Eigen::PlainObjectBase<Derived2> &rightMatrix,
       Eigen::PlainObjectBase<Derived2> &result,
-      const std::vector<int> &          offsets,
-      int p, int q, int r)
-  {
+      const std::vector<int> &offsets,
+      int p,
+      int q,
+      int r) {
     TRACE();
 
     // ensure that both matrices are stored in the same order. Important for reduce function, that adds serialized data.
@@ -270,7 +271,7 @@ private:
     // multiply local block (saxpy-based approach)
     // dimension: (n_global x n_local) * (n_local x m) = (n_global x m)
     Eigen::MatrixXd block = Eigen::MatrixXd::Zero(p, r);
-    block.noalias()       = leftMatrix * rightMatrix;
+    block.noalias() = leftMatrix * rightMatrix;
 
     // all blocks have size (n_global x m)
     // Note: if procs have no vertices, the block size remains (n_global x m), however,
@@ -292,7 +293,7 @@ private:
       result = summarizedBlocks.block(0, 0, offsets[1], r);
 
       for (int rankSlave = 1; rankSlave < utils::MasterSlave::_size; rankSlave++) {
-        int off       = offsets[rankSlave];
+        int off = offsets[rankSlave];
         int send_rows = offsets[rankSlave + 1] - offsets[rankSlave];
 
         if (summarizedBlocks.block(off, 0, send_rows, r).size() > 0) {
@@ -313,8 +314,8 @@ private:
 
   bool _needCycliclComm = true;
 };
-}
-}
-} // namespace precice, cplscheme, impl
+} // namespace impl
+} // namespace cplscheme
+} // namespace precice
 
 #endif

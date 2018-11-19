@@ -4,28 +4,22 @@
 #include "utils/EigenHelperFunctions.hpp"
 #include "utils/MasterSlave.hpp"
 
-
-namespace precice
-{
-namespace cplscheme
-{
-namespace impl
-{
+namespace precice {
+namespace cplscheme {
+namespace impl {
 
 SVDFactorization::SVDFactorization(
-    double            eps,
+    double eps,
     PtrPreconditioner preconditioner)
     : _preconditioner(preconditioner),
-      _truncationEps(eps)
-{}
+      _truncationEps(eps) {}
 
 void SVDFactorization::initialize(
     PtrParMatrixOps parOps,
-    int             globalRows)
-{
+    int globalRows) {
   _parMatrixOps = parOps;
-  _globalRows   = globalRows;
-  _initialized  = true;
+  _globalRows = globalRows;
+  _initialized = true;
 }
 
 /*
@@ -62,27 +56,25 @@ void SVDFactorization::revertPreconditioner()
 }
 */
 
-void SVDFactorization::reset()
-{
+void SVDFactorization::reset() {
   _psi.resize(0, 0);
   _phi.resize(0, 0);
   _sigma.resize(0);
   _preconditionerApplied = false;
-  _initialSVD            = false;
-  _applyFilterQR         = false;
-  _epsQR2                = 1e-3;
+  _initialSVD = false;
+  _applyFilterQR = false;
+  _epsQR2 = 1e-3;
 }
 
 void SVDFactorization::computeQRdecomposition(
     Matrix const &A,
-    Matrix &      Q,
-    Matrix &      R)
-{
+    Matrix &Q,
+    Matrix &R) {
   TRACE();
 
   // if nothing is linear dependent, the dimensions stay like this
-  Q         = Matrix::Zero(A.rows(), A.cols());
-  R         = Matrix::Zero(A.cols(), A.cols());
+  Q = Matrix::Zero(A.rows(), A.cols());
+  R = Matrix::Zero(A.cols(), A.cols());
   int colsR = 0;
   int rowsR = 0;
   int colsQ = 0;
@@ -110,15 +102,15 @@ void SVDFactorization::computeQRdecomposition(
     /**
      * orthogonalize column "col" to columns in Q
      */
-    Vector r        = Vector::Zero(R.rows()); // gram-schmidt coefficients orthogonalization
-    Vector s        = Vector::Zero(R.rows()); // gram-schmidt coefficients re-orthogonalization
-    Vector u        = Vector::Zero(A.rows()); // sum of projections
+    Vector r = Vector::Zero(R.rows()); // gram-schmidt coefficients orthogonalization
+    Vector s = Vector::Zero(R.rows()); // gram-schmidt coefficients re-orthogonalization
+    Vector u = Vector::Zero(A.rows()); // sum of projections
     double rho_orth = 0.;
-    double rho0     = utils::MasterSlave::l2norm(col); // distributed l2norm;
-    double rho00    = rho0;                            // save norm of col for QR2 filter crit.
+    double rho0 = utils::MasterSlave::l2norm(col); // distributed l2norm;
+    double rho00 = rho0; // save norm of col for QR2 filter crit.
 
-    int  its            = 0;
-    bool termination    = false;
+    int its = 0;
+    bool termination = false;
     bool orthogonalized = true;
     // while col is not sufficiently orthogonal to Q
     while (!termination) {
@@ -152,7 +144,7 @@ void SVDFactorization::computeQRdecomposition(
       if (rho_orth <= std::numeric_limits<double>::min()) {
         DEBUG("The norm of v_orthogonal is almost zero, i.e., failed to orthogonalize column v; discard.");
         orthogonalized = false;
-        termination    = true;
+        termination = true;
       }
 
       /**   - test if reorthogonalization is necessary -
@@ -172,7 +164,7 @@ void SVDFactorization::computeQRdecomposition(
         if (its >= 4) {
           WARN("Matrix Q is not sufficiently orthogonal. Failed to rorthogonalize new column after 4 iterations. New column will be discarded.");
           orthogonalized = false;
-          termination    = true;
+          termination = true;
         }
 
         // for re-orthogonalization
@@ -197,7 +189,7 @@ void SVDFactorization::computeQRdecomposition(
     // entries of R or apply givens rotations on the QR-dec to maintain
     // the upper triangular structure of R
     Q.col(colsQ) = col; // insert orthogonalized column to the right in Q
-    R.col(colsR) = r;   // insert gram-schmidt coefficients to the right in R
+    R.col(colsR) = r; // insert gram-schmidt coefficients to the right in R
 
     colsR++;
     assertion(colsR <= R.cols(), colsR, R.cols());
@@ -230,30 +222,25 @@ void SVDFactorization::computeQRdecomposition(
   R.conservativeResize(rowsR, colsR);
 }
 
-SVDFactorization::Matrix &SVDFactorization::matrixPhi()
-{
+SVDFactorization::Matrix &SVDFactorization::matrixPhi() {
   return _phi;
 }
 
-SVDFactorization::Matrix &SVDFactorization::matrixPsi()
-{
+SVDFactorization::Matrix &SVDFactorization::matrixPsi() {
   return _psi;
 }
 
-SVDFactorization::Vector &SVDFactorization::singularValues()
-{
+SVDFactorization::Vector &SVDFactorization::singularValues() {
   return _sigma;
 }
 
-void SVDFactorization::setPrecondApplied(bool b)
-{
+void SVDFactorization::setPrecondApplied(bool b) {
   _preconditionerApplied = b;
 }
 
-void SVDFactorization::setApplyFilterQR(bool b, double eps)
-{
+void SVDFactorization::setApplyFilterQR(bool b, double eps) {
   _applyFilterQR = b;
-  _epsQR2        = eps;
+  _epsQR2 = eps;
 }
 
 /*
@@ -263,44 +250,37 @@ bool SVDFactorization::isPrecondApplied()
 }
 */
 
-bool SVDFactorization::isSVDinitialized()
-{
+bool SVDFactorization::isSVDinitialized() {
   return _initialSVD;
 }
 
-void SVDFactorization::setThreshold(double eps)
-{
+void SVDFactorization::setThreshold(double eps) {
   _truncationEps = eps;
 }
 
-double SVDFactorization::getThreshold()
-{
+double SVDFactorization::getThreshold() {
   return _truncationEps;
 }
 
-int SVDFactorization::getWaste()
-{
-  int r  = _waste;
+int SVDFactorization::getWaste() {
+  int r = _waste;
   _waste = 0;
   return r;
 }
 
-int SVDFactorization::cols()
-{
+int SVDFactorization::cols() {
   return _cols;
 }
 
-int SVDFactorization::rows()
-{
+int SVDFactorization::rows() {
   return _rows;
 }
 
-int SVDFactorization::rank()
-{
+int SVDFactorization::rank() {
   return _cols;
 }
-}
-}
-} // namespace precice, cplscheme, impl
+} // namespace impl
+} // namespace cplscheme
+} // namespace precice
 
 #endif // PRECICE_NO_MPI

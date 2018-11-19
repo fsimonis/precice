@@ -8,8 +8,7 @@ using namespace precice;
 
 BOOST_AUTO_TEST_SUITE(PreciceTests)
 
-BOOST_AUTO_TEST_CASE(WatchPoint)
-{
+BOOST_AUTO_TEST_CASE(WatchPoint) {
   using namespace mesh;
   int dim = 2;
   using Eigen::VectorXd;
@@ -18,14 +17,14 @@ BOOST_AUTO_TEST_CASE(WatchPoint)
   bool flipNormals = false;
   PtrMesh mesh(new Mesh(name, dim, flipNormals));
 
-  mesh::Vertex& v1 = mesh->createVertex(Eigen::Vector2d(1.0, 1.0));
-  mesh::Vertex& v2 = mesh->createVertex(Eigen::Vector2d(2.0, 1.0));
-  mesh::Vertex& v3 = mesh->createVertex(Eigen::Vector2d(1.0, 2.0));
-  mesh::Vertex& v4 = mesh->createVertex(Eigen::Vector2d(2.0, 2.0));
-  mesh->createEdge(v1,v2);
-  mesh->createEdge(v1,v3);
-  mesh->createEdge(v2,v4);
-  mesh->createEdge(v3,v4);
+  mesh::Vertex &v1 = mesh->createVertex(Eigen::Vector2d(1.0, 1.0));
+  mesh::Vertex &v2 = mesh->createVertex(Eigen::Vector2d(2.0, 1.0));
+  mesh::Vertex &v3 = mesh->createVertex(Eigen::Vector2d(1.0, 2.0));
+  mesh::Vertex &v4 = mesh->createVertex(Eigen::Vector2d(2.0, 2.0));
+  mesh->createEdge(v1, v2);
+  mesh->createEdge(v1, v3);
+  mesh->createEdge(v2, v4);
+  mesh->createEdge(v3, v4);
 
   PtrData doubleData = mesh->createData("DoubleData", 1);
   PtrData vectorData = mesh->createData("VectorData", dim);
@@ -33,7 +32,6 @@ BOOST_AUTO_TEST_CASE(WatchPoint)
   auto &vectorValues = vectorData->values();
   mesh->computeState();
   mesh->allocateDataValues();
-
 
   // Create watchpoints
   Eigen::Vector2d pointToWatch0(1.0, 1.0);

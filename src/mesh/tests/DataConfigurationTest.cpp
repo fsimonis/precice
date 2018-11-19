@@ -6,9 +6,8 @@ using namespace precice;
 
 BOOST_AUTO_TEST_SUITE(MeshTests)
 
-BOOST_AUTO_TEST_CASE(DataConfig)
-{
-  std::string filename(testing::getPathToSources()  + "/mesh/tests/data-config.xml");
+BOOST_AUTO_TEST_CASE(DataConfig) {
+  std::string filename(testing::getPathToSources() + "/mesh/tests/data-config.xml");
   int dim = 3;
   using xml::XMLTag;
   XMLTag tag = xml::getRootTag();

@@ -1,15 +1,13 @@
 #pragma once
 
 #include "DistributedCommunication.hpp"
-#include <list>
 #include "com/SharedPointer.hpp"
 #include "logging/Logger.hpp"
 #include "mesh/SharedPointer.hpp"
+#include <list>
 
-namespace precice
-{
-namespace m2n
-{
+namespace precice {
+namespace m2n {
 /**
  * @brief Point-to-point communication implementation of DistributedCommunication.
  *
@@ -21,11 +19,10 @@ namespace m2n
  *
  * For the detailed implementation documentation refer to PointToPointCommunication.cpp.
  */
-class PointToPointCommunication : public DistributedCommunication
-{
+class PointToPointCommunication: public DistributedCommunication {
 public:
   PointToPointCommunication(com::PtrCommunicationFactory communicationFactory,
-                            mesh::PtrMesh                mesh);
+                            mesh::PtrMesh mesh);
 
   virtual ~PointToPointCommunication();
 
@@ -69,8 +66,8 @@ public:
    *        indices deduced from the current and remote vertex distributions.
    */
   virtual void receive(double *itemsToReceive,
-                       size_t  size,
-                       int     valueDimension = 1);
+                       size_t size,
+                       int valueDimension = 1);
 
 private:
   logging::Logger _log{"m2n::PointToPointCommunication"};
@@ -78,9 +75,9 @@ private:
   /// Checks all stored requests for completion and removes associated buffers
   /**
    * @param[in] blocking False means that the function returns, even when there are requests left.
-   */  
+   */
   void checkBufferedRequests(bool blocking);
-  
+
   com::PtrCommunicationFactory _communicationFactory;
 
   /**
@@ -93,11 +90,11 @@ private:
    *        5. Appropriatly sized buffer to receive elements
    */
   struct Mapping {
-    int                   remoteRank;
-    std::vector<int>      indices;
+    int remoteRank;
+    std::vector<int> indices;
     com::PtrCommunication communication;
-    com::PtrRequest       request;
-    std::vector<double>   recvBuffer;
+    com::PtrRequest request;
+    std::vector<double> recvBuffer;
   };
 
   /**
@@ -109,8 +106,8 @@ private:
   bool _isConnected = false;
 
   std::list<std::pair<std::shared_ptr<com::Request>,
-                      std::shared_ptr<std::vector<double>>>> bufferedRequests;
-
+                      std::shared_ptr<std::vector<double>>>>
+      bufferedRequests;
 };
 } // namespace m2n
 } // namespace precice

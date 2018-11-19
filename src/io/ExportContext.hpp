@@ -7,8 +7,7 @@
 namespace precice {
 namespace io {
 
-struct ExportContext
-{
+struct ExportContext {
   // @brief Exporters performing the actual export.
   io::PtrExport exporter;
 
@@ -34,16 +33,16 @@ struct ExportContext
    * @brief Constructor.
    */
   ExportContext()
-  : exporter(),
-    location(),
-    timestepInterval(-1),
-    triggerSolverPlot(false),
-    everyIteration(false),
-    type(),
-    plotNormals(false)
-  {}
+      : exporter(),
+        location(),
+        timestepInterval(-1),
+        triggerSolverPlot(false),
+        everyIteration(false),
+        type(),
+        plotNormals(false) {}
 };
 
-}} // namespace precice, impl
+} // namespace io
+} // namespace precice
 
 #endif /* PRECICE_IO_EXPORTCONTEXT_HPP_ */

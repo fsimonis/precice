@@ -1,15 +1,12 @@
 #pragma once
 
+#include "math/geometry.hpp"
 #include <Eigen/Core>
 #include <Eigen/Dense>
-#include "math/geometry.hpp"
 
-namespace precice
-{
-namespace math
-{
-namespace barycenter
-{
+namespace precice {
+namespace math {
+namespace barycenter {
 
 /// The result of calculating the barycentric coordinates.
 struct BarycentricCoordsAndProjected {

@@ -8,29 +8,25 @@
 
 #ifndef PRECICE_NO_MPI
 
-#include <Eigen/Dense>
-#include <fstream>
 #include "ParallelMatrixOperations.hpp"
 #include "Preconditioner.hpp"
 #include "QRFactorization.hpp"
 #include "SharedPointer.hpp"
 #include "logging/Logger.hpp"
+#include <Eigen/Dense>
+#include <fstream>
 
 // ------- CLASS DEFINITION
 
-namespace precice
-{
-namespace cplscheme
-{
-namespace impl
-{
+namespace precice {
+namespace cplscheme {
+namespace impl {
 
 /**
  * @brief Class that provides functionality to maintain a SVD decomposition of a matrix
  * via succesive rank-1 updates and truncation with respect to the truncation threshold eps.
  */
-class SVDFactorization
-{
+class SVDFactorization {
 public:
   // Eigen
   typedef Eigen::MatrixXd Matrix;
@@ -40,7 +36,7 @@ public:
    * @brief Constructor.
    */
   SVDFactorization(
-      double            eps,
+      double eps,
       PtrPreconditioner preconditioner);
 
   /**
@@ -53,11 +49,10 @@ public:
     *  and overrides the internal SVD representation. After the update, the SVD is
     *  truncated according to the threshold _truncationEps
     */
-  template <typename Derived1, typename Derived2>
+  template<typename Derived1, typename Derived2>
   void update(
       const Eigen::MatrixBase<Derived1> &A,
-      const Eigen::MatrixBase<Derived2> &B)
-  {
+      const Eigen::MatrixBase<Derived2> &B) {
     TRACE();
     assertion(_initialized);
     /** updates the truncated svd factorization of the Jacobian with a rank-1 modification
@@ -71,10 +66,10 @@ public:
     } else {
       assertion(A.rows() == B.rows(), A.rows(), B.rows());
       assertion(A.cols() == B.cols(), A.cols(), B.cols());
-      _rows  = A.rows();
-      _cols  = 0;
-      _psi   = Matrix::Zero(_rows, 0);
-      _phi   = Matrix::Zero(_rows, 0);
+      _rows = A.rows();
+      _cols = 0;
+      _psi = Matrix::Zero(_rows, 0);
+      _phi = Matrix::Zero(_rows, 0);
       _sigma = Vector::Zero(0);
     }
 
@@ -123,15 +118,15 @@ public:
     for (int i = 0; i < _sigma.size(); i++)
       K(i, i) = _sigma(i);
 
-    K_A.block(0, 0, Atil.rows(), Atil.cols())         = Atil;
+    K_A.block(0, 0, Atil.rows(), Atil.cols()) = Atil;
     K_A.block(Atil.rows(), 0, R_A.rows(), R_A.cols()) = R_A;
-    K_B.block(0, 0, Btil.rows(), Btil.cols())         = Btil;
+    K_B.block(0, 0, Btil.rows(), Btil.cols()) = Btil;
     K_B.block(Btil.rows(), 0, R_B.rows(), R_B.cols()) = R_B;
     K += K_A * K_B.transpose();
 
     // compute svd of K
     Eigen::JacobiSVD<Matrix> svd(K, Eigen::ComputeThinU | Eigen::ComputeThinV);
-    _sigma         = svd.singularValues();
+    _sigma = svd.singularValues();
     auto &psiPrime = svd.matrixU();
     auto &phiPrime = svd.matrixV();
     //     e_matK.stop(true);
@@ -141,9 +136,9 @@ public:
     Matrix rotLeft(_rows, _psi.cols() + P.cols());
     Matrix rotRight(_rows, _phi.cols() + Q.cols());
 
-    rotLeft.block(0, 0, _rows, _psi.cols())         = _psi;
-    rotLeft.block(0, _psi.cols(), _rows, P.cols())  = P;
-    rotRight.block(0, 0, _rows, _phi.cols())        = _phi;
+    rotLeft.block(0, 0, _rows, _psi.cols()) = _psi;
+    rotLeft.block(0, _psi.cols(), _rows, P.cols()) = P;
+    rotRight.block(0, 0, _rows, _phi.cols()) = _phi;
     rotRight.block(0, _phi.cols(), _rows, Q.cols()) = Q;
 
     // [\psi,P] is distributed block-row wise, but \psiPrime is local on each proc, hence local mult.
@@ -295,10 +290,10 @@ private:
 
   /// Optional infostream that writes information to file
   std::fstream *_infostream;
-  bool          _fstream_set = false;
+  bool _fstream_set = false;
 };
-}
-}
-} // namespace precice, cplscheme, impl
+} // namespace impl
+} // namespace cplscheme
+} // namespace precice
 
 #endif /* PRECICE_NO_MPI */

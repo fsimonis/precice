@@ -4,15 +4,11 @@
 #include "cplscheme/CouplingData.hpp"
 #include "logging/Logger.hpp"
 
-namespace precice
-{
-namespace cplscheme
-{
-namespace impl
-{
+namespace precice {
+namespace cplscheme {
+namespace impl {
 
-class MinIterationConvergenceMeasure : public ConvergenceMeasure
-{
+class MinIterationConvergenceMeasure: public ConvergenceMeasure {
 public:
   explicit MinIterationConvergenceMeasure(int minimumIterationCount);
 
@@ -23,21 +19,18 @@ public:
   virtual void measure(
       const Eigen::VectorXd &oldValues,
       const Eigen::VectorXd &newValues,
-      const Eigen::VectorXd &designSpecification)
-  {
+      const Eigen::VectorXd &designSpecification) {
     TRACE();
     _currentIteration++;
     _isConvergence = (_minimumIterationCount <= _currentIteration);
     DEBUG("Iteration number = " << _currentIteration << ", convergence = " << _isConvergence);
   }
 
-  virtual bool isConvergence() const
-  {
+  virtual bool isConvergence() const {
     return _isConvergence;
   }
 
-  virtual std::string printState()
-  {
+  virtual std::string printState() {
     std::ostringstream os;
     os << "min iteration convergence measure: ";
     os << "#it = " << _currentIteration << " of " << _minimumIterationCount;
@@ -58,6 +51,6 @@ private:
 
   bool _isConvergence = false;
 };
-}
-}
-} // namespace precice, cplscheme, impl
+} // namespace impl
+} // namespace cplscheme
+} // namespace precice

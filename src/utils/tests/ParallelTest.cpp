@@ -1,6 +1,6 @@
-#include <string>
 #include "testing/Testing.hpp"
 #include "utils/Parallel.hpp"
+#include <string>
 
 using namespace precice;
 
@@ -8,8 +8,7 @@ BOOST_AUTO_TEST_SUITE(UtilsTests)
 
 #ifndef PRECICE_NO_MPI
 
-BOOST_AUTO_TEST_CASE(Parallel, *testing::MinRanks{3})
-{
+BOOST_AUTO_TEST_CASE(Parallel, *testing::MinRanks{3}) {
   using Par = utils::Parallel;
   MPI_Comm comm = Par::getRestrictedCommunicator({0, 1, 2});
   if (Par::getProcessRank() <= 2) {

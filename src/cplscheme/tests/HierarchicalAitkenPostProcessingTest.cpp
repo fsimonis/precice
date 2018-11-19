@@ -1,4 +1,3 @@
-#include <Eigen/Core>
 #include "../CouplingData.hpp"
 #include "../impl/HierarchicalAitkenPostProcessing.hpp"
 #include "../impl/PostProcessing.hpp"
@@ -6,17 +5,17 @@
 #include "mesh/SharedPointer.hpp"
 #include "testing/Testing.hpp"
 #include "utils/EigenHelperFunctions.hpp"
+#include <Eigen/Core>
 
 BOOST_AUTO_TEST_SUITE(CplSchemeTests)
 
 using namespace precice;
 using namespace cplscheme;
 
-BOOST_AUTO_TEST_CASE(HierarchicalAitkenPostProcessingTest)
-{
+BOOST_AUTO_TEST_CASE(HierarchicalAitkenPostProcessingTest) {
   impl::PostProcessing::DataMap dataMap;
-  int                           dataID = 0;
-  std::vector<int>              dataIDs;
+  int dataID = 0;
+  std::vector<int> dataIDs;
   dataIDs.push_back(dataID);
 
   Eigen::VectorXd highF(5), midF(5), lowF(5), values(5), temp(5);
@@ -31,22 +30,22 @@ BOOST_AUTO_TEST_CASE(HierarchicalAitkenPostProcessingTest)
   temp = lowF;
   temp *= 4.0;
   values += temp;
-  bool            initializeValues = false;
-  mesh::PtrMesh   dummyMesh(new mesh::Mesh("DummyMesh", 3, false));
+  bool initializeValues = false;
+  mesh::PtrMesh dummyMesh(new mesh::Mesh("DummyMesh", 3, false));
   PtrCouplingData ptrCplData = PtrCouplingData(new CouplingData(
       &values, dummyMesh, initializeValues, 1));
-  temp                       = values;
+  temp = values;
   temp *= 2.0;
   utils::appendFront(ptrCplData->oldValues, temp);
   dataMap.insert(std::make_pair(dataID, ptrCplData));
 
-  double                                 initRelaxation = 1.0;
+  double initRelaxation = 1.0;
   impl::HierarchicalAitkenPostProcessing hierarchAitken(initRelaxation, dataIDs);
   hierarchAitken.initialize(dataMap);
   hierarchAitken.performPostProcessing(dataMap);
 
   dataMap[dataID]->oldValues.col(0) = *dataMap[dataID]->values;
-  temp                              = highF;
+  temp = highF;
   temp *= 0.5;
   *dataMap[dataID]->values -= temp;
   temp = midF;

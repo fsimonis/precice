@@ -1,27 +1,24 @@
 #pragma once
 
+#include "logging/Logger.hpp"
 #include <string>
 #include <vector>
-#include "logging/Logger.hpp"
 
 #ifndef PRECICE_NO_MPI
 #include <mpi.h>
 #endif // not PRECICE_NO_MPI
 
-namespace precice
-{
-namespace utils
-{
+namespace precice {
+namespace utils {
 
 /// Utility class for managing MPI operations.
-class Parallel
-{
+class Parallel {
 public:
 #ifndef PRECICE_NO_MPI
   using Communicator = MPI_Comm;
 #else
   using Communicator = std::nullptr_t;
-  #define MPI_COMM_NULL nullptr
+#define MPI_COMM_NULL nullptr
 #endif
 
   /// Used to sort and order all coupling participants.
@@ -144,5 +141,5 @@ private:
 
   static bool _mpiInitializedByPrecice;
 };
-}
-} // namespace precice, utils
+} // namespace utils
+} // namespace precice

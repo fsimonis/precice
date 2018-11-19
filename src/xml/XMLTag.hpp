@@ -1,29 +1,24 @@
 #pragma once
 
+#include "XMLAttribute.hpp"
+#include "logging/Logger.hpp"
+#include "xml/ConfigParser.hpp"
 #include <map>
 #include <set>
 #include <string>
 #include <vector>
-#include "XMLAttribute.hpp"
-#include "logging/Logger.hpp"
-#include "xml/ConfigParser.hpp"
 
-namespace precice
-{
-namespace xml
-{
+namespace precice {
+namespace xml {
 class ConfigParser;
 }
-}
+} // namespace precice
 
-namespace precice
-{
-namespace xml
-{
+namespace precice {
+namespace xml {
 
 /// Represents an XML tag to be configured automatically.
-class XMLTag
-{
+class XMLTag {
   friend class precice::xml::ConfigParser;
 
 public:
@@ -66,9 +61,9 @@ public:
    * @param[in] xmlNamespace Defines a prefix/namespace for the tag. Tags with equal namespace or treated as group.
    */
   XMLTag(
-      Listener &         listener,
+      Listener &listener,
       const std::string &name,
-      Occurrence         occurrence,
+      Occurrence occurrence,
       const std::string &xmlNamespace = "");
 
   /**
@@ -114,20 +109,17 @@ public:
    *
    * The method getFullName() returns the name with namespace.
    */
-  const std::string &getName() const
-  {
+  const std::string &getName() const {
     return _name;
   }
 
   /// Returns xml namespace.
-  const std::string &getNamespace() const
-  {
+  const std::string &getNamespace() const {
     return _namespace;
   }
 
   /// Returns full name consisting of xml namespace + ":" + name.
-  const std::string &getFullName() const
-  {
+  const std::string &getFullName() const {
     return _fullName;
   }
 
@@ -150,15 +142,13 @@ public:
    */
   Eigen::VectorXd getEigenVectorXdAttributeValue(
       const std::string &name,
-      int                dimensions) const;
+      int dimensions) const;
 
-  bool isConfigured() const
-  {
+  bool isConfigured() const {
     return _configured;
   }
 
-  Occurrence getOccurrence() const
-  {
+  Occurrence getOccurrence() const {
     return _occurrence;
   }
 
@@ -222,7 +212,7 @@ private:
 // ------------------------------------------------------ HEADER IMPLEMENTATION
 
 /// No operation listener for tests.
-struct NoPListener : public XMLTag::Listener {
+struct NoPListener: public XMLTag::Listener {
   virtual void xmlTagCallback(XMLTag &callingTag) {}
   virtual void xmlEndTagCallback(XMLTag &callingTag) {}
 };
@@ -243,10 +233,11 @@ XMLTag getRootTag();
 
 /// Configures the given configuration from file configurationFilename.
 void configure(
-    XMLTag &           tag,
+    XMLTag &tag,
     const std::string &configurationFilename);
 
-}} // namespace precice, xml
+} // namespace xml
+} // namespace precice
 
 /**
  * @brief Adds documentation of tag to output stream os.

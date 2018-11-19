@@ -3,31 +3,27 @@
 #include "mesh/Mesh.hpp"
 #include "mesh/Vertex.hpp"
 
-namespace precice
-{
-namespace action
-{
+namespace precice {
+namespace action {
 
 ModifyCoordinatesAction::ModifyCoordinatesAction(
-    Timing               timing,
-    int                  dataID,
+    Timing timing,
+    int dataID,
     const mesh::PtrMesh &mesh,
-    Mode                 mode)
+    Mode mode)
     : Action(timing, mesh),
       _data(mesh->data(dataID)),
-      _mode(mode)
-{
+      _mode(mode) {
 }
 
 void ModifyCoordinatesAction::performAction(
     double time,
     double dt,
     double computedPartFullDt,
-    double fullDt)
-{
+    double fullDt) {
   TRACE();
-  auto &          values = _data->values();
-  int             dim    = getMesh()->getDimensions();
+  auto &values = _data->values();
+  int dim = getMesh()->getDimensions();
   Eigen::VectorXd data(dim);
   if (_mode == ADD_TO_COORDINATES_MODE) {
     DEBUG("Adding data to coordinates");

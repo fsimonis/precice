@@ -6,10 +6,8 @@
 #include "mesh/SharedPointer.hpp"
 #include <map>
 
-namespace precice
-{
-namespace m2n
-{
+namespace precice {
+namespace m2n {
 
 /**
  * @brief M2N communication class.
@@ -17,8 +15,7 @@ namespace m2n
  * each possibly with a different decomposition. In principle, this class is only a map from meshes to DistributedCommunications
  *
  */
-class M2N
-{
+class M2N {
 public:
   M2N(com::PtrCommunication masterCom, DistributedComFactory::SharedPointer distrFactory);
 
@@ -79,9 +76,9 @@ public:
 
   /// Sends an array of double values from all slaves (different for each slave).
   void send(double *itemsToSend,
-            int     size,
-            int     meshID,
-            int     valueDimension);
+            int size,
+            int meshID,
+            int valueDimension);
 
   /**
    * @brief The master sends a bool to the other master, for performance reasons, we
@@ -97,9 +94,9 @@ public:
 
   /// All slaves receive an array of doubles (different for each slave).
   void receive(double *itemsToReceive,
-               int     size,
-               int     meshID,
-               int     valueDimension);
+               int size,
+               int meshID,
+               int valueDimension);
 
   /// All slaves receive a bool (the same for each slave).
   void receive(bool &itemToReceive);

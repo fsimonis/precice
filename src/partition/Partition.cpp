@@ -3,24 +3,20 @@
 #include "mesh/Mesh.hpp"
 #include "utils/MasterSlave.hpp"
 
-namespace precice
-{
-namespace partition
-{
+namespace precice {
+namespace partition {
 
 Partition::Partition(mesh::PtrMesh mesh)
-    : _mesh(mesh)
-{
+    : _mesh(mesh) {
 }
 
-void Partition::computeVertexOffsets()
-{
+void Partition::computeVertexOffsets() {
   TRACE();
   DEBUG("Generate vertex offsets");
   if (utils::MasterSlave::_slaveMode) {
     utils::MasterSlave::_communication->broadcast(_mesh->getVertexOffsets(), 0);
     DEBUG("My vertex offsets: " << _mesh->getVertexOffsets());
-    
+
   } else if (utils::MasterSlave::_masterMode) {
     _mesh->getVertexOffsets().resize(utils::MasterSlave::_size);
     _mesh->getVertexOffsets()[0] = _mesh->getVertexDistribution()[0].size();
@@ -29,7 +25,7 @@ void Partition::computeVertexOffsets()
     }
     DEBUG("My vertex offsets: " << _mesh->getVertexOffsets());
     utils::MasterSlave::_communication->broadcast(_mesh->getVertexOffsets());
-    
+
   } else { //coupling mode
     _mesh->getVertexOffsets().push_back(_mesh->vertices().size());
   }

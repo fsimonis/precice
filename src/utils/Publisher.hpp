@@ -3,10 +3,8 @@
 #include <stack>
 #include <string>
 
-namespace precice
-{
-namespace utils
-{
+namespace precice {
+namespace utils {
 
 /**
  * @brief Publisher Class. This utility class can be used to publish connection information and
@@ -16,10 +14,8 @@ namespace utils
  * @todo implementation should be substituted by a proper publishing strategy, not via files.
  * (to allow for exa-scale one day)
  */
-class Publisher
-{
+class Publisher {
 public:
-
   struct ScopedPushDirectory {
     explicit ScopedPushDirectory(std::string const &dp);
 
@@ -74,8 +70,7 @@ private:
   std::string _fp;
 };
 
-class ScopedPublisher : public Publisher
-{
+class ScopedPublisher: public Publisher {
 public:
   explicit ScopedPublisher(std::string const &fp);
 

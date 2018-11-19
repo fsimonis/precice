@@ -1,25 +1,24 @@
-#include <string>
 #include "testing/Testing.hpp"
 #include "xml/ConfigParser.hpp"
 #include "xml/ValidatorEquals.hpp"
 #include "xml/ValidatorOr.hpp"
 #include "xml/XMLAttribute.hpp"
 #include "xml/XMLTag.hpp"
+#include <string>
 
 using namespace precice::xml;
 using precice::testing::getPathToSources;
 
 BOOST_AUTO_TEST_SUITE(XML)
 
-struct CallbackHostAttr : public XMLTag::Listener {
+struct CallbackHostAttr: public XMLTag::Listener {
   Eigen::VectorXd eigenValue;
-  double          doubleValue;
-  int             intValue;
-  bool            boolValue;
-  std::string     stringValue;
+  double doubleValue;
+  int intValue;
+  bool boolValue;
+  std::string stringValue;
 
-  void xmlTagCallback(XMLTag &callingTag)
-  {
+  void xmlTagCallback(XMLTag &callingTag) {
     if (callingTag.getName() == "test-double") {
       doubleValue = callingTag.getDoubleAttributeValue("attribute");
     }
@@ -41,19 +40,17 @@ struct CallbackHostAttr : public XMLTag::Listener {
     }
   }
 
-  void xmlEndTagCallback(XMLTag &callingTag)
-  {
+  void xmlEndTagCallback(XMLTag &callingTag) {
     std::ignore = callingTag;
   }
 };
 
-BOOST_AUTO_TEST_CASE(AttributeTypeTest)
-{
+BOOST_AUTO_TEST_CASE(AttributeTypeTest) {
   std::string filename(getPathToSources() + "/xml/tests/xmlparser_test.xml");
 
   CallbackHostAttr cb;
-  XMLTag           rootTag(cb, "configuration", XMLTag::OCCUR_ONCE);
-  XMLTag           testcaseTag(cb, "test-config", XMLTag::OCCUR_ONCE);
+  XMLTag rootTag(cb, "configuration", XMLTag::OCCUR_ONCE);
+  XMLTag testcaseTag(cb, "test-config", XMLTag::OCCUR_ONCE);
 
   XMLTag doubleTag(cb, "test-double", XMLTag::OCCUR_ONCE_OR_MORE);
   XMLTag eigenTag(cb, "test-eigen", XMLTag::OCCUR_ONCE_OR_MORE);
@@ -61,11 +58,11 @@ BOOST_AUTO_TEST_CASE(AttributeTypeTest)
   XMLTag stringTag(cb, "test-string", XMLTag::OCCUR_ONCE_OR_MORE);
   XMLTag boolTag(cb, "test-bool", XMLTag::OCCUR_ONCE_OR_MORE);
 
-  XMLAttribute<double>          doubleAttr("attribute");
+  XMLAttribute<double> doubleAttr("attribute");
   XMLAttribute<Eigen::VectorXd> eigenAttr("attribute");
-  XMLAttribute<int>             intAttr("attribute");
-  XMLAttribute<bool>            boolAttr("attribute");
-  XMLAttribute<std::string>     stringAttr("text");
+  XMLAttribute<int> intAttr("attribute");
+  XMLAttribute<bool> boolAttr("attribute");
+  XMLAttribute<std::string> stringAttr("text");
 
   doubleTag.addAttribute(doubleAttr);
   eigenTag.addAttribute(eigenAttr);
@@ -93,13 +90,12 @@ BOOST_AUTO_TEST_CASE(AttributeTypeTest)
   BOOST_TEST(cb.eigenValue(2) == 1.0);
 }
 
-BOOST_AUTO_TEST_CASE(OccurenceTest)
-{
+BOOST_AUTO_TEST_CASE(OccurenceTest) {
   std::string filename(getPathToSources() + "/xml/tests/xmlparser_occtest.xml");
 
   CallbackHostAttr cb;
-  XMLTag           rootTag(cb, "configuration", XMLTag::OCCUR_ONCE);
-  XMLTag           testcaseTag(cb, "test-config", XMLTag::OCCUR_ONCE);
+  XMLTag rootTag(cb, "configuration", XMLTag::OCCUR_ONCE);
+  XMLTag testcaseTag(cb, "test-config", XMLTag::OCCUR_ONCE);
 
   XMLTag occ2(cb, "test-occ_once_or_more-once", XMLTag::OCCUR_ONCE_OR_MORE);
   XMLTag occ3(cb, "test-occ_arbitrary", XMLTag::OCCUR_ARBITRARY);
@@ -122,13 +118,12 @@ BOOST_AUTO_TEST_CASE(OccurenceTest)
   configure(rootTag, filename);
 }
 
-BOOST_AUTO_TEST_CASE(NamespaceTest)
-{
+BOOST_AUTO_TEST_CASE(NamespaceTest) {
   std::string filename(getPathToSources() + "/xml/tests/xmlparser_nstest.xml");
 
   CallbackHostAttr cb;
-  XMLTag           rootTag(cb, "configuration", XMLTag::OCCUR_ONCE);
-  XMLTag           testcaseTag(cb, "test-config", XMLTag::OCCUR_ONCE);
+  XMLTag rootTag(cb, "configuration", XMLTag::OCCUR_ONCE);
+  XMLTag testcaseTag(cb, "test-config", XMLTag::OCCUR_ONCE);
 
   XMLTag intTag(cb, "test-no_ns", XMLTag::OCCUR_ONCE_OR_MORE);
   XMLTag stringTag(cb, "test-ns", XMLTag::OCCUR_ONCE_OR_MORE, "ns");

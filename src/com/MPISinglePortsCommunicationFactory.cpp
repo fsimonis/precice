@@ -5,25 +5,20 @@
 #include "MPISinglePortsCommunication.hpp"
 #include "com/SharedPointer.hpp"
 
-namespace precice
-{
-namespace com
-{
+namespace precice {
+namespace com {
 MPISinglePortsCommunicationFactory::MPISinglePortsCommunicationFactory(std::string const &addressDirectory)
-    : _addressDirectory(addressDirectory)
-{
+    : _addressDirectory(addressDirectory) {
   if (_addressDirectory.empty()) {
     _addressDirectory = ".";
   }
 }
 
-PtrCommunication MPISinglePortsCommunicationFactory::newCommunication()
-{
+PtrCommunication MPISinglePortsCommunicationFactory::newCommunication() {
   return std::make_shared<MPISinglePortsCommunication>(_addressDirectory);
 }
 
-std::string MPISinglePortsCommunicationFactory::addressDirectory()
-{
+std::string MPISinglePortsCommunicationFactory::addressDirectory() {
   return _addressDirectory;
 }
 } // namespace com

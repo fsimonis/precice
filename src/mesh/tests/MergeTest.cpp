@@ -11,8 +11,7 @@ using namespace precice::mesh;
 
 BOOST_AUTO_TEST_SUITE(MeshTests)
 
-BOOST_AUTO_TEST_CASE(MergeTest)
-{
+BOOST_AUTO_TEST_CASE(MergeTest) {
   // Create visitables
   int dim = 3;
   precice::mesh::Mesh mesh("MyMesh", dim, false);

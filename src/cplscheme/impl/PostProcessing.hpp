@@ -1,38 +1,32 @@
 #pragma once
 
+#include "../BaseCouplingScheme.hpp"
+#include "../SharedPointer.hpp"
 #include <Eigen/Core>
 #include <map>
 #include <vector>
-#include "../BaseCouplingScheme.hpp"
-#include "../SharedPointer.hpp"
 
-namespace precice
-{
-namespace io
-{
+namespace precice {
+namespace io {
 class TXTWriter;
 class TXTReader;
-}
-}
+} // namespace io
+} // namespace precice
 
-namespace precice
-{
-namespace cplscheme
-{
-namespace impl
-{
+namespace precice {
+namespace cplscheme {
+namespace impl {
 
-class PostProcessing
-{
+class PostProcessing {
 public:
-  static const int NOFILTER      = 0;
-  static const int QR1FILTER     = 1;
+  static const int NOFILTER = 0;
+  static const int QR1FILTER = 1;
   static const int QR1FILTER_ABS = 2;
-  static const int QR2FILTER     = 3;
-  static const int PODFILTER     = 4;
+  static const int QR2FILTER = 3;
+  static const int PODFILTER = 4;
 
   /// Map from data ID to data values.
-  using DataMap   = std::map<int, PtrCouplingData>;
+  using DataMap = std::map<int, PtrCouplingData>;
   using ValuesMap = std::map<int, Eigen::VectorXd>;
 
   virtual ~PostProcessing() {}
@@ -76,23 +70,20 @@ public:
    *        x_k = argmin_x||f(x_k) - q_k)
    *        with the design specification q_k and the model response f(x_k)
    */
-  virtual void optimize(DataMap &cplData, Eigen::VectorXd &q)
-  {
+  virtual void optimize(DataMap &cplData, Eigen::VectorXd &q) {
     setDesignSpecification(q);
     performPostProcessing(cplData);
   };
 
-  virtual int getDeletedColumns()
-  {
+  virtual int getDeletedColumns() {
     return 0;
   }
 
   /// Indicates whether the given post processing is based on a multi-level approach
-  virtual bool isMultilevelBasedApproach()
-  {
+  virtual bool isMultilevelBasedApproach() {
     return false;
   }
 };
-}
-}
-} // namespace precice, cplscheme, impl
+} // namespace impl
+} // namespace cplscheme
+} // namespace precice

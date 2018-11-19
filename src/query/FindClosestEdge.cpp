@@ -1,58 +1,48 @@
 #include "FindClosestEdge.hpp"
-#include <Eigen/Dense>
-#include "mesh/Vertex.hpp"
+#include "math/barycenter.hpp"
+#include "math/geometry.hpp"
 #include "mesh/Edge.hpp"
 #include "mesh/Mesh.hpp"
-#include "math/geometry.hpp"
-#include "math/barycenter.hpp"
-#include <utility>
+#include "mesh/Vertex.hpp"
+#include <Eigen/Dense>
 #include <array>
+#include <utility>
 
 namespace precice {
 namespace query {
 
-FindClosestEdge:: FindClosestEdge
-(
-  const Eigen::VectorXd& searchPoint )
-:
-  _searchPoint ( searchPoint ),
-  _vectorToProjectionPoint ( Eigen::VectorXd::Constant(searchPoint.size(), std::numeric_limits<double>::max()) ),
-  _parametersProjectionPoint( {_shortestDistance , _shortestDistance} )
-{
-  assertion ( (_searchPoint.size() == 2) || (_searchPoint.size() == 3),
-               _searchPoint.size() );
+FindClosestEdge::FindClosestEdge(
+    const Eigen::VectorXd &searchPoint)
+    : _searchPoint(searchPoint),
+      _vectorToProjectionPoint(Eigen::VectorXd::Constant(searchPoint.size(), std::numeric_limits<double>::max())),
+      _parametersProjectionPoint({_shortestDistance, _shortestDistance}) {
+  assertion((_searchPoint.size() == 2) || (_searchPoint.size() == 3),
+            _searchPoint.size());
 }
 
-const Eigen::VectorXd& FindClosestEdge:: getSearchPoint() const
-{
+const Eigen::VectorXd &FindClosestEdge::getSearchPoint() const {
   return _searchPoint;
 }
 
-bool FindClosestEdge:: hasFound() const
-{
+bool FindClosestEdge::hasFound() const {
   return _closestEdge != nullptr;
 }
 
-double FindClosestEdge:: getEuclidianDistance()
-{
+double FindClosestEdge::getEuclidianDistance() {
   return _shortestDistance;
 }
 
-mesh::Edge& FindClosestEdge:: getClosestEdge()
-{
-  assertion ( _closestEdge != nullptr );
+mesh::Edge &FindClosestEdge::getClosestEdge() {
+  assertion(_closestEdge != nullptr);
   return *_closestEdge;
 }
 
-const Eigen::VectorXd& FindClosestEdge:: getVectorToProjectionPoint() const
-{
+const Eigen::VectorXd &FindClosestEdge::getVectorToProjectionPoint() const {
   return _vectorToProjectionPoint;
 }
 
-double FindClosestEdge:: getProjectionPointParameter
-(
-  int index ) const
-{
+double FindClosestEdge::getProjectionPointParameter(
+    int index) const {
   return _parametersProjectionPoint[index];
 }
 
@@ -66,26 +56,25 @@ double FindClosestEdge:: getProjectionPointParameter
 //  return _parametersProjectionPoint[1];
 //}
 
-void FindClosestEdge:: find ( mesh::Edge& edge )
-{
-  TRACE(edge.vertex(0).getCoords(), edge.vertex(1).getCoords() );
+void FindClosestEdge::find(mesh::Edge &edge) {
+  TRACE(edge.vertex(0).getCoords(), edge.vertex(1).getCoords());
 
   // Methodology of book "Computational Geometry", Joseph O' Rourke, Chapter 7.2
-  auto& a = edge.vertex(0).getCoords();
-  auto& b = edge.vertex(1).getCoords();
-  auto& norm = edge.getNormal();
+  auto &a = edge.vertex(0).getCoords();
+  auto &b = edge.vertex(1).getCoords();
+  auto &norm = edge.getNormal();
 
   auto ret = math::barycenter::calcBarycentricCoordsForEdge(a, b, norm, _searchPoint);
   assertion(ret.barycentricCoords.size() == 2);
 
-  bool inside = not (ret.barycentricCoords.array() < - math::NUMERICAL_ZERO_DIFFERENCE).any();
+  bool inside = not(ret.barycentricCoords.array() < -math::NUMERICAL_ZERO_DIFFERENCE).any();
 
   // if valid, compute distance to triangle and evtl. store distance
   if (inside) {
     Eigen::VectorXd distanceVector = ret.projected;
     distanceVector -= _searchPoint;
     double distance = distanceVector.norm();
-    if ( _shortestDistance > distance ) {
+    if (_shortestDistance > distance) {
       _shortestDistance = distance;
       _vectorToProjectionPoint = distanceVector;
       _parametersProjectionPoint[0] = ret.barycentricCoords[0];
@@ -95,4 +84,5 @@ void FindClosestEdge:: find ( mesh::Edge& edge )
   }
 }
 
-}} // namespace precice, query
+} // namespace query
+} // namespace precice

@@ -4,24 +4,20 @@
 #include "com/MPIPortsCommunication.hpp"
 #include "utils/MasterSlave.hpp"
 
-namespace precice
-{
-namespace cplscheme
-{
-namespace impl
-{
+namespace precice {
+namespace cplscheme {
+namespace impl {
 
 void ParallelMatrixOperations::initialize(
     com::PtrCommunication leftComm,
     com::PtrCommunication rightComm,
-    bool                  needCyclicComm)
-{
+    bool needCyclicComm) {
   TRACE();
 
   _needCycliclComm = needCyclicComm;
   if (utils::MasterSlave::_masterMode || utils::MasterSlave::_slaveMode) {
 
-    _cyclicCommLeft  = leftComm;
+    _cyclicCommLeft = leftComm;
     _cyclicCommRight = rightComm;
 
     if (_needCycliclComm) {
@@ -32,8 +28,8 @@ void ParallelMatrixOperations::initialize(
     }
   }
 }
-}
-}
-} // namespace precice, cplscheme, impl
+} // namespace impl
+} // namespace cplscheme
+} // namespace precice
 
 #endif

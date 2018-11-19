@@ -1,13 +1,12 @@
 #include "ExportConfiguration.hpp"
 #include "io/Export.hpp"
-#include "xml/XMLTag.hpp"
 #include "xml/XMLAttribute.hpp"
+#include "xml/XMLTag.hpp"
 
 namespace precice {
 namespace io {
 
-ExportConfiguration:: ExportConfiguration(xml::XMLTag& parent)
-{
+ExportConfiguration::ExportConfiguration(xml::XMLTag &parent) {
   using namespace xml;
   std::string doc;
   std::list<XMLTag> tags;
@@ -43,7 +42,7 @@ ExportConfiguration:: ExportConfiguration(xml::XMLTag& parent)
   attrEveryIteration.setDocumentation(doc);
   attrEveryIteration.setDefaultValue(false);
 
-  for (XMLTag& tag : tags){
+  for (XMLTag &tag : tags) {
     tag.addAttribute(attrLocation);
     tag.addAttribute(attrTimestepInterval);
     tag.addAttribute(attrTriggerSolver);
@@ -53,14 +52,12 @@ ExportConfiguration:: ExportConfiguration(xml::XMLTag& parent)
   }
 }
 
-void ExportConfiguration:: xmlTagCallback
-(
-  xml::XMLTag& tag )
-{
-  if ( tag.getNamespace() == TAG ){
+void ExportConfiguration::xmlTagCallback(
+    xml::XMLTag &tag) {
+  if (tag.getNamespace() == TAG) {
     ExportContext context;
     context.location = tag.getStringAttributeValue(ATTR_LOCATION);
-    context.triggerSolverPlot =  tag.getBooleanAttributeValue(ATTR_TRIGGER_SOLVER);
+    context.triggerSolverPlot = tag.getBooleanAttributeValue(ATTR_TRIGGER_SOLVER);
     context.timestepInterval = tag.getIntAttributeValue(ATTR_TIMESTEP_INTERVAL);
     context.plotNormals = tag.getBooleanAttributeValue(ATTR_NORMALS);
     context.everyIteration = tag.getBooleanAttributeValue(ATTR_EVERY_ITERATION);
@@ -69,6 +66,5 @@ void ExportConfiguration:: xmlTagCallback
   }
 }
 
-
-}} // namespace precice, io
-
+} // namespace io
+} // namespace precice

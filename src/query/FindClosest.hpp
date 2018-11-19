@@ -1,15 +1,15 @@
 #pragma once
 
-#include "FindClosestVertex.hpp"
 #include "FindClosestEdge.hpp"
-#include "FindClosestTriangle.hpp"
 #include "FindClosestQuad.hpp"
+#include "FindClosestTriangle.hpp"
+#include "FindClosestVertex.hpp"
 
 namespace precice {
-   namespace mesh {
-      class Mesh;
-   }
+namespace mesh {
+class Mesh;
 }
+} // namespace precice
 
 // ----------------------------------------------------------- CLASS DEFINITION
 
@@ -19,30 +19,26 @@ namespace query {
 /**
  * @brief Weighting and reference to target element for a value to interpolate
  */
-struct InterpolationElement
-{
-  mesh::Vertex* element;
+struct InterpolationElement {
+  mesh::Vertex *element;
   double weight;
 
-  InterpolationElement ()
-  : element(NULL), weight(0.0) {}
+  InterpolationElement()
+      : element(NULL), weight(0.0) {}
 };
 
 /**
  * @brief Closest element to all objects with given mesh ID
  */
-struct ClosestElement
-{
+struct ClosestElement {
   std::vector<int> meshIDs;
   double distance = 0;
   Eigen::VectorXd vectorToElement;
   std::vector<InterpolationElement> interpolationElements;
 
-  ClosestElement (int dim)
-    : vectorToElement(Eigen::VectorXd::Zero(dim))
-  {}
+  ClosestElement(int dim)
+      : vectorToElement(Eigen::VectorXd::Zero(dim)) {}
 };
-
 
 /**
  * @brief Determines closest Triangle, Edge, or Vertex object to a given point.
@@ -60,39 +56,36 @@ struct ClosestElement
  * all smaller or equal to one. The interpolation weigths for the points of the
  * triangle are equal to the barycentric coordinates.
  */
-class FindClosest
-{
+class FindClosest {
 public:
-
   /**
    * @brief Constructor, searchpoint can be specified only there
    *
    * @param[in] searchpoint Point from where distances to objects are measured
    */
   template<typename VECTOR_T>
-  FindClosest ( const VECTOR_T& searchpoint );
+  FindClosest(const VECTOR_T &searchpoint);
 
   /// Finds closest distance to all mesh elements in the given container.
   template<typename CONTAINER_T>
-  bool operator() ( CONTAINER_T& container );
+  bool operator()(CONTAINER_T &container);
 
   /// Returns true, if a closest element was found.
   bool hasFound() const;
 
   /// Returns ClosestElement found, error when no visitable has been found
-  const ClosestElement& getClosest();
+  const ClosestElement &getClosest();
 
   /// Returns the euclidian distance to the closest element.
   double getEuclidianDistance();
 
   /// Returns search point
-  const Eigen::VectorXd& getSearchPoint() const;
+  const Eigen::VectorXd &getSearchPoint() const;
 
   /// Resets the found visitables, not done automatically
   void reset();
 
 private:
-
   logging::Logger _log{"query::FindClosest"};
 
   /// Finds closest distance to Vertex objects.
@@ -124,23 +117,18 @@ private:
 // --------------------------------------------------------- HEADER DEFINITIONS
 
 template<typename VECTOR_T>
-FindClosest:: FindClosest
-(
-  const VECTOR_T& searchpoint )
-:
-  _findClosestVertex(searchpoint),
-  _findClosestEdge(searchpoint),
-  _findClosestTriangle(searchpoint),
-  _findClosestQuad(searchpoint),
-  _closest(searchpoint.size()),
-  _searchpoint(searchpoint)
-{}
+FindClosest::FindClosest(
+    const VECTOR_T &searchpoint)
+    : _findClosestVertex(searchpoint),
+      _findClosestEdge(searchpoint),
+      _findClosestTriangle(searchpoint),
+      _findClosestQuad(searchpoint),
+      _closest(searchpoint.size()),
+      _searchpoint(searchpoint) {}
 
 template<typename CONTAINER_T>
-bool FindClosest:: operator()
-(
-  CONTAINER_T& container )
-{
+bool FindClosest::operator()(
+    CONTAINER_T &container) {
   // It is not valid here, to stop the search for vertices (e.g.) if a closest
   // edge has been found already, since the edge might be oriented wrongly.
   _findClosestTriangle(container);
@@ -150,4 +138,5 @@ bool FindClosest:: operator()
   return determineClosest();
 }
 
-}} // namespace precice, query
+} // namespace query
+} // namespace precice

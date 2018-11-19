@@ -5,18 +5,14 @@
 #include <map>
 #include <vector>
 
-namespace precice
-{
-namespace utils
-{
+namespace precice {
+namespace utils {
 class ManageUniqueIDs;
 }
-}
+} // namespace precice
 
-namespace precice
-{
-namespace mesh
-{
+namespace precice {
+namespace mesh {
 
 /**
  * @brief Implements hierarchical dynamical properties of arbitrary type.
@@ -29,10 +25,8 @@ namespace mesh
  * parent pointers to higher level PropertyContainers. There can be multiple
  * parents.
  */
-class PropertyContainer
-{
+class PropertyContainer {
 public:
-
   virtual ~PropertyContainer(){};
 
   // Shortform for the type of a property.
@@ -53,14 +47,12 @@ public:
   static void resetPropertyIDCounter();
 
   /// Enables hierarchical property behavior.
-  void addParent(PropertyContainer &parent)
-  {
+  void addParent(PropertyContainer &parent) {
     _parents.push_back(&parent);
   }
 
   /// Returns the number of parents.
-  int getParentCount() const
-  {
+  int getParentCount() const {
     return (int) _parents.size();
   }
 
@@ -73,9 +65,8 @@ public:
      * @param[in] propertyID ID of the property.
      * @param[in] value Value to be set for the property.
      */
-  template <typename value_t>
-  void setProperty(int propertyID, const value_t &value)
-  {
+  template<typename value_t>
+  void setProperty(int propertyID, const value_t &value) {
     _properties[propertyID] = value;
   }
 
@@ -107,11 +98,11 @@ public:
      * - the type of the property has to coincide with the one specified as
      *   explicit template parameter when calling getProperty<type>().
      */
-  template <typename value_t>
+  template<typename value_t>
   const value_t &getProperty(int propertyID) const;
 
   /// Returns all properties of this and parent PropertyContainer objects.
-  template <typename value_t>
+  template<typename value_t>
   void getProperties(int propertyID, std::vector<value_t> &properties);
 
 private:
@@ -129,9 +120,8 @@ private:
 
 // --------------------------------------------------------- HEADER DEFINITIONS
 
-template <typename value_t>
-const value_t &PropertyContainer::getProperty(int propertyID) const
-{
+template<typename value_t>
+const value_t &PropertyContainer::getProperty(int propertyID) const {
   std::map<int, PropertyType>::const_iterator iter;
   iter = _properties.find(propertyID);
   if (iter == _properties.end()) {
@@ -148,9 +138,8 @@ const value_t &PropertyContainer::getProperty(int propertyID) const
   return *boost::any_cast<value_t>(&iter->second);
 }
 
-template <typename value_t>
-void PropertyContainer::getProperties(int propertyID, std::vector<value_t> &properties)
-{
+template<typename value_t>
+void PropertyContainer::getProperties(int propertyID, std::vector<value_t> &properties) {
   std::map<int, PropertyType>::const_iterator iter;
   iter = _properties.find(propertyID);
   if (iter != _properties.end()) {
@@ -164,5 +153,5 @@ void PropertyContainer::getProperties(int propertyID, std::vector<value_t> &prop
     }
   }
 }
-}
-} // namespace precice, mesh
+} // namespace mesh
+} // namespace precice

@@ -4,14 +4,11 @@
 #include "logging/Logger.hpp"
 #include "mesh/Mesh.hpp"
 
-namespace precice
-{
-namespace com
-{
+namespace precice {
+namespace com {
 
 /// Copies a Mesh object from a sender to a receiver.
-class CommunicateMesh
-{
+class CommunicateMesh {
 public:
   /// Constructor, takes communication to be used in transfer.
   explicit CommunicateMesh(
@@ -20,12 +17,12 @@ public:
   /// Sends a constructed mesh to the receiver with given rank.
   void sendMesh(
       const mesh::Mesh &mesh,
-      int               rankReceiver);
+      int rankReceiver);
 
   /// Receives a mesh from the sender with given rank. Adds received mesh to mesh.
   void receiveMesh(
       mesh::Mesh &mesh,
-      int         rankSender);
+      int rankSender);
 
   void broadcastSendMesh(
       const mesh::Mesh &mesh);
@@ -35,15 +32,15 @@ public:
 
   void sendBoundingBox(
       const mesh::Mesh::BoundingBox &bb,
-      int                            rankReceiver);
+      int rankReceiver);
 
   void receiveBoundingBox(
       mesh::Mesh::BoundingBox &bb,
-      int                      rankSender);
+      int rankSender);
 
 private:
   logging::Logger _log{"com::CommunicateMesh"};
-  
+
   /// Communication means used for the transfer of the geometry.
   com::PtrCommunication _communication;
 };

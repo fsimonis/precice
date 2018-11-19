@@ -1,10 +1,10 @@
 #ifndef PRECICE_NO_MPI
 #include <mpi.h>
 #endif
-#include <Eigen/Core>
 #include "cplscheme/impl/BaseQNPostProcessing.hpp"
 #include "cplscheme/impl/QRFactorization.hpp"
 #include "testing/Testing.hpp"
+#include <Eigen/Core>
 
 BOOST_AUTO_TEST_SUITE(CplSchemeTests)
 
@@ -14,8 +14,7 @@ using namespace cplscheme;
 void testQRequalsA(
     Eigen::MatrixXd &Q,
     Eigen::MatrixXd &R,
-    Eigen::MatrixXd &A)
-{
+    Eigen::MatrixXd &A) {
   Eigen::MatrixXd A_prime = Q * R;
 
   for (int i = 0; i < A.rows(); i++) {
@@ -25,8 +24,7 @@ void testQRequalsA(
   }
 }
 
-void testQTQequalsIdentity(Eigen::MatrixXd &Q)
-{
+void testQTQequalsIdentity(Eigen::MatrixXd &Q) {
   Eigen::MatrixXd QTQ = Q.transpose() * Q;
 
   // test if Q^TQ equals identity
@@ -41,17 +39,16 @@ void testQTQequalsIdentity(Eigen::MatrixXd &Q)
   }
 }
 
-BOOST_AUTO_TEST_CASE(testQRFactorization)
-{
-  int             m = 6, n = 8;
-  int             filter = impl::BaseQNPostProcessing::QR1FILTER;
+BOOST_AUTO_TEST_CASE(testQRFactorization) {
+  int m = 6, n = 8;
+  int filter = impl::BaseQNPostProcessing::QR1FILTER;
   Eigen::MatrixXd A(n, m);
 
   // Set values according to Hilbert matrix.
   for (int i = 0; i < n; i++) {
     for (int j = 0; j < m; j++) {
       double entry = 1.0 / static_cast<double>(i + j + 1);
-      A(i, j)      = entry;
+      A(i, j) = entry;
     }
   }
 
@@ -69,7 +66,7 @@ BOOST_AUTO_TEST_CASE(testQRFactorization)
 
   // ----------- delete last column ---------------
   Eigen::MatrixXd A_prime1 = A;
-  Eigen::VectorXd col6     = A.col(m - 1);
+  Eigen::VectorXd col6 = A.col(m - 1);
   A_prime1.conservativeResize(n, m - 1);
   qr_1.deleteColumn(m - 1);
 
@@ -80,7 +77,7 @@ BOOST_AUTO_TEST_CASE(testQRFactorization)
 
   // ----------- delete first column ---------------
   Eigen::MatrixXd A_prime2 = A_prime1;
-  Eigen::VectorXd col1     = A.col(0);
+  Eigen::VectorXd col1 = A.col(0);
   for (int i = 0; i < A_prime2.rows(); i++)
     for (int j = 0; j < A_prime2.cols() - 1; j++)
       A_prime2(i, j) = A_prime2(i, j + 1);
@@ -108,9 +105,9 @@ BOOST_AUTO_TEST_CASE(testQRFactorization)
   testQRequalsA(qr_1.matrixQ(), qr_1.matrixR(), A);
 
   // ----------- delete middle column ---------------
-  int             k        = 3;
+  int k = 3;
   Eigen::MatrixXd A_prime3 = A;
-  Eigen::VectorXd colk     = A.col(k);
+  Eigen::VectorXd colk = A.col(k);
   for (int i = 0; i < A_prime3.rows(); i++)
     for (int j = k; j < A_prime3.cols() - 1; j++)
       A_prime3(i, j) = A_prime3(i, j + 1);

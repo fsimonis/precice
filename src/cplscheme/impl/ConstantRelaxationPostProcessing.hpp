@@ -1,27 +1,22 @@
 #pragma once
 
-#include <map>
 #include "PostProcessing.hpp"
 #include "logging/Logger.hpp"
+#include <map>
 
-namespace precice
-{
-namespace cplscheme
-{
-namespace impl
-{
+namespace precice {
+namespace cplscheme {
+namespace impl {
 
-class ConstantRelaxationPostProcessing : public PostProcessing
-{
+class ConstantRelaxationPostProcessing: public PostProcessing {
 public:
   ConstantRelaxationPostProcessing(
-      double           relaxation,
+      double relaxation,
       std::vector<int> dataIDs);
 
   virtual ~ConstantRelaxationPostProcessing() {}
 
-  virtual std::vector<int> getDataIDs() const
-  {
+  virtual std::vector<int> getDataIDs() const {
     return _dataIDs;
   }
 
@@ -34,8 +29,7 @@ public:
 
   virtual void performPostProcessing(DataMap &cplData);
 
-  virtual void iterationsConverged(DataMap &cplData)
-  {
+  virtual void iterationsConverged(DataMap &cplData) {
   }
 
 private:
@@ -47,6 +41,6 @@ private:
 
   Eigen::VectorXd _designSpecification;
 };
-}
-}
-} // namespace precice, cplscheme, impl
+} // namespace impl
+} // namespace cplscheme
+} // namespace precice

@@ -1,7 +1,4 @@
 #include "BaseCouplingScheme.hpp"
-#include <Eigen/Core>
-#include <limits>
-#include <sstream>
 #include "com/Communication.hpp"
 #include "com/SharedPointer.hpp"
 #include "impl/ConvergenceMeasure.hpp"
@@ -15,17 +12,18 @@
 #include "utils/EigenHelperFunctions.hpp"
 #include "utils/Helpers.hpp"
 #include "utils/MasterSlave.hpp"
+#include <Eigen/Core>
+#include <limits>
+#include <sstream>
 
-namespace precice
-{
-namespace cplscheme
-{
+namespace precice {
+namespace cplscheme {
 
 BaseCouplingScheme::BaseCouplingScheme(
     double maxTime,
-    int    maxTimesteps,
+    int maxTimesteps,
     double timestepLength,
-    int    validDigits)
+    int validDigits)
     : _couplingMode(Undefined),
       _firstParticipant("unknown"),
       _secondParticipant("unknown"),
@@ -40,8 +38,7 @@ BaseCouplingScheme::BaseCouplingScheme(
       _totalIterations(-1),
       _timesteps(0),
       _timestepLength(timestepLength),
-      _validDigits(validDigits)
-{
+      _validDigits(validDigits) {
   CHECK(not((maxTime != UNDEFINED_TIME) && (maxTime < 0.0)),
         "Maximum time has to be larger than zero!");
   CHECK(not((maxTimesteps != UNDEFINED_TIMESTEPS) && (maxTimesteps < 0)),
@@ -53,17 +50,17 @@ BaseCouplingScheme::BaseCouplingScheme(
 }
 
 BaseCouplingScheme::BaseCouplingScheme(
-    double                        maxTime,
-    int                           maxTimesteps,
-    double                        timestepLength,
-    int                           validDigits,
-    const std::string &           firstParticipant,
-    const std::string &           secondParticipant,
-    const std::string &           localParticipant,
-    m2n::PtrM2N                   m2n,
-    int                           maxIterations,
+    double maxTime,
+    int maxTimesteps,
+    double timestepLength,
+    int validDigits,
+    const std::string &firstParticipant,
+    const std::string &secondParticipant,
+    const std::string &localParticipant,
+    m2n::PtrM2N m2n,
+    int maxIterations,
     constants::TimesteppingMethod dtMethod)
-  :   _firstParticipant(firstParticipant),
+    : _firstParticipant(firstParticipant),
       _secondParticipant(secondParticipant),
       _localParticipant(localParticipant),
       _eps(std::pow(10.0, -1 * validDigits)),
@@ -77,8 +74,7 @@ BaseCouplingScheme::BaseCouplingScheme(
       _totalIterations(1),
       _timesteps(1),
       _timestepLength(timestepLength),
-      _validDigits(validDigits)
-{
+      _validDigits(validDigits) {
   CHECK(not((maxTime != UNDEFINED_TIME) && (maxTime < 0.0)),
         "Maximum time has to be larger than zero!");
   CHECK(not((maxTimesteps != UNDEFINED_TIMESTEPS) && (maxTimesteps < 0)),
@@ -92,7 +88,7 @@ BaseCouplingScheme::BaseCouplingScheme(
   if (dtMethod == constants::FIXED_DT) {
     CHECK(hasTimestepLength(),
           "Timestep length value has to be given when the fixed timestep length method "
-          << "is chosen for an implicit coupling scheme!");
+              << "is chosen for an implicit coupling scheme!");
   }
   if (localParticipant == _firstParticipant) {
     _doesFirstStep = true;
@@ -113,8 +109,7 @@ BaseCouplingScheme::BaseCouplingScheme(
         "Maximal iteration limit has to be larger than zero!");
 }
 
-void BaseCouplingScheme::receiveAndSetDt()
-{
+void BaseCouplingScheme::receiveAndSetDt() {
   TRACE();
   if (participantReceivesDt()) {
     double dt = UNDEFINED_TIMESTEP_LENGTH;
@@ -125,8 +120,7 @@ void BaseCouplingScheme::receiveAndSetDt()
   }
 }
 
-void BaseCouplingScheme::sendDt()
-{
+void BaseCouplingScheme::sendDt() {
   TRACE();
   if (participantSetsDt()) {
     DEBUG("sending timestep length of " << getComputedTimestepPart());
@@ -137,12 +131,11 @@ void BaseCouplingScheme::sendDt()
 void BaseCouplingScheme::addDataToSend(
     mesh::PtrData data,
     mesh::PtrMesh mesh,
-    bool          initialize)
-{
+    bool initialize) {
   TRACE();
   int id = data->getID();
   if (!utils::contained(id, _sendData)) {
-    PtrCouplingData     ptrCplData(new CouplingData(&(data->values()), mesh, initialize, data->getDimensions()));
+    PtrCouplingData ptrCplData(new CouplingData(&(data->values()), mesh, initialize, data->getDimensions()));
     DataMap::value_type pair = std::make_pair(id, ptrCplData);
     _sendData.insert(pair);
   } else {
@@ -153,12 +146,11 @@ void BaseCouplingScheme::addDataToSend(
 void BaseCouplingScheme::addDataToReceive(
     mesh::PtrData data,
     mesh::PtrMesh mesh,
-    bool          initialize)
-{
+    bool initialize) {
   TRACE();
   int id = data->getID();
   if (!utils::contained(id, _receiveData)) {
-    PtrCouplingData     ptrCplData(new CouplingData(&(data->values()), mesh, initialize, data->getDimensions()));
+    PtrCouplingData ptrCplData(new CouplingData(&(data->values()), mesh, initialize, data->getDimensions()));
     DataMap::value_type pair = std::make_pair(id, ptrCplData);
     _receiveData.insert(pair);
   } else {
@@ -168,8 +160,7 @@ void BaseCouplingScheme::addDataToReceive(
 
 void BaseCouplingScheme::sendState(
     com::PtrCommunication communication,
-    int                   rankReceiver)
-{
+    int rankReceiver) {
   TRACE(rankReceiver);
   assertion(communication.get() != nullptr);
   assertion(communication->isConnected());
@@ -195,8 +186,7 @@ void BaseCouplingScheme::sendState(
 
 void BaseCouplingScheme::receiveState(
     com::PtrCommunication communication,
-    int                   rankSender)
-{
+    int rankSender) {
   TRACE(rankSender);
   assertion(communication.get() != nullptr);
   assertion(communication->isConnected());
@@ -223,12 +213,11 @@ void BaseCouplingScheme::receiveState(
   communication->receive(subIteration, rankSender);
   _iterations = subIteration;
   communication->receive(subIteration, rankSender); // new, correct?? TODO
-  _iterationsCoarseOptimization = subIteration;     // new, correct? TODO
+  _iterationsCoarseOptimization = subIteration; // new, correct? TODO
   communication->receive(_totalIterations, rankSender);
 }
 
-std::vector<int> BaseCouplingScheme::sendData(m2n::PtrM2N m2n)
-{
+std::vector<int> BaseCouplingScheme::sendData(m2n::PtrM2N m2n) {
   TRACE();
 
   std::vector<int> sentDataIDs;
@@ -245,8 +234,7 @@ std::vector<int> BaseCouplingScheme::sendData(m2n::PtrM2N m2n)
 }
 
 std::vector<int> BaseCouplingScheme::receiveData(
-    m2n::PtrM2N m2n)
-{
+    m2n::PtrM2N m2n) {
   TRACE();
   std::vector<int> receivedDataIDs;
   assertion(m2n.get() != nullptr);
@@ -265,9 +253,8 @@ std::vector<int> BaseCouplingScheme::receiveData(
 
 int BaseCouplingScheme::getVertexOffset(
     std::map<int, int> &vertexDistribution,
-    int                 rank,
-    int                 dim)
-{
+    int rank,
+    int dim) {
   int sum = 0;
   for (int i = 0; i < rank; i++) {
     sum += vertexDistribution[i];
@@ -276,8 +263,7 @@ int BaseCouplingScheme::getVertexOffset(
 }
 
 CouplingData *BaseCouplingScheme::getSendData(
-    int dataID)
-{
+    int dataID) {
   TRACE(dataID);
   DataMap::iterator iter = _sendData.find(dataID);
   if (iter != _sendData.end()) {
@@ -287,8 +273,7 @@ CouplingData *BaseCouplingScheme::getSendData(
 }
 
 CouplingData *BaseCouplingScheme::getReceiveData(
-    int dataID)
-{
+    int dataID) {
   TRACE(dataID);
   DataMap::iterator iter = _receiveData.find(dataID);
   if (iter != _receiveData.end()) {
@@ -297,33 +282,30 @@ CouplingData *BaseCouplingScheme::getReceiveData(
   return nullptr;
 }
 
-void BaseCouplingScheme::finalize()
-{
+void BaseCouplingScheme::finalize() {
   TRACE();
   checkCompletenessRequiredActions();
   CHECK(isInitialized(), "Called finalize() before initialize()!");
 }
 
 void BaseCouplingScheme::setExtrapolationOrder(
-    int order)
-{
+    int order) {
   CHECK((order == 0) || (order == 1) || (order == 2),
         "Extrapolation order has to be  0, 1, or 2!");
   _extrapolationOrder = order;
 }
 
 // @todo extrapolation of data should only be done for the fine cplData -> then copied to the coarse cplData
-void BaseCouplingScheme::extrapolateData(DataMap &data)
-{
+void BaseCouplingScheme::extrapolateData(DataMap &data) {
   TRACE(_timesteps);
   if ((_extrapolationOrder == 1) || getTimesteps() == 2) { //timesteps is increased before extrapolate is called
     INFO("Performing first order extrapolation");
     for (DataMap::value_type &pair : data) {
       DEBUG("Extrapolate data: " << pair.first);
       assertion(pair.second->oldValues.cols() > 1);
-      Eigen::VectorXd &values       = *pair.second->values;
-      pair.second->oldValues.col(0) = values;  // = x^t
-      values *= 2.0;                           // = 2*x^t
+      Eigen::VectorXd &values = *pair.second->values;
+      pair.second->oldValues.col(0) = values; // = x^t
+      values *= 2.0; // = 2*x^t
       values -= pair.second->oldValues.col(1); // = 2*x^t - x^(t-1)
       utils::shiftSetFirst(pair.second->oldValues, values);
     }
@@ -331,14 +313,14 @@ void BaseCouplingScheme::extrapolateData(DataMap &data)
     INFO("Performing second order extrapolation");
     for (DataMap::value_type &pair : data) {
       assertion(pair.second->oldValues.cols() > 2);
-      Eigen::VectorXd &values     = *pair.second->values;
-      auto             valuesOld1 = pair.second->oldValues.col(1);
-      auto             valuesOld2 = pair.second->oldValues.col(2);
+      Eigen::VectorXd &values = *pair.second->values;
+      auto valuesOld1 = pair.second->oldValues.col(1);
+      auto valuesOld2 = pair.second->oldValues.col(2);
 
       pair.second->oldValues.col(0) = values; // = x^t
-      values *= 2.5;                          // = 2.5 x^t
-      values -= valuesOld1 * 2.0;             // = 2.5x^t - 2x^(t-1)
-      values += valuesOld2 * 0.5;             // = 2.5x^t - 2x^(t-1) + 0.5x^(t-2)
+      values *= 2.5; // = 2.5 x^t
+      values -= valuesOld1 * 2.0; // = 2.5x^t - 2x^(t-1)
+      values += valuesOld2 * 0.5; // = 2.5x^t - 2x^(t-1) + 0.5x^(t-2)
       utils::shiftSetFirst(pair.second->oldValues, values);
     }
   } else {
@@ -346,20 +328,17 @@ void BaseCouplingScheme::extrapolateData(DataMap &data)
   }
 }
 
-bool BaseCouplingScheme::hasTimestepLength() const
-{
+bool BaseCouplingScheme::hasTimestepLength() const {
   return not math::equals(_timestepLength, UNDEFINED_TIMESTEP_LENGTH);
 }
 
-double BaseCouplingScheme::getTimestepLength() const
-{
+double BaseCouplingScheme::getTimestepLength() const {
   assertion(not math::equals(_timestepLength, UNDEFINED_TIMESTEP_LENGTH));
   return _timestepLength;
 }
 
 void BaseCouplingScheme::addComputedTime(
-    double timeToAdd)
-{
+    double timeToAdd) {
   TRACE(timeToAdd, _time);
   CHECK(isCouplingOngoing(), "Invalid call of addComputedTime() after simulation end!");
 
@@ -376,36 +355,30 @@ void BaseCouplingScheme::addComputedTime(
 }
 
 bool BaseCouplingScheme::willDataBeExchanged(
-    double lastSolverTimestepLength) const
-{
+    double lastSolverTimestepLength) const {
   TRACE(lastSolverTimestepLength);
   double remainder = getThisTimestepRemainder() - lastSolverTimestepLength;
   return not math::greater(remainder, 0.0, _eps);
 }
 
-bool BaseCouplingScheme::hasDataBeenExchanged() const
-{
+bool BaseCouplingScheme::hasDataBeenExchanged() const {
   return _hasDataBeenExchanged;
 }
 
 void BaseCouplingScheme::setHasDataBeenExchanged(
-    bool hasDataBeenExchanged)
-{
+    bool hasDataBeenExchanged) {
   _hasDataBeenExchanged = hasDataBeenExchanged;
 }
 
-double BaseCouplingScheme::getTime() const
-{
+double BaseCouplingScheme::getTime() const {
   return _time;
 }
 
-int BaseCouplingScheme::getTimesteps() const
-{
+int BaseCouplingScheme::getTimesteps() const {
   return _timesteps;
 }
 
-std::vector<std::string> BaseCouplingScheme::getCouplingPartners() const
-{
+std::vector<std::string> BaseCouplingScheme::getCouplingPartners() const {
   std::vector<std::string> partnerNames;
   // Add non-local participant
   if (doesFirstStep()) {
@@ -416,8 +389,7 @@ std::vector<std::string> BaseCouplingScheme::getCouplingPartners() const
   return partnerNames;
 }
 
-double BaseCouplingScheme::getThisTimestepRemainder() const
-{
+double BaseCouplingScheme::getThisTimestepRemainder() const {
   TRACE();
   double remainder = 0.0;
   if (not math::equals(_timestepLength, UNDEFINED_TIMESTEP_LENGTH)) {
@@ -427,8 +399,7 @@ double BaseCouplingScheme::getThisTimestepRemainder() const
   return remainder;
 }
 
-double BaseCouplingScheme::getNextTimestepMaxLength() const
-{
+double BaseCouplingScheme::getNextTimestepMaxLength() const {
   if (math::equals(_timestepLength, UNDEFINED_TIMESTEP_LENGTH)) {
     if (math::equals(_maxTime, UNDEFINED_TIME)) {
       return std::numeric_limits<double>::max();
@@ -439,39 +410,33 @@ double BaseCouplingScheme::getNextTimestepMaxLength() const
   return _timestepLength - _computedTimestepPart;
 }
 
-bool BaseCouplingScheme::isCouplingOngoing() const
-{
-  bool timeLeft      = math::greater(_maxTime, _time, _eps) || math::equals(_maxTime, UNDEFINED_TIME);
+bool BaseCouplingScheme::isCouplingOngoing() const {
+  bool timeLeft = math::greater(_maxTime, _time, _eps) || math::equals(_maxTime, UNDEFINED_TIME);
   bool timestepsLeft = (_maxTimesteps >= _timesteps) || (_maxTimesteps == UNDEFINED_TIMESTEPS);
   return timeLeft && timestepsLeft;
 }
 
-bool BaseCouplingScheme::isCouplingTimestepComplete() const
-{
+bool BaseCouplingScheme::isCouplingTimestepComplete() const {
   return _isCouplingTimestepComplete;
 }
 
 bool BaseCouplingScheme::isActionRequired(
-    const std::string &actionName) const
-{
+    const std::string &actionName) const {
   return _actions.count(actionName) > 0;
 }
 
 void BaseCouplingScheme::performedAction(
-    const std::string &actionName)
-{
+    const std::string &actionName) {
   _actions.erase(actionName);
 }
 
 void BaseCouplingScheme::requireAction(
-    const std::string &actionName)
-{
+    const std::string &actionName) {
   _actions.insert(actionName);
 }
 
 /// @todo: insert _iterationsCoarseOptimization in print state
-std::string BaseCouplingScheme::printCouplingState() const
-{
+std::string BaseCouplingScheme::printCouplingState() const {
   std::ostringstream os;
   os << "it " << _iterations; //_iterations;
   if (getMaxIterations() != -1) {
@@ -481,17 +446,15 @@ std::string BaseCouplingScheme::printCouplingState() const
   return os.str();
 }
 
-std::string BaseCouplingScheme::printBasicState() const
-{
+std::string BaseCouplingScheme::printBasicState() const {
   std::ostringstream os;
   os << printBasicState(_timesteps, _time);
   return os.str();
 }
 
 std::string BaseCouplingScheme::printBasicState(
-    int    timesteps,
-    double time) const
-{
+    int timesteps,
+    double time) const {
   std::ostringstream os;
   os << "dt# " << timesteps;
   if (_maxTimesteps != UNDEFINED_TIMESTEPS) {
@@ -514,8 +477,7 @@ std::string BaseCouplingScheme::printBasicState(
   return os.str();
 }
 
-std::string BaseCouplingScheme::printActionsState() const
-{
+std::string BaseCouplingScheme::printActionsState() const {
   std::ostringstream os;
   for (const std::string &actionName : _actions) {
     os << actionName << " | ";
@@ -523,8 +485,7 @@ std::string BaseCouplingScheme::printActionsState() const
   return os.str();
 }
 
-void BaseCouplingScheme::checkCompletenessRequiredActions()
-{
+void BaseCouplingScheme::checkCompletenessRequiredActions() {
   TRACE();
   if (not _actions.empty()) {
     std::ostringstream stream;
@@ -538,13 +499,11 @@ void BaseCouplingScheme::checkCompletenessRequiredActions()
   }
 }
 
-int BaseCouplingScheme::getValidDigits() const
-{
+int BaseCouplingScheme::getValidDigits() const {
   return _validDigits;
 }
 
-void BaseCouplingScheme::setupDataMatrices(DataMap &data)
-{
+void BaseCouplingScheme::setupDataMatrices(DataMap &data) {
   TRACE();
   DEBUG("Data size: " << data.size());
   // Reserve storage for convergence measurement of send and receive data values
@@ -568,8 +527,7 @@ void BaseCouplingScheme::setupDataMatrices(DataMap &data)
 }
 
 void BaseCouplingScheme::setIterationPostProcessing(
-    impl::PtrPostProcessing postProcessing)
-{
+    impl::PtrPostProcessing postProcessing) {
   assertion(postProcessing.get() != nullptr);
   _postProcessing = postProcessing;
 
@@ -580,13 +538,12 @@ void BaseCouplingScheme::setIterationPostProcessing(
   if (_postProcessing->isMultilevelBasedApproach()) {
     _postProcessing->setCoarseModelOptimizationActive(&_isCoarseModelOptimizationActive);
     // also initialize the iteration counters with 0, as scheme starts with coarse model evaluation
-    _iterations      = 0;
+    _iterations = 0;
     _totalIterations = 0;
   }
 }
 
-void BaseCouplingScheme::setupConvergenceMeasures()
-{
+void BaseCouplingScheme::setupConvergenceMeasures() {
   TRACE();
   assertion(not doesFirstStep());
   CHECK(not _convergenceMeasures.empty(),
@@ -603,8 +560,7 @@ void BaseCouplingScheme::setupConvergenceMeasures()
   }
 }
 
-void BaseCouplingScheme::newConvergenceMeasurements()
-{
+void BaseCouplingScheme::newConvergenceMeasurements() {
   TRACE();
   for (ConvergenceMeasure &convMeasure : _convergenceMeasures) {
     assertion(convMeasure.measure.get() != nullptr);
@@ -613,28 +569,26 @@ void BaseCouplingScheme::newConvergenceMeasurements()
 }
 
 void BaseCouplingScheme::addConvergenceMeasure(
-    int                         dataID,
-    bool                        suffices,
-    int                         level,
-    impl::PtrConvergenceMeasure measure)
-{
+    int dataID,
+    bool suffices,
+    int level,
+    impl::PtrConvergenceMeasure measure) {
   ConvergenceMeasure convMeasure;
-  convMeasure.dataID   = dataID;
-  convMeasure.data     = nullptr;
+  convMeasure.dataID = dataID;
+  convMeasure.data = nullptr;
   convMeasure.suffices = suffices;
-  convMeasure.level    = level;
-  convMeasure.measure  = measure;
+  convMeasure.level = level;
+  convMeasure.measure = measure;
   _convergenceMeasures.push_back(convMeasure);
   _firstResiduumNorm.push_back(0);
 }
 
 bool BaseCouplingScheme::measureConvergence(
-    std::map<int, Eigen::VectorXd> &designSpecifications)
-{
+    std::map<int, Eigen::VectorXd> &designSpecifications) {
   TRACE();
   assertion(not doesFirstStep());
   bool allConverged = true;
-  bool oneSuffices  = false;
+  bool oneSuffices = false;
   assertion(_convergenceMeasures.size() > 0);
   if (not utils::MasterSlave::_slaveMode) {
     _convergenceWriter->writeData("Timestep", _timesteps);
@@ -649,8 +603,8 @@ bool BaseCouplingScheme::measureConvergence(
 
     assertion(convMeasure.data != nullptr);
     assertion(convMeasure.measure.get() != nullptr);
-    const auto &    oldValues = convMeasure.data->oldValues.col(0);
-    Eigen::VectorXd q         = Eigen::VectorXd::Zero(convMeasure.data->values->size());
+    const auto &oldValues = convMeasure.data->oldValues.col(0);
+    Eigen::VectorXd q = Eigen::VectorXd::Zero(convMeasure.data->values->size());
     if (designSpecifications.find(convMeasure.dataID) != designSpecifications.end())
       q = designSpecifications.at(convMeasure.dataID);
 
@@ -685,11 +639,10 @@ bool BaseCouplingScheme::measureConvergence(
 /// @todo: ugly hack with design specifications, however, getting them here is not possible as
 // parallel coupling scheme and multi-coupling scheme  need allData and not only getSendData()
 bool BaseCouplingScheme::measureConvergenceCoarseModelOptimization(
-    std::map<int, Eigen::VectorXd> &designSpecifications)
-{
+    std::map<int, Eigen::VectorXd> &designSpecifications) {
   TRACE();
   bool allConverged = true;
-  bool oneSuffices  = false;
+  bool oneSuffices = false;
   assertion(_convergenceMeasures.size() > 0);
   for (ConvergenceMeasure &convMeasure : _convergenceMeasures) {
 
@@ -700,8 +653,8 @@ bool BaseCouplingScheme::measureConvergenceCoarseModelOptimization(
     std::cout << "  measure convergence coarse measure, id:" << convMeasure.dataID << std::endl;
     assertion(convMeasure.data != nullptr);
     assertion(convMeasure.measure.get() != nullptr);
-    const auto &    oldValues = convMeasure.data->oldValues.col(0);
-    Eigen::VectorXd q         = Eigen::VectorXd::Zero(convMeasure.data->values->size());
+    const auto &oldValues = convMeasure.data->oldValues.col(0);
+    Eigen::VectorXd q = Eigen::VectorXd::Zero(convMeasure.data->values->size());
     if (designSpecifications.find(convMeasure.dataID) != designSpecifications.end())
       q = designSpecifications.at(convMeasure.dataID);
 
@@ -724,8 +677,7 @@ bool BaseCouplingScheme::measureConvergenceCoarseModelOptimization(
   return allConverged || oneSuffices;
 }
 
-void BaseCouplingScheme::initializeTXTWriters()
-{
+void BaseCouplingScheme::initializeTXTWriters() {
   if (not utils::MasterSlave::_slaveMode) {
 
     _iterationsWriter = std::make_shared<io::TXTTableWriter>("precice-" + _localParticipant + "-iterations.log");
@@ -771,8 +723,7 @@ void BaseCouplingScheme::initializeTXTWriters()
   }
 }
 
-void BaseCouplingScheme::advanceTXTWriters()
-{
+void BaseCouplingScheme::advanceTXTWriters() {
   if (not utils::MasterSlave::_slaveMode) {
 
     // check if coarse model optimization exists
@@ -814,8 +765,7 @@ void BaseCouplingScheme::advanceTXTWriters()
 
 void BaseCouplingScheme::updateTimeAndIterations(
     bool convergence,
-    bool convergenceCoarseOptimization)
-{
+    bool convergenceCoarseOptimization) {
   bool manifoldmapping = false;
   if (getPostProcessing().get() != nullptr) {
     manifoldmapping = _postProcessing->isMultilevelBasedApproach();
@@ -845,12 +795,11 @@ void BaseCouplingScheme::updateTimeAndIterations(
       _totalIterations++;
 
     _iterationsCoarseOptimization = 1;
-    _iterations                   = manifoldmapping ? 0 : 1;
+    _iterations = manifoldmapping ? 0 : 1;
   }
 }
 
-void BaseCouplingScheme::timestepCompleted()
-{
+void BaseCouplingScheme::timestepCompleted() {
   TRACE(getTimesteps(), getTime());
   INFO("Timestep completed");
   setIsCouplingTimestepComplete(true);
@@ -861,13 +810,12 @@ void BaseCouplingScheme::timestepCompleted()
   }
 }
 
-bool BaseCouplingScheme::maxIterationsReached()
-{
+bool BaseCouplingScheme::maxIterationsReached() {
   if (not _isCoarseModelOptimizationActive) {
     return _iterations == _maxIterations;
   } else {
     return _iterationsCoarseOptimization == _maxIterations;
   }
 }
-}
-} // namespace precice, cplscheme
+} // namespace cplscheme
+} // namespace precice

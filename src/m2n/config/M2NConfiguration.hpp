@@ -10,17 +10,14 @@
 #include <string>
 #include <vector>
 
-namespace precice
-{
-namespace m2n
-{
+namespace precice {
+namespace m2n {
 
 /// Configuration for communication channels between solvers.
-class M2NConfiguration : public xml::XMLTag::Listener
-{
+class M2NConfiguration: public xml::XMLTag::Listener {
 public:
   using SharedPointer = std::shared_ptr<M2NConfiguration>;
-  using M2NTuple      = std::tuple<m2n::PtrM2N, std::string, std::string>;
+  using M2NTuple = std::tuple<m2n::PtrM2N, std::string, std::string>;
 
 public:
   explicit M2NConfiguration(xml::XMLTag &parent);
@@ -38,8 +35,7 @@ public:
       const std::string &to);
 
   /// Returns all configured communication objects.
-  std::vector<M2NTuple> &m2ns()
-  {
+  std::vector<M2NTuple> &m2ns() {
     return _m2ns;
   }
 
@@ -50,8 +46,8 @@ public:
 private:
   logging::Logger _log{"m2n::M2NConfiguration"};
 
-  const std::string TAG                     = "m2n";
-  const std::string ATTR_DISTRIBUTION_TYPE  = "distribution-type";
+  const std::string TAG = "m2n";
+  const std::string ATTR_DISTRIBUTION_TYPE = "distribution-type";
   const std::string ATTR_EXCHANGE_DIRECTORY = "exchange-directory";
 
   const std::string VALUE_GATHER_SCATTER = "gather-scatter";

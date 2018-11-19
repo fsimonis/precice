@@ -7,16 +7,13 @@
 
 #include <string>
 
-namespace precice
-{
-namespace com
-{
-class SocketCommunicationFactory : public CommunicationFactory
-{
+namespace precice {
+namespace com {
+class SocketCommunicationFactory: public CommunicationFactory {
 public:
-  SocketCommunicationFactory(unsigned short     portNumber       = 0,
-                             bool               reuseAddress     = false,
-                             std::string const &networkName      = "lo",
+  SocketCommunicationFactory(unsigned short portNumber = 0,
+                             bool reuseAddress = false,
+                             std::string const &networkName = "lo",
                              std::string const &addressDirectory = ".");
 
   explicit SocketCommunicationFactory(std::string const &addressDirectory);
@@ -27,9 +24,9 @@ public:
 
 private:
   unsigned short _portNumber;
-  bool           _reuseAddress;
-  std::string    _networkName;
-  std::string    _addressDirectory;
+  bool _reuseAddress;
+  std::string _networkName;
+  std::string _addressDirectory;
 };
 } // namespace com
 } // namespace precice

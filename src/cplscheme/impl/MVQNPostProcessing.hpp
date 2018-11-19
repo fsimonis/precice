@@ -2,20 +2,17 @@
 
 #pragma once
 
-#include <deque>
 #include "BaseQNPostProcessing.hpp"
 #include "ParallelMatrixOperations.hpp"
 #include "SVDFactorization.hpp"
 #include "com/SharedPointer.hpp"
+#include <deque>
 
 // ----------------------------------------------------------- CLASS DEFINITION
 
-namespace precice
-{
-namespace cplscheme
-{
-namespace impl
-{
+namespace precice {
+namespace cplscheme {
+namespace impl {
 
 /**
  * @brief Multi vector quasi-Newton update scheme 
@@ -30,32 +27,31 @@ namespace impl
  * MVQN-related data. The data is called "secondary" henceforth and additional
  * old value and data matrices are needed for it.
  */
-class MVQNPostProcessing : public BaseQNPostProcessing
-{
+class MVQNPostProcessing: public BaseQNPostProcessing {
 public:
   static const int NO_RESTART = 0;
-  static const int RS_ZERO    = 1;
-  static const int RS_LS      = 2;
-  static const int RS_SVD     = 3;
-  static const int RS_SLIDE   = 4;
+  static const int RS_ZERO = 1;
+  static const int RS_LS = 2;
+  static const int RS_SVD = 3;
+  static const int RS_SLIDE = 4;
 
   /**
    * @brief Constructor.
    */
   MVQNPostProcessing(
-      double            initialRelaxation,
-      bool              forceInitialRelaxation,
-      int               maxIterationsUsed,
-      int               timestepsReused,
-      int               filter,
-      double            singularityLimit,
-      std::vector<int>  dataIDs,
+      double initialRelaxation,
+      bool forceInitialRelaxation,
+      int maxIterationsUsed,
+      int timestepsReused,
+      int filter,
+      double singularityLimit,
+      std::vector<int> dataIDs,
       PtrPreconditioner preconditioner,
-      bool              alwaysBuildJacobian,
-      int               imvjRestartType,
-      int               chunkSize,
-      int               RSLSreusedTimesteps,
-      double            RSSVDtruncationEps);
+      bool alwaysBuildJacobian,
+      int imvjRestartType,
+      int chunkSize,
+      int RSLSreusedTimesteps,
+      double RSSVDtruncationEps);
 
   /**
     * @brief Destructor, empty.
@@ -204,8 +200,8 @@ private:
   /// @brief: Removes one column form the V_RSLS and W_RSLS matrices and adapts _matrixCols_RSLS
   void removeMatrixColumnRSLS(int columnINdex);
 };
-}
-}
-} // namespace precice, cplscheme, impl
+} // namespace impl
+} // namespace cplscheme
+} // namespace precice
 
 #endif /* PRECICE_NO_MPI */

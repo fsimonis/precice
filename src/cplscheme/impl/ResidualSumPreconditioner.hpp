@@ -2,19 +2,15 @@
 
 #include "Preconditioner.hpp"
 
-namespace precice
-{
-namespace cplscheme
-{
-namespace impl
-{
+namespace precice {
+namespace cplscheme {
+namespace impl {
 
 /**
  * @brief Preconditioner that uses the residuals of all iterations of the current timestep summed up to scale the quasi-Newton system.
  * This is somewhat similar to what is done in the Marks and Luke paper.
  */
-class ResidualSumPreconditioner : public Preconditioner
-{
+class ResidualSumPreconditioner: public Preconditioner {
 public:
   ResidualSumPreconditioner(int maxNonConstTimesteps);
   /**
@@ -36,6 +32,6 @@ private:
 
   std::vector<double> _residualSum;
 };
-}
-}
-} // namespace precice, cplscheme, impl
+} // namespace impl
+} // namespace cplscheme
+} // namespace precice

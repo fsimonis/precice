@@ -2,10 +2,8 @@
 
 #include "mesh/SharedPointer.hpp"
 
-namespace precice
-{
-namespace action
-{
+namespace precice {
+namespace action {
 
 /**
  * @brief Abstract base class for configurable actions on data and/or meshes.
@@ -14,24 +12,22 @@ namespace action
  * ::initializeData(), and ::advance(). They can change meshes and in particular
  * data values.
  */
-class Action
-{
+class Action {
 public:
   /// Defines the time and place of application of the action.
   enum Timing {
-    ALWAYS_PRIOR,             // Everytime, before advancing cpl scheme
-    ALWAYS_POST,              // Everytime, after advancing cpl scheme
-    ON_EXCHANGE_PRIOR,        // On data exchange, before advancing cpl scheme
-    ON_EXCHANGE_POST,         // On data exchange, after advancing cpl scheme
+    ALWAYS_PRIOR, // Everytime, before advancing cpl scheme
+    ALWAYS_POST, // Everytime, after advancing cpl scheme
+    ON_EXCHANGE_PRIOR, // On data exchange, before advancing cpl scheme
+    ON_EXCHANGE_POST, // On data exchange, after advancing cpl scheme
     ON_TIMESTEP_COMPLETE_POST // On advancing to next dt, after adv. cpl scheme
   };
 
   Action(
-      Timing               timing,
+      Timing timing,
       const mesh::PtrMesh &mesh)
       : _timing(timing),
-        _mesh(mesh)
-  {
+        _mesh(mesh) {
   }
 
   /// Destructor, empty.
@@ -51,14 +47,12 @@ public:
       double fullDt) = 0;
 
   /// Returns the timing of the action.
-  Timing getTiming() const
-  {
+  Timing getTiming() const {
     return _timing;
   }
 
   /// Returns the mesh carrying the data used in the action.
-  const mesh::PtrMesh &getMesh() const
-  {
+  const mesh::PtrMesh &getMesh() const {
     return _mesh;
   }
 

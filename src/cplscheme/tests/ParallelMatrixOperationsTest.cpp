@@ -1,6 +1,5 @@
 #ifndef PRECICE_NO_MPI
 
-#include <Eigen/Core>
 #include "../impl/ParallelMatrixOperations.hpp"
 #include "com/Communication.hpp"
 #include "com/MPIDirectCommunication.hpp"
@@ -10,6 +9,7 @@
 #include "testing/Testing.hpp"
 #include "utils/MasterSlave.hpp"
 #include "utils/Parallel.hpp"
+#include <Eigen/Core>
 
 BOOST_AUTO_TEST_SUITE(CplSchemeTests)
 
@@ -19,11 +19,10 @@ BOOST_AUTO_TEST_SUITE(ParallelMatrixOperations,
                       *testing::OnSize(4))
 
 void validate_result_equals_reference(
-    Eigen::MatrixXd & result_local,
-    Eigen::MatrixXd & reference_global,
+    Eigen::MatrixXd &result_local,
+    Eigen::MatrixXd &reference_global,
     std::vector<int> &offsets,
-    bool              partitionedRowWise)
-{
+    bool partitionedRowWise) {
   int off = offsets[utils::MasterSlave::_rank];
   for (int i = 0; i < result_local.rows(); i++) {
     for (int j = 0; j < result_local.cols(); j++) {
@@ -38,11 +37,10 @@ void validate_result_equals_reference(
   }
 }
 
-BOOST_AUTO_TEST_CASE(ParVectorOperations, * boost::unit_test::fixture<testing::MasterComFixture>())
-{
-  int              n_global = 10;
-  int              n_local;
-  double           a = 0;
+BOOST_AUTO_TEST_CASE(ParVectorOperations, *boost::unit_test::fixture<testing::MasterComFixture>()) {
+  int n_global = 10;
+  int n_local;
+  double a = 0;
   std::vector<int> vertexOffsets{0, 3, 7, 7, 10};
 
   // definition of vectors
@@ -77,31 +75,31 @@ BOOST_AUTO_TEST_CASE(ParVectorOperations, * boost::unit_test::fixture<testing::M
 
   if (utils::Parallel::getProcessRank() == 0) {
     n_local = 3;
-    a       = 1;
+    a = 1;
   } else if (utils::Parallel::getProcessRank() == 1) {
     n_local = 4;
-    a       = 2;
+    a = 2;
   } else if (utils::Parallel::getProcessRank() == 2) {
     n_local = 0;
-    a       = 3;
+    a = 3;
   } else if (utils::Parallel::getProcessRank() == 3) {
     n_local = 3;
-    a       = 4;
+    a = 4;
   }
 
   // ------ test Allreduce/ Reduce ---------------------------
-  double  res1 = 0;
-  double *aa   = new double[2];
-  aa[0]        = a;
-  aa[1]        = a;
+  double res1 = 0;
+  double *aa = new double[2];
+  aa[0] = a;
+  aa[1] = a;
   double *res2 = new double[2];
-  res2[0]      = 0;
-  res2[1]      = 0;
+  res2[0] = 0;
+  res2[1] = 0;
   double *res3 = new double[2];
-  res3[0]      = 0;
-  res3[1]      = 0;
+  res3[0] = 0;
+  res3[1] = 0;
 
-  int iaa   = (int) a;
+  int iaa = (int) a;
   int ires1 = 0, ires2 = 0;
 
   utils::MasterSlave::allreduceSum(a, res1, 1);
@@ -136,8 +134,8 @@ BOOST_AUTO_TEST_CASE(ParVectorOperations, * boost::unit_test::fixture<testing::M
     vec2_local(i) = vec2(i + off);
   }
 
-  double normVec1   = utils::MasterSlave::l2norm(vec1_local);
-  double normVec2   = utils::MasterSlave::l2norm(vec2_local);
+  double normVec1 = utils::MasterSlave::l2norm(vec1_local);
+  double normVec2 = utils::MasterSlave::l2norm(vec2_local);
   double dotproduct = utils::MasterSlave::dot(vec1_local, vec2_local);
 
   //  std::cout<<"l2norm vec1: "<<normVec1<<std::endl;
@@ -150,9 +148,8 @@ BOOST_AUTO_TEST_CASE(ParVectorOperations, * boost::unit_test::fixture<testing::M
   BOOST_TEST(testing::equals(dotproduct, 7.069617899295469));
 }
 
-BOOST_AUTO_TEST_CASE(ParallelMatrixMatrixOp,  * boost::unit_test::fixture<testing::MasterComFixture>())
-{
-  com::PtrCommunication _cyclicCommLeft  = com::PtrCommunication(new com::MPIPortsCommunication("."));
+BOOST_AUTO_TEST_CASE(ParallelMatrixMatrixOp, *boost::unit_test::fixture<testing::MasterComFixture>()) {
+  com::PtrCommunication _cyclicCommLeft = com::PtrCommunication(new com::MPIPortsCommunication("."));
   com::PtrCommunication _cyclicCommRight = com::PtrCommunication(new com::MPIPortsCommunication("."));
 
   // initialize cyclic communication between successive slaves
@@ -165,8 +162,8 @@ BOOST_AUTO_TEST_CASE(ParallelMatrixMatrixOp,  * boost::unit_test::fixture<testin
     _cyclicCommLeft->acceptConnection("cyclicComm-" + std::to_string(prevProc), "", utils::Parallel::getProcessRank());
   }
 
-  int              n_global = 10, m_global = 5;
-  int              n_local;
+  int n_global = 10, m_global = 5;
+  int n_local;
   std::vector<int> vertexOffsets{0, 3, 7, 7, 10};
 
   // Definition of Matrices
@@ -274,13 +271,13 @@ BOOST_AUTO_TEST_CASE(ParallelMatrixMatrixOp,  * boost::unit_test::fixture<testin
   int off = vertexOffsets[utils::MasterSlave::_rank];
   for (int i = 0; i < n_global; i++)
     for (int j = 0; j < n_local; j++) {
-      J_local(i, j)  = J_global(i, j + off);
+      J_local(i, j) = J_global(i, j + off);
       WZ_local(i, j) = WZ_global(i, j + off);
     }
 
   for (int i = 0; i < n_local; i++)
     for (int j = 0; j < m_global; j++) {
-      W_local(i, j)  = W_global(i + off, j);
+      W_local(i, j) = W_global(i + off, j);
       JW_local(i, j) = JW_global(i + off, j);
     }
 
@@ -290,9 +287,9 @@ BOOST_AUTO_TEST_CASE(ParallelMatrixMatrixOp,  * boost::unit_test::fixture<testin
     }
 
   for (int i = 0; i < n_local; i++) {
-    res_local(i)     = res_global(i + off);
+    res_local(i) = res_global(i + off);
     res_local_vec(i) = res_global(i + off);
-    Jres_local(i)    = Jres_global(i + off);
+    Jres_local(i) = Jres_global(i + off);
   }
 
   // initialize ParallelMatrixOperations object
@@ -338,7 +335,7 @@ BOOST_AUTO_TEST_CASE(ParallelMatrixMatrixOp,  * boost::unit_test::fixture<testin
       _cyclicCommLeft->closeConnection();
     }
     _cyclicCommRight = nullptr;
-    _cyclicCommLeft  = nullptr;
+    _cyclicCommLeft = nullptr;
   }
 }
 

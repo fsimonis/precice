@@ -9,8 +9,7 @@ using namespace precice::mesh;
 
 BOOST_AUTO_TEST_SUITE(MeshTests)
 
-BOOST_AUTO_TEST_CASE(Groups)
-{
+BOOST_AUTO_TEST_CASE(Groups) {
   Group group;
   Vertex vertex0(Eigen::Vector3d::Constant(0.0), 0);
   Vertex vertex1(Eigen::Vector3d::Constant(1.0), 1);

@@ -4,19 +4,16 @@
 #include "logging/Logger.hpp"
 #include "mesh/SharedPointer.hpp"
 
-namespace precice
-{
-namespace action
-{
+namespace precice {
+namespace action {
 
 /// Computes the curvature of a mesh geometry.
-class ComputeCurvatureAction : public Action
-{
+class ComputeCurvatureAction: public Action {
 public:
   /// Constructor. Curvature values are stored in scalar data with given ID.
   ComputeCurvatureAction(
-      Timing               timing,
-      int                  dataID,
+      Timing timing,
+      int dataID,
       const mesh::PtrMesh &mesh);
 
   /// Destructor, empty.

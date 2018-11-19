@@ -3,26 +3,23 @@
 #include "mesh/Vertex.hpp"
 #include <boost/range/concepts.hpp>
 
-namespace precice
-{
-namespace mesh
-{
+namespace precice {
+namespace mesh {
 
-BOOST_CONCEPT_ASSERT((boost::RandomAccessIteratorConcept<Triangle::iterator>));
-BOOST_CONCEPT_ASSERT((boost::RandomAccessIteratorConcept<Triangle::const_iterator>));
-BOOST_CONCEPT_ASSERT((boost::RandomAccessRangeConcept<Triangle>));
-BOOST_CONCEPT_ASSERT((boost::RandomAccessRangeConcept<const Triangle>));
+BOOST_CONCEPT_ASSERT((boost::RandomAccessIteratorConcept<Triangle::iterator>) );
+BOOST_CONCEPT_ASSERT((boost::RandomAccessIteratorConcept<Triangle::const_iterator>) );
+BOOST_CONCEPT_ASSERT((boost::RandomAccessRangeConcept<Triangle>) );
+BOOST_CONCEPT_ASSERT((boost::RandomAccessRangeConcept<const Triangle>) );
 
 Triangle::Triangle(
     Edge &edgeOne,
     Edge &edgeTwo,
     Edge &edgeThree,
-    int   id)
+    int id)
     : PropertyContainer(),
       _edges({&edgeOne, &edgeTwo, &edgeThree}),
       _id(id),
-      _normal(Eigen::VectorXd::Zero(edgeOne.getDimensions()))
-{
+      _normal(Eigen::VectorXd::Zero(edgeOne.getDimensions())) {
   assertion(edgeOne.getDimensions() == edgeTwo.getDimensions(),
             edgeOne.getDimensions(), edgeTwo.getDimensions());
   assertion(edgeTwo.getDimensions() == edgeThree.getDimensions(),
@@ -71,50 +68,43 @@ Triangle::Triangle(
   assertion((_vertexMap[2] == 0) || (_vertexMap[2] == 1), _vertexMap[0]);
 }
 
-int Triangle::getDimensions() const
-{
+int Triangle::getDimensions() const {
   return _edges[0]->getDimensions();
 }
 
-const Eigen::VectorXd &Triangle::getNormal() const
-{
+const Eigen::VectorXd &Triangle::getNormal() const {
   return _normal;
 }
 
-const Eigen::VectorXd Triangle::getCenter() const
-{
-  return (_edges[0]->getCenter() +_edges[1]->getCenter() + _edges[2]->getCenter()) / 3.0;
+const Eigen::VectorXd Triangle::getCenter() const {
+  return (_edges[0]->getCenter() + _edges[1]->getCenter() + _edges[2]->getCenter()) / 3.0;
 }
 
-double Triangle::getEnclosingRadius() const
-{
+double Triangle::getEnclosingRadius() const {
   auto center = getCenter();
   return std::max({(center - vertex(0).getCoords()).norm(),
                    (center - vertex(1).getCoords()).norm(),
                    (center - vertex(2).getCoords()).norm()});
 }
 
-bool Triangle::operator==(const Triangle& other) const
-{
-    return math::equals(_normal, other._normal) &&
-        std::is_permutation(_edges.begin(), _edges.end(), other._edges.begin(),
-                [](const Edge* e1, const Edge* e2){return *e1 == *e2;});
+bool Triangle::operator==(const Triangle &other) const {
+  return math::equals(_normal, other._normal) &&
+         std::is_permutation(_edges.begin(), _edges.end(), other._edges.begin(),
+                             [](const Edge *e1, const Edge *e2) { return *e1 == *e2; });
 }
 
-bool Triangle::operator!=(const Triangle& other) const
-{
-    return !(*this == other);
+bool Triangle::operator!=(const Triangle &other) const {
+  return !(*this == other);
 }
 
-std::ostream& operator<<(std::ostream& os, const Triangle& t)
-{
-    os << "POLYGON ((";
-    for (int i = 0; i < 3; i++){
-        os << t.vertex(i).getCoords().transpose();
-        if (i < 2)
-            os << ", ";
-    }
-    return os <<", " << t.vertex(0).getCoords().transpose() << "))";
+std::ostream &operator<<(std::ostream &os, const Triangle &t) {
+  os << "POLYGON ((";
+  for (int i = 0; i < 3; i++) {
+    os << t.vertex(i).getCoords().transpose();
+    if (i < 2)
+      os << ", ";
+  }
+  return os << ", " << t.vertex(0).getCoords().transpose() << "))";
 }
 
 } // namespace mesh

@@ -10,15 +10,14 @@ using namespace precice;
 BOOST_AUTO_TEST_SUITE(ActionTests)
 BOOST_AUTO_TEST_SUITE(ModifyCoordinates)
 
-BOOST_AUTO_TEST_CASE(AddToCoordinates)
-{
+BOOST_AUTO_TEST_CASE(AddToCoordinates) {
   using namespace mesh;
   PtrMesh mesh(new Mesh("Mesh", 2, false));
-  PtrData data   = mesh->createData("test-data", 2);
-  int     dataID = data->getID();
-  Vertex &v0     = mesh->createVertex(Eigen::Vector2d::Zero());
-  Vertex &v1     = mesh->createVertex(Eigen::Vector2d::Constant(1.0));
-  Edge &  edge   = mesh->createEdge(v0, v1);
+  PtrData data = mesh->createData("test-data", 2);
+  int dataID = data->getID();
+  Vertex &v0 = mesh->createVertex(Eigen::Vector2d::Zero());
+  Vertex &v1 = mesh->createVertex(Eigen::Vector2d::Constant(1.0));
+  Edge &edge = mesh->createEdge(v0, v1);
   mesh->computeState();
   mesh->allocateDataValues();
   auto &values = data->values();
@@ -50,18 +49,17 @@ BOOST_AUTO_TEST_CASE(AddToCoordinates)
   BOOST_TEST(testing::equals(edge.getNormal(), normalizedNormal));
 }
 
-BOOST_AUTO_TEST_CASE(SubtractFromCoordinates)
-{
+BOOST_AUTO_TEST_CASE(SubtractFromCoordinates) {
   using namespace mesh;
   // Create geometryContext by faking a geometry but not using it to create
   // the mesh. The mesh is created by hand, such that references to the vertices
   // to be displaced are obtained.
   PtrMesh mesh(new Mesh("Mesh", 2, false));
-  PtrData data   = mesh->createData("test-data", 2);
-  int     dataID = data->getID();
-  Vertex &v0     = mesh->createVertex(Eigen::Vector2d::Constant(0.0));
-  Vertex &v1     = mesh->createVertex(Eigen::Vector2d::Constant(1.0));
-  Edge &  edge   = mesh->createEdge(v0, v1);
+  PtrData data = mesh->createData("test-data", 2);
+  int dataID = data->getID();
+  Vertex &v0 = mesh->createVertex(Eigen::Vector2d::Constant(0.0));
+  Vertex &v1 = mesh->createVertex(Eigen::Vector2d::Constant(1.0));
+  Edge &edge = mesh->createEdge(v0, v1);
   mesh->computeState();
   mesh->allocateDataValues();
   auto &values = data->values();

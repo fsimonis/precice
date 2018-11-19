@@ -1,306 +1,234 @@
 #include "precice/MeshHandle.hpp"
-#include "mesh/Vertex.hpp"
 #include "mesh/Edge.hpp"
-#include "mesh/Triangle.hpp"
 #include "mesh/Group.hpp"
+#include "mesh/Triangle.hpp"
+#include "mesh/Vertex.hpp"
 
 namespace precice {
-  namespace impl {
+namespace impl {
 
-    struct VertexIteratorImplementation {
-      mesh::Group::VertexContainer::const_iterator iterator;
-      //double coords[];
-      //int dimensions;
-    };
+struct VertexIteratorImplementation {
+  mesh::Group::VertexContainer::const_iterator iterator;
+  //double coords[];
+  //int dimensions;
+};
 
-    struct EdgeIteratorImplementation {
-      mesh::Group::EdgeContainer::const_iterator iterator;
-      //double coords[];
-      //int dimensions;
-    };
+struct EdgeIteratorImplementation {
+  mesh::Group::EdgeContainer::const_iterator iterator;
+  //double coords[];
+  //int dimensions;
+};
 
-    struct TriangleIteratorImplementation {
-      mesh::Group::TriangleContainer::const_iterator iterator;
-      //double coords[];
-      //int dimensions;
-    };
-  }
-}
+struct TriangleIteratorImplementation {
+  mesh::Group::TriangleContainer::const_iterator iterator;
+  //double coords[];
+  //int dimensions;
+};
+} // namespace impl
+} // namespace precice
 
 namespace precice {
 
-VertexIterator:: VertexIterator
-(
-  const mesh::Group& content,
-  bool               begin )
-:
-  _impl (new impl::VertexIteratorImplementation())
-{
-  if ( begin ) {
+VertexIterator::VertexIterator(
+    const mesh::Group &content,
+    bool begin)
+    : _impl(new impl::VertexIteratorImplementation()) {
+  if (begin) {
     _impl->iterator = content.vertices().begin();
-  }
-  else  {
+  } else {
     _impl->iterator = content.vertices().end();
   }
   //_impl->dimensions = content.getDimensions();
 }
 
-VertexIterator:: VertexIterator
-(
-  const VertexIterator& toCopy )
-:
-  _impl ( new impl::VertexIteratorImplementation(*toCopy._impl) )
-{}
+VertexIterator::VertexIterator(
+    const VertexIterator &toCopy)
+    : _impl(new impl::VertexIteratorImplementation(*toCopy._impl)) {}
 
-VertexIterator & VertexIterator:: operator=
-(
-  const VertexIterator& toAssign )
-{
+VertexIterator &VertexIterator::operator=(
+    const VertexIterator &toAssign) {
   _impl->iterator = toAssign._impl->iterator;
-//  assertion ( _impl->dimensions == toAssign._impl->dimensions,
-//               _impl->dimensions, toAssign._impl->dimensions );
-//  for ( int dim=0; dim < _impl->dimensions; dim++ ){
-//    _impl->coords[dim] = toAssign._impl->coords[dim];
-//  }
+  //  assertion ( _impl->dimensions == toAssign._impl->dimensions,
+  //               _impl->dimensions, toAssign._impl->dimensions );
+  //  for ( int dim=0; dim < _impl->dimensions; dim++ ){
+  //    _impl->coords[dim] = toAssign._impl->coords[dim];
+  //  }
   return *this;
 }
 
-VertexIterator:: ~VertexIterator()
-{
-  assertion ( _impl != nullptr );
+VertexIterator::~VertexIterator() {
+  assertion(_impl != nullptr);
   delete _impl;
 }
 
-VertexIterator& VertexIterator:: operator++(int unused)
-{
+VertexIterator &VertexIterator::operator++(int unused) {
   auto &result = *this;
   _impl->iterator++;
   return result;
 }
 
-VertexIterator& VertexIterator::operator++()
-{
+VertexIterator &VertexIterator::operator++() {
   _impl->iterator++;
   return *this;
 }
 
-VertexIterator& VertexIterator::operator*()
-{
+VertexIterator &VertexIterator::operator*() {
   return *this;
 }
 
-
-const double* VertexIterator:: vertexCoords()
-{
-//  for ( int dim=0; dim < _impl->dimensions; dim++ ){
-//    _impl->coords[dim] = (*_impl->iterator).getCoords()[dim];
-//  }
-//  return _impl->coords;
+const double *VertexIterator::vertexCoords() {
+  //  for ( int dim=0; dim < _impl->dimensions; dim++ ){
+  //    _impl->coords[dim] = (*_impl->iterator).getCoords()[dim];
+  //  }
+  //  return _impl->coords;
   return (*_impl->iterator).getCoords().data();
 }
 
-int VertexIterator:: vertexID()
-{
+int VertexIterator::vertexID() {
   return (*_impl->iterator).getID();
 }
 
-bool VertexIterator:: operator!=
-(
-  const VertexIterator& vertexIterator )
-{
+bool VertexIterator::operator!=(
+    const VertexIterator &vertexIterator) {
   return _impl->iterator != vertexIterator._impl->iterator;
 }
 
+VertexHandle::VertexHandle(
+    const mesh::Group &content)
+    : _content(content) {}
 
-VertexHandle:: VertexHandle
-(
-  const mesh::Group& content )
-:
-  _content ( content )
-{}
-
-VertexIterator VertexHandle:: begin() const
-{
+VertexIterator VertexHandle::begin() const {
   return VertexIterator(_content, true);
 }
 
-VertexIterator VertexHandle:: end() const
-{
+VertexIterator VertexHandle::end() const {
   return VertexIterator(_content, false);
 }
 
-std::size_t VertexHandle:: size() const
-{
+std::size_t VertexHandle::size() const {
   return _content.vertices().size();
 }
 
-
-EdgeIterator:: EdgeIterator
-(
-  const mesh::Group& content,
-  bool               begin )
-:
-  _impl (new impl::EdgeIteratorImplementation())
-{
-  if ( begin ) {
+EdgeIterator::EdgeIterator(
+    const mesh::Group &content,
+    bool begin)
+    : _impl(new impl::EdgeIteratorImplementation()) {
+  if (begin) {
     _impl->iterator = content.edges().begin();
-  }
-  else  {
+  } else {
     _impl->iterator = content.edges().end();
   }
 }
 
-EdgeIterator:: ~EdgeIterator()
-{
-  assertion ( _impl != nullptr );
+EdgeIterator::~EdgeIterator() {
+  assertion(_impl != nullptr);
   delete _impl;
 }
 
-EdgeIterator& EdgeIterator:: operator++(int)
-{
+EdgeIterator &EdgeIterator::operator++(int) {
   _impl->iterator++;
   return *this;
 }
 
-const double* EdgeIterator:: vertexCoords
-(
-  int vertexIndex )
-{
+const double *EdgeIterator::vertexCoords(
+    int vertexIndex) {
   return (*_impl->iterator).vertex(vertexIndex).getCoords().data();
 }
 
-int EdgeIterator:: vertexID
-(
-  int vertexIndex )
-{
+int EdgeIterator::vertexID(
+    int vertexIndex) {
   return (*_impl->iterator).vertex(vertexIndex).getID();
 }
 
-bool EdgeIterator:: operator!=
-(
-  const EdgeIterator & edgeIterator )
-{
+bool EdgeIterator::operator!=(
+    const EdgeIterator &edgeIterator) {
   return _impl->iterator != edgeIterator._impl->iterator;
 }
 
+EdgeHandle::EdgeHandle(
+    const mesh::Group &content)
+    : _content(content) {}
 
-EdgeHandle:: EdgeHandle
-(
-  const mesh::Group & content )
-:
-  _content ( content )
-{}
-
-EdgeIterator EdgeHandle:: begin () const
-{
-  return EdgeIterator ( _content, true );
+EdgeIterator EdgeHandle::begin() const {
+  return EdgeIterator(_content, true);
 }
 
-EdgeIterator EdgeHandle:: end () const
-{
-  return EdgeIterator ( _content, false );
+EdgeIterator EdgeHandle::end() const {
+  return EdgeIterator(_content, false);
 }
 
-std::size_t EdgeHandle:: size () const
-{
+std::size_t EdgeHandle::size() const {
   return _content.edges().size();
 }
 
-
-TriangleIterator:: TriangleIterator
-(
-  const mesh::Group & content,
-  bool                begin )
-:
-  _impl (new impl::TriangleIteratorImplementation())
-{
-  if ( begin ) {
+TriangleIterator::TriangleIterator(
+    const mesh::Group &content,
+    bool begin)
+    : _impl(new impl::TriangleIteratorImplementation()) {
+  if (begin) {
     _impl->iterator = content.triangles().begin();
-  }
-  else  {
+  } else {
     _impl->iterator = content.triangles().end();
   }
 }
 
-TriangleIterator:: ~TriangleIterator ()
-{
-  assertion ( _impl != nullptr );
+TriangleIterator::~TriangleIterator() {
+  assertion(_impl != nullptr);
   delete _impl;
 }
 
-TriangleIterator & TriangleIterator:: operator++ (int)
-{
+TriangleIterator &TriangleIterator::operator++(int) {
   _impl->iterator++;
   return *this;
 }
 
-const double* TriangleIterator:: vertexCoords
-(
-  int vertexIndex )
-{
+const double *TriangleIterator::vertexCoords(
+    int vertexIndex) {
   return (*_impl->iterator).vertex(vertexIndex).getCoords().data();
 }
 
-int TriangleIterator:: vertexID
-(
-  int vertexIndex )
-{
+int TriangleIterator::vertexID(
+    int vertexIndex) {
   return (*_impl->iterator).vertex(vertexIndex).getID();
 }
 
-bool TriangleIterator:: operator!=
-(
-  const TriangleIterator & triangleIterator )
-{
+bool TriangleIterator::operator!=(
+    const TriangleIterator &triangleIterator) {
   return _impl->iterator != triangleIterator._impl->iterator;
 }
 
-TriangleHandle:: TriangleHandle
-(
-  const mesh::Group & content )
-:
-  _content ( content )
-{}
+TriangleHandle::TriangleHandle(
+    const mesh::Group &content)
+    : _content(content) {}
 
-
-TriangleIterator TriangleHandle:: begin () const
-{
-  return TriangleIterator ( _content, true );
+TriangleIterator TriangleHandle::begin() const {
+  return TriangleIterator(_content, true);
 }
 
-
-TriangleIterator TriangleHandle:: end () const
-{
-  return TriangleIterator ( _content, false );
+TriangleIterator TriangleHandle::end() const {
+  return TriangleIterator(_content, false);
 }
 
-std::size_t TriangleHandle:: size () const
-{
+std::size_t TriangleHandle::size() const {
   return _content.triangles().size();
 }
 
-MeshHandle:: MeshHandle
-(
-  const mesh::Group & content )
-:
-  _vertexHandle ( content ),
-  _edgeHandle ( content ),
-  _triangleHandle ( content )
-{}
+MeshHandle::MeshHandle(
+    const mesh::Group &content)
+    : _vertexHandle(content),
+      _edgeHandle(content),
+      _triangleHandle(content) {}
 
-const VertexHandle & MeshHandle:: vertices () const
-{
+const VertexHandle &MeshHandle::vertices() const {
   return _vertexHandle;
 }
 
-const EdgeHandle & MeshHandle:: edges () const
-{
+const EdgeHandle &MeshHandle::edges() const {
   return _edgeHandle;
 }
 
-const TriangleHandle & MeshHandle:: triangles () const
-{
+const TriangleHandle &MeshHandle::triangles() const {
   return _triangleHandle;
 }
 
-} // nammespace precice
+} // namespace precice

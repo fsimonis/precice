@@ -3,22 +3,19 @@
 #include "mesh/Edge.hpp"
 #include "mesh/Mesh.hpp"
 
-namespace precice
-{
-namespace action
-{
+namespace precice {
+namespace action {
 
 ScaleByDtAction::ScaleByDtAction(
-    Timing               timing,
-    int                  sourceDataID,
-    int                  targetDataID,
+    Timing timing,
+    int sourceDataID,
+    int targetDataID,
     const mesh::PtrMesh &mesh,
-    Scaling              scaling)
+    Scaling scaling)
     : Action(timing, mesh),
       _sourceData(mesh->data(sourceDataID)),
       _targetData(mesh->data(targetDataID)),
-      _scaling(scaling)
-{
+      _scaling(scaling) {
   assertion(_sourceData->getDimensions() == _targetData->getDimensions(),
             _sourceData->getDimensions(), _targetData->getDimensions());
 }
@@ -27,8 +24,7 @@ void ScaleByDtAction::performAction(
     double time,
     double dt,
     double computedPartFullDt,
-    double fullDt)
-{
+    double fullDt) {
   TRACE(dt, computedPartFullDt, fullDt);
   auto &sourceValues = _sourceData->values();
   auto &targetValues = _targetData->values();

@@ -4,12 +4,9 @@
 #include "Request.hpp"
 #include <mpi.h>
 
-namespace precice
-{
-namespace com
-{
-class MPIRequest : public Request
-{
+namespace precice {
+namespace com {
+class MPIRequest: public Request {
 public:
   explicit MPIRequest(MPI_Request request);
 

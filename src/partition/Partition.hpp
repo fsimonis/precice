@@ -7,10 +7,8 @@
 
 // ----------------------------------------------------------- CLASS DEFINITION
 
-namespace precice
-{
-namespace partition
-{
+namespace precice {
+namespace partition {
 
 /**
  * @brief Abstract base class for partitions.
@@ -27,8 +25,7 @@ namespace partition
  * Access to the associated mesh, to both mappings (from and to this mesh),
  * and to an m2n communication to another participant is necessary.
  */
-class Partition
-{
+class Partition {
 public:
   /// Constructor.
   Partition(mesh::PtrMesh mesh);
@@ -41,18 +38,15 @@ public:
   /// The partition is computed, i.e. the mesh re-partitioned if required and all data structures are set up.
   virtual void compute() = 0;
 
-  void setFromMapping(mapping::PtrMapping fromMapping)
-  {
+  void setFromMapping(mapping::PtrMapping fromMapping) {
     _fromMapping = fromMapping;
   }
 
-  void setToMapping(mapping::PtrMapping toMapping)
-  {
+  void setToMapping(mapping::PtrMapping toMapping) {
     _toMapping = toMapping;
   }
 
-  void setM2N(m2n::PtrM2N m2n)
-  {
+  void setM2N(m2n::PtrM2N m2n) {
     _m2n = m2n;
   }
 

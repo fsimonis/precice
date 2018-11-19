@@ -14,30 +14,29 @@ BOOST_AUTO_TEST_SUITE(QueryTests)
 BOOST_AUTO_TEST_SUITE(FindVoxelContentTests)
 
 void performTestVertices(
-    int                    testDim,
-    bool                   positive,
-    const Eigen::VectorXd &offset)
-{
+    int testDim,
+    bool positive,
+    const Eigen::VectorXd &offset) {
   int dim = offset.size();
   assertion(not math::oneGreater(offset, Eigen::VectorXd::Constant(dim, 1.0)));
   assertion(math::allGreater(offset, Eigen::VectorXd::Constant(dim, -1.0)));
-  bool            flipNormals = false;
-  mesh::Mesh      mesh("TestMesh", dim, flipNormals);
+  bool flipNormals = false;
+  mesh::Mesh mesh("TestMesh", dim, flipNormals);
   Eigen::VectorXd coords(offset);
-  mesh::Vertex &  vertex = mesh.createVertex(coords);
+  mesh::Vertex &vertex = mesh.createVertex(coords);
 
-  Eigen::VectorXd                     center        = Eigen::VectorXd::Zero(dim);
-  Eigen::VectorXd                     halflengths   = Eigen::VectorXd::Constant(dim, 1.0);
+  Eigen::VectorXd center = Eigen::VectorXd::Zero(dim);
+  Eigen::VectorXd halflengths = Eigen::VectorXd::Constant(dim, 1.0);
   FindVoxelContent::BoundaryInclusion includeBounds = FindVoxelContent::INCLUDE_BOUNDARY;
   FindVoxelContent::BoundaryInclusion excludeBounds = FindVoxelContent::EXCLUDE_BOUNDARY;
-  query::FindVoxelContent             findIncluded(center, halflengths, includeBounds);
-  query::FindVoxelContent             findExcluded(center, halflengths, excludeBounds);
+  query::FindVoxelContent findIncluded(center, halflengths, includeBounds);
+  query::FindVoxelContent findExcluded(center, halflengths, excludeBounds);
 
   assertion(testDim >= 0);
   assertion(testDim < dim);
 
   double sign = positive ? 1.0 : -1.0;
-  int    size = 0;
+  int size = 0;
 
   // Outside
   coords[testDim] = sign * 2.0;
@@ -121,27 +120,26 @@ void performTestVertices(
 }
 
 void performTestEdges(
-    int                    testDim,
-    bool                   positive,
-    const Eigen::VectorXd &offset)
-{
+    int testDim,
+    bool positive,
+    const Eigen::VectorXd &offset) {
   int dim = offset.size();
   assertion(not math::oneGreater(offset, Eigen::VectorXd::Constant(dim, 1.0)));
   assertion(math::allGreater(offset, Eigen::VectorXd::Constant(dim, -1.0)));
-  bool            flipNormals = false;
-  mesh::Mesh      mesh("TestMesh", dim, flipNormals);
+  bool flipNormals = false;
+  mesh::Mesh mesh("TestMesh", dim, flipNormals);
   Eigen::VectorXd coords0(offset);
   Eigen::VectorXd coords1(offset);
-  mesh::Vertex &  v0 = mesh.createVertex(coords0);
-  mesh::Vertex &  v1 = mesh.createVertex(coords1);
+  mesh::Vertex &v0 = mesh.createVertex(coords0);
+  mesh::Vertex &v1 = mesh.createVertex(coords1);
   mesh.createEdge(v0, v1);
 
-  Eigen::VectorXd                     center        = Eigen::VectorXd::Zero(dim);
-  Eigen::VectorXd                     halflengths   = Eigen::VectorXd::Constant(dim, 1);
+  Eigen::VectorXd center = Eigen::VectorXd::Zero(dim);
+  Eigen::VectorXd halflengths = Eigen::VectorXd::Constant(dim, 1);
   FindVoxelContent::BoundaryInclusion includeBounds = FindVoxelContent::INCLUDE_BOUNDARY;
   FindVoxelContent::BoundaryInclusion excludeBounds = FindVoxelContent::EXCLUDE_BOUNDARY;
-  query::FindVoxelContent             findIncluded(center, halflengths, includeBounds);
-  query::FindVoxelContent             findExcluded(center, halflengths, excludeBounds);
+  query::FindVoxelContent findIncluded(center, halflengths, includeBounds);
+  query::FindVoxelContent findExcluded(center, halflengths, excludeBounds);
 
   assertion(testDim >= 0);
   assertion(testDim < dim);
@@ -241,31 +239,30 @@ void performTestEdges(
 }
 
 void performTestTriangles(
-    int  testDim,
-    int  secondDimension,
-    bool positive)
-{
+    int testDim,
+    int secondDimension,
+    bool positive) {
   int dim = 3;
   assertion(testDim != secondDimension);
-  bool            flipNormals = false;
-  mesh::Mesh      mesh("TestMesh", dim, flipNormals);
+  bool flipNormals = false;
+  mesh::Mesh mesh("TestMesh", dim, flipNormals);
   Eigen::Vector3d coords0 = Eigen::Vector3d::Zero();
   Eigen::Vector3d coords1 = Eigen::Vector3d::Zero();
   Eigen::Vector3d coords2 = Eigen::Vector3d::Zero();
-  mesh::Vertex &  v0      = mesh.createVertex(coords0);
-  mesh::Vertex &  v1      = mesh.createVertex(coords1);
-  mesh::Vertex &  v2      = mesh.createVertex(coords2);
-  mesh::Edge &    e0      = mesh.createEdge(v0, v1);
-  mesh::Edge &    e1      = mesh.createEdge(v1, v2);
-  mesh::Edge &    e2      = mesh.createEdge(v2, v0);
+  mesh::Vertex &v0 = mesh.createVertex(coords0);
+  mesh::Vertex &v1 = mesh.createVertex(coords1);
+  mesh::Vertex &v2 = mesh.createVertex(coords2);
+  mesh::Edge &e0 = mesh.createEdge(v0, v1);
+  mesh::Edge &e1 = mesh.createEdge(v1, v2);
+  mesh::Edge &e2 = mesh.createEdge(v2, v0);
   mesh.createTriangle(e0, e1, e2);
 
-  Eigen::Vector3d                     center        = Eigen::Vector3d::Constant(0.0);
-  Eigen::Vector3d                     halflengths   = Eigen::Vector3d::Constant(1.0);
+  Eigen::Vector3d center = Eigen::Vector3d::Constant(0.0);
+  Eigen::Vector3d halflengths = Eigen::Vector3d::Constant(1.0);
   FindVoxelContent::BoundaryInclusion includeBounds = FindVoxelContent::INCLUDE_BOUNDARY;
   FindVoxelContent::BoundaryInclusion excludeBounds = FindVoxelContent::EXCLUDE_BOUNDARY;
-  query::FindVoxelContent             findIncluded(center, halflengths, includeBounds);
-  query::FindVoxelContent             findExcluded(center, halflengths, excludeBounds);
+  query::FindVoxelContent findIncluded(center, halflengths, includeBounds);
+  query::FindVoxelContent findExcluded(center, halflengths, excludeBounds);
 
   assertion(testDim >= 0);
   assertion(testDim < dim);
@@ -281,9 +278,9 @@ void performTestTriangles(
   }
 
   // Outside
-  coords0[testDim]         = sign * 2.0;
-  coords1[testDim]         = sign * 3.0;
-  coords2[testDim]         = sign * 2.5;
+  coords0[testDim] = sign * 2.0;
+  coords1[testDim] = sign * 3.0;
+  coords2[testDim] = sign * 2.5;
   coords2[secondDimension] = sign * 0.5;
   v0.setCoords(coords0);
   v1.setCoords(coords1);
@@ -297,9 +294,9 @@ void performTestTriangles(
   BOOST_TEST(size == 0);
 
   // Outside eps vertex
-  coords0[testDim]         = sign * (1.0 + 10.0 * math::NUMERICAL_ZERO_DIFFERENCE);
-  coords1[testDim]         = sign * 2.0;
-  coords2[testDim]         = sign * 1.5;
+  coords0[testDim] = sign * (1.0 + 10.0 * math::NUMERICAL_ZERO_DIFFERENCE);
+  coords1[testDim] = sign * 2.0;
+  coords2[testDim] = sign * 1.5;
   coords2[secondDimension] = sign * 0.5;
   v0.setCoords(coords0);
   v1.setCoords(coords1);
@@ -313,9 +310,9 @@ void performTestTriangles(
   BOOST_TEST(size == 0);
 
   // Outside eps edge
-  coords0[testDim]         = sign * (1.0 + 10.0 * math::NUMERICAL_ZERO_DIFFERENCE);
-  coords1[testDim]         = sign * 2.0;
-  coords2[testDim]         = sign * (1.0 + 10.0 * math::NUMERICAL_ZERO_DIFFERENCE);
+  coords0[testDim] = sign * (1.0 + 10.0 * math::NUMERICAL_ZERO_DIFFERENCE);
+  coords1[testDim] = sign * 2.0;
+  coords2[testDim] = sign * (1.0 + 10.0 * math::NUMERICAL_ZERO_DIFFERENCE);
   coords2[secondDimension] = sign * 0.5;
   v0.setCoords(coords0);
   v1.setCoords(coords1);
@@ -329,9 +326,9 @@ void performTestTriangles(
   BOOST_TEST(size == 0);
 
   // Touching eps vertex
-  coords0[testDim]         = sign * (1.0 + math::NUMERICAL_ZERO_DIFFERENCE);
-  coords1[testDim]         = sign * 2.0;
-  coords2[testDim]         = sign * 1.5;
+  coords0[testDim] = sign * (1.0 + math::NUMERICAL_ZERO_DIFFERENCE);
+  coords1[testDim] = sign * 2.0;
+  coords2[testDim] = sign * 1.5;
   coords2[secondDimension] = sign * 0.5;
   v0.setCoords(coords0);
   v1.setCoords(coords1);
@@ -345,9 +342,9 @@ void performTestTriangles(
   BOOST_TEST(size == 0);
 
   // Touching eps edge
-  coords0[testDim]         = sign * (1.0 + math::NUMERICAL_ZERO_DIFFERENCE);
-  coords1[testDim]         = sign * 2.0;
-  coords2[testDim]         = sign * (1.0 + math::NUMERICAL_ZERO_DIFFERENCE);
+  coords0[testDim] = sign * (1.0 + math::NUMERICAL_ZERO_DIFFERENCE);
+  coords1[testDim] = sign * 2.0;
+  coords2[testDim] = sign * (1.0 + math::NUMERICAL_ZERO_DIFFERENCE);
   coords2[secondDimension] = sign * 0.5;
   v0.setCoords(coords0);
   v1.setCoords(coords1);
@@ -361,9 +358,9 @@ void performTestTriangles(
   BOOST_TEST(size == 0);
 
   // Touching vertex
-  coords0[testDim]         = sign * 1.0;
-  coords1[testDim]         = sign * 2.0;
-  coords2[testDim]         = sign * 1.5;
+  coords0[testDim] = sign * 1.0;
+  coords1[testDim] = sign * 2.0;
+  coords2[testDim] = sign * 1.5;
   coords2[secondDimension] = sign * 0.5;
   v0.setCoords(coords0);
   v1.setCoords(coords1);
@@ -377,9 +374,9 @@ void performTestTriangles(
   BOOST_TEST(size == 0);
 
   // Touching edge
-  coords0[testDim]         = sign * 1.0;
-  coords1[testDim]         = sign * 2.0;
-  coords2[testDim]         = sign * 1.0;
+  coords0[testDim] = sign * 1.0;
+  coords1[testDim] = sign * 2.0;
+  coords2[testDim] = sign * 1.0;
   coords2[secondDimension] = sign * 0.5;
   v0.setCoords(coords0);
   v1.setCoords(coords1);
@@ -393,9 +390,9 @@ void performTestTriangles(
   BOOST_TEST(size == 0);
 
   // Intersecting eps vertex
-  coords0[testDim]         = sign * (1.0 - 10.0 * math::NUMERICAL_ZERO_DIFFERENCE);
-  coords1[testDim]         = sign * 2.0;
-  coords2[testDim]         = sign * 1.5;
+  coords0[testDim] = sign * (1.0 - 10.0 * math::NUMERICAL_ZERO_DIFFERENCE);
+  coords1[testDim] = sign * 2.0;
+  coords2[testDim] = sign * 1.5;
   coords2[secondDimension] = sign * 0.5;
   v0.setCoords(coords0);
   v1.setCoords(coords1);
@@ -409,9 +406,9 @@ void performTestTriangles(
   BOOST_TEST(size == 1);
 
   // Intersecting eps edge
-  coords0[testDim]         = sign * (1.0 - 10.0 * math::NUMERICAL_ZERO_DIFFERENCE);
-  coords1[testDim]         = sign * 2.0;
-  coords2[testDim]         = sign * (1.0 - 10.0 * math::NUMERICAL_ZERO_DIFFERENCE);
+  coords0[testDim] = sign * (1.0 - 10.0 * math::NUMERICAL_ZERO_DIFFERENCE);
+  coords1[testDim] = sign * 2.0;
+  coords2[testDim] = sign * (1.0 - 10.0 * math::NUMERICAL_ZERO_DIFFERENCE);
   coords2[secondDimension] = sign * 0.5;
   v0.setCoords(coords0);
   v1.setCoords(coords1);
@@ -425,9 +422,9 @@ void performTestTriangles(
   BOOST_TEST(size == 2);
 
   // Intersecting vertex
-  coords0[testDim]         = sign * 0.8;
-  coords1[testDim]         = sign * 2.0;
-  coords2[testDim]         = sign * 1.5;
+  coords0[testDim] = sign * 0.8;
+  coords1[testDim] = sign * 2.0;
+  coords2[testDim] = sign * 1.5;
   coords2[secondDimension] = sign * 0.5;
   v0.setCoords(coords0);
   v1.setCoords(coords1);
@@ -441,9 +438,9 @@ void performTestTriangles(
   BOOST_TEST(size == 3);
 
   // Intersecting edge
-  coords0[testDim]         = sign * 0.8;
-  coords1[testDim]         = sign * 2.0;
-  coords2[testDim]         = sign * 0.8;
+  coords0[testDim] = sign * 0.8;
+  coords1[testDim] = sign * 2.0;
+  coords2[testDim] = sign * 0.8;
   coords2[secondDimension] = sign * 0.5;
   v0.setCoords(coords0);
   v1.setCoords(coords1);
@@ -457,9 +454,9 @@ void performTestTriangles(
   BOOST_TEST(size == 4);
 
   // Contained
-  coords0[testDim]         = sign * 0.3;
-  coords1[testDim]         = sign * 0.8;
-  coords2[testDim]         = sign * 0.5;
+  coords0[testDim] = sign * 0.3;
+  coords1[testDim] = sign * 0.8;
+  coords2[testDim] = sign * 0.5;
   coords2[secondDimension] = sign * 0.5;
   v0.setCoords(coords0);
   v1.setCoords(coords1);
@@ -473,9 +470,9 @@ void performTestTriangles(
   BOOST_TEST(size == 5);
 
   // Contained filling
-  coords0[testDim]         = sign * -0.9;
-  coords1[testDim]         = sign * 0.9;
-  coords2[testDim]         = 0.0;
+  coords0[testDim] = sign * -0.9;
+  coords1[testDim] = sign * 0.9;
+  coords2[testDim] = 0.0;
   coords2[secondDimension] = sign * 0.9;
   v0.setCoords(coords0);
   v1.setCoords(coords1);
@@ -489,9 +486,9 @@ void performTestTriangles(
   BOOST_TEST(size == 6);
 
   // Contained cutting
-  coords0[testDim]         = sign * -1.5;
-  coords1[testDim]         = sign * 1.5;
-  coords2[testDim]         = 0.0;
+  coords0[testDim] = sign * -1.5;
+  coords1[testDim] = sign * 1.5;
+  coords2[testDim] = 0.0;
   coords2[secondDimension] = sign * 1.5;
   v0.setCoords(coords0);
   v1.setCoords(coords1);
@@ -505,9 +502,9 @@ void performTestTriangles(
   BOOST_TEST(size == 7);
 
   // Contained cutting wide1
-  coords0[testDim]         = sign * -10.0;
-  coords1[testDim]         = sign * 10.0;
-  coords2[testDim]         = 0.0;
+  coords0[testDim] = sign * -10.0;
+  coords1[testDim] = sign * 10.0;
+  coords2[testDim] = 0.0;
   coords2[secondDimension] = sign * 10.0;
   v0.setCoords(coords0);
   v1.setCoords(coords1);
@@ -521,9 +518,9 @@ void performTestTriangles(
   BOOST_TEST(size == 8);
 
   // Contained cutting wide2
-  coords0[testDim]         = sign * -10000.0;
-  coords1[testDim]         = sign * 10000.0;
-  coords2[testDim]         = 0.0;
+  coords0[testDim] = sign * -10000.0;
+  coords1[testDim] = sign * 10000.0;
+  coords2[testDim] = 0.0;
   coords2[secondDimension] = sign * 10000.0;
   v0.setCoords(coords0);
   v1.setCoords(coords1);
@@ -537,13 +534,13 @@ void performTestTriangles(
   BOOST_TEST(size == 9);
 
   // Touching contained fully
-  coords0[testDim]         = sign * 0.3;
+  coords0[testDim] = sign * 0.3;
   coords0[secondDimension] = sign * 1.0;
-  coords1[testDim]         = sign * 0.8;
+  coords1[testDim] = sign * 0.8;
   coords1[secondDimension] = sign * 1.0;
-  coords2[testDim]         = 0.5;
+  coords2[testDim] = 0.5;
   coords2[secondDimension] = sign * 1.0;
-  coords2[thirdDimension]  = sign * 0.2;
+  coords2[thirdDimension] = sign * 0.2;
   v0.setCoords(coords0);
   v1.setCoords(coords1);
   v2.setCoords(coords2);
@@ -556,13 +553,13 @@ void performTestTriangles(
   BOOST_TEST(size == 9);
 
   // Touching fully
-  coords0[testDim]         = sign * -1.5;
+  coords0[testDim] = sign * -1.5;
   coords0[secondDimension] = sign * 1.0;
-  coords1[testDim]         = sign * 1.5;
+  coords1[testDim] = sign * 1.5;
   coords1[secondDimension] = sign * 1.0;
-  coords2[testDim]         = 0.0;
+  coords2[testDim] = 0.0;
   coords2[secondDimension] = sign * 1.0;
-  coords2[thirdDimension]  = sign * 1.5;
+  coords2[thirdDimension] = sign * 1.5;
   v0.setCoords(coords0);
   v1.setCoords(coords1);
   v2.setCoords(coords2);
@@ -585,13 +582,13 @@ void performTestTriangles(
   BOOST_TEST(size == 9);
 
   // Touching fully wide
-  coords0[testDim]         = sign * -10.0;
+  coords0[testDim] = sign * -10.0;
   coords0[secondDimension] = sign * 1.0;
-  coords1[testDim]         = sign * 10.0;
+  coords1[testDim] = sign * 10.0;
   coords1[secondDimension] = sign * 1.0;
-  coords2[testDim]         = 0.0;
+  coords2[testDim] = 0.0;
   coords2[secondDimension] = sign * 1.0;
-  coords2[thirdDimension]  = sign * 10.0;
+  coords2[thirdDimension] = sign * 10.0;
   v0.setCoords(coords0);
   v1.setCoords(coords1);
   v2.setCoords(coords2);
@@ -604,13 +601,13 @@ void performTestTriangles(
   BOOST_TEST(size == 9);
 
   // Touching fully wide2
-  coords0[testDim]         = sign * -1000.0;
+  coords0[testDim] = sign * -1000.0;
   coords0[secondDimension] = sign * 1.0;
-  coords1[testDim]         = sign * 1000.0;
+  coords1[testDim] = sign * 1000.0;
   coords1[secondDimension] = sign * 1.0;
-  coords2[testDim]         = 0.0;
+  coords2[testDim] = 0.0;
   coords2[secondDimension] = sign * 1000.0;
-  coords2[thirdDimension]  = sign * 1000.0;
+  coords2[thirdDimension] = sign * 1000.0;
   v0.setCoords(coords0);
   v1.setCoords(coords1);
   v2.setCoords(coords2);
@@ -623,13 +620,12 @@ void performTestTriangles(
   BOOST_TEST(size == 9);
 }
 
-BOOST_AUTO_TEST_CASE(Vertices)
-{
+BOOST_AUTO_TEST_CASE(Vertices) {
   for (int dim = 2; dim <= 3; dim++) {
     for (int testDim = 0; testDim < dim; testDim++) {
-      bool            positiveDirection = true;
-      bool            negativeDirection = false;
-      Eigen::VectorXd offset            = Eigen::VectorXd::Zero(dim);
+      bool positiveDirection = true;
+      bool negativeDirection = false;
+      Eigen::VectorXd offset = Eigen::VectorXd::Zero(dim);
       performTestVertices(testDim, positiveDirection, offset);
       performTestVertices(testDim, negativeDirection, offset);
       offset = Eigen::VectorXd::Constant(dim, -1.0 + 10.0 * math::NUMERICAL_ZERO_DIFFERENCE);
@@ -642,13 +638,12 @@ BOOST_AUTO_TEST_CASE(Vertices)
   }
 }
 
-BOOST_AUTO_TEST_CASE(Edges)
-{
+BOOST_AUTO_TEST_CASE(Edges) {
   for (int dim = 2; dim <= 3; dim++) {
     for (int testDim = 0; testDim < dim; testDim++) {
-      bool            positiveDirection = true;
-      bool            negativeDirection = false;
-      Eigen::VectorXd offset            = Eigen::VectorXd::Zero(dim);
+      bool positiveDirection = true;
+      bool negativeDirection = false;
+      Eigen::VectorXd offset = Eigen::VectorXd::Zero(dim);
       performTestEdges(testDim, positiveDirection, offset);
       performTestEdges(testDim, negativeDirection, offset);
       offset = Eigen::VectorXd::Constant(dim, -1.0 + 10.0 * math::NUMERICAL_ZERO_DIFFERENCE);
@@ -661,10 +656,9 @@ BOOST_AUTO_TEST_CASE(Edges)
   }
 }
 
-BOOST_AUTO_TEST_CASE(testZeroVoxel)
-{
-  int           dim = 2;
-  mesh::Mesh    mesh("Mesh", dim, false);
+BOOST_AUTO_TEST_CASE(testZeroVoxel) {
+  int dim = 2;
+  mesh::Mesh mesh("Mesh", dim, false);
   mesh::Vertex &v1 = mesh.createVertex(Eigen::Vector2d(2.0, 0.0));
   mesh::Vertex &v2 = mesh.createVertex(Eigen::Vector2d(2.0, 1.0));
   mesh.createEdge(v1, v2);
@@ -685,8 +679,7 @@ BOOST_AUTO_TEST_CASE(testZeroVoxel)
   BOOST_TEST(numberContained == 1);
 }
 
-BOOST_AUTO_TEST_CASE(Triangles)
-{
+BOOST_AUTO_TEST_CASE(Triangles) {
   for (int testDim = 0; testDim < 3; testDim++) {
     bool positiveDirection = true;
     bool negativeDirection = false;
@@ -700,20 +693,19 @@ BOOST_AUTO_TEST_CASE(Triangles)
   }
 }
 
-BOOST_AUTO_TEST_CASE(CompletelyInsideTriangles)
-{
-  int             dim              = 3;
-  Eigen::Vector3d voxelCenter      = Eigen::Vector3d::Zero();
+BOOST_AUTO_TEST_CASE(CompletelyInsideTriangles) {
+  int dim = 3;
+  Eigen::Vector3d voxelCenter = Eigen::Vector3d::Zero();
   Eigen::Vector3d voxelHalflengths = Eigen::Vector3d::Constant(1);
 
   // Test1
-  mesh::Mesh    mesh("Mesh", dim, true);
+  mesh::Mesh mesh("Mesh", dim, true);
   mesh::Vertex *v0 = &mesh.createVertex(Eigen::Vector3d(0.0, 0.0, 0.0));
   mesh::Vertex *v1 = &mesh.createVertex(Eigen::Vector3d(0.5, 0.5, 0.5));
   mesh::Vertex *v2 = &mesh.createVertex(Eigen::Vector3d(0.5, 0.0, 0.5));
-  mesh::Edge *  e0 = &mesh.createEdge(*v0, *v1);
-  mesh::Edge *  e1 = &mesh.createEdge(*v1, *v2);
-  mesh::Edge *  e2 = &mesh.createEdge(*v2, *v0);
+  mesh::Edge *e0 = &mesh.createEdge(*v0, *v1);
+  mesh::Edge *e1 = &mesh.createEdge(*v1, *v2);
+  mesh::Edge *e2 = &mesh.createEdge(*v2, *v0);
   mesh.createTriangle(*e0, *e1, *e2);
   mesh.computeState();
 
@@ -753,20 +745,19 @@ BOOST_AUTO_TEST_CASE(CompletelyInsideTriangles)
   BOOST_TEST(count == 3);
 }
 
-BOOST_AUTO_TEST_CASE(CompletelyOutsideTriangles)
-{
-  int             dim              = 3;
-  Eigen::Vector3d voxelCenter      = Eigen::Vector3d::Zero();
+BOOST_AUTO_TEST_CASE(CompletelyOutsideTriangles) {
+  int dim = 3;
+  Eigen::Vector3d voxelCenter = Eigen::Vector3d::Zero();
   Eigen::Vector3d voxelHalflengths = Eigen::Vector3d::Constant(1.0);
 
   // Test1
-  mesh::Mesh    mesh("Mesh", dim, true);
+  mesh::Mesh mesh("Mesh", dim, true);
   mesh::Vertex *v0 = &mesh.createVertex(Eigen::Vector3d(2.0, 2.0, 2.0));
   mesh::Vertex *v1 = &mesh.createVertex(Eigen::Vector3d(2.5, 2.5, 2.5));
   mesh::Vertex *v2 = &mesh.createVertex(Eigen::Vector3d(2.5, 2.0, 2.5));
-  mesh::Edge *  e0 = &mesh.createEdge(*v0, *v1);
-  mesh::Edge *  e1 = &mesh.createEdge(*v1, *v2);
-  mesh::Edge *  e2 = &mesh.createEdge(*v2, *v0);
+  mesh::Edge *e0 = &mesh.createEdge(*v0, *v1);
+  mesh::Edge *e1 = &mesh.createEdge(*v1, *v2);
+  mesh::Edge *e2 = &mesh.createEdge(*v2, *v0);
   mesh.createTriangle(*e0, *e1, *e2);
   mesh.computeState();
 
@@ -806,20 +797,19 @@ BOOST_AUTO_TEST_CASE(CompletelyOutsideTriangles)
   BOOST_TEST(count == 0);
 }
 
-BOOST_AUTO_TEST_CASE(IntersectingTriangles)
-{
-  int             dim              = 3;
-  Eigen::Vector3d voxelCenter      = Eigen::Vector3d::Zero();
+BOOST_AUTO_TEST_CASE(IntersectingTriangles) {
+  int dim = 3;
+  Eigen::Vector3d voxelCenter = Eigen::Vector3d::Zero();
   Eigen::Vector3d voxelHalflengths = Eigen::Vector3d::Constant(1.0);
 
   // Test1
-  mesh::Mesh    mesh("Mesh", dim, true);
+  mesh::Mesh mesh("Mesh", dim, true);
   mesh::Vertex *v0 = &mesh.createVertex(Eigen::Vector3d(0.5, 0.0, 0.0));
   mesh::Vertex *v1 = &mesh.createVertex(Eigen::Vector3d(2.0, 1.0, 1.0));
   mesh::Vertex *v2 = &mesh.createVertex(Eigen::Vector3d(2.0, -1.0, -1.0));
-  mesh::Edge *  e0 = &mesh.createEdge(*v0, *v1);
-  mesh::Edge *  e1 = &mesh.createEdge(*v1, *v2);
-  mesh::Edge *  e2 = &mesh.createEdge(*v2, *v0);
+  mesh::Edge *e0 = &mesh.createEdge(*v0, *v1);
+  mesh::Edge *e1 = &mesh.createEdge(*v1, *v2);
+  mesh::Edge *e2 = &mesh.createEdge(*v2, *v0);
   mesh.createTriangle(*e0, *e1, *e2);
   mesh.computeState();
 
@@ -919,20 +909,19 @@ BOOST_AUTO_TEST_CASE(IntersectingTriangles)
   BOOST_TEST(count == 7);
 }
 
-BOOST_AUTO_TEST_CASE(TouchingTriangles)
-{
-  int             dim              = 3;
-  Eigen::Vector3d voxelCenter      = Eigen::Vector3d::Zero();
+BOOST_AUTO_TEST_CASE(TouchingTriangles) {
+  int dim = 3;
+  Eigen::Vector3d voxelCenter = Eigen::Vector3d::Zero();
   Eigen::Vector3d voxelHalflengths = Eigen::Vector3d::Constant(1.0);
 
   // Test1, first triangle vertex touches voxel side
-  mesh::Mesh    mesh("Mesh", dim, true);
+  mesh::Mesh mesh("Mesh", dim, true);
   mesh::Vertex *v0 = &mesh.createVertex(Eigen::Vector3d(1.0, 0.0, 0.0));
   mesh::Vertex *v1 = &mesh.createVertex(Eigen::Vector3d(2.0, 1.0, 1.0));
   mesh::Vertex *v2 = &mesh.createVertex(Eigen::Vector3d(2.0, -1.0, -1.0));
-  mesh::Edge *  e0 = &mesh.createEdge(*v0, *v1);
-  mesh::Edge *  e1 = &mesh.createEdge(*v1, *v2);
-  mesh::Edge *  e2 = &mesh.createEdge(*v2, *v0);
+  mesh::Edge *e0 = &mesh.createEdge(*v0, *v1);
+  mesh::Edge *e1 = &mesh.createEdge(*v1, *v2);
+  mesh::Edge *e2 = &mesh.createEdge(*v2, *v0);
   mesh.createTriangle(*e0, *e1, *e2);
   mesh.computeState();
 
@@ -1079,12 +1068,11 @@ BOOST_AUTO_TEST_CASE(TouchingTriangles)
   BOOST_TEST(count == 0);
 }
 
-BOOST_AUTO_TEST_CASE(QueryCube)
-{
+BOOST_AUTO_TEST_CASE(QueryCube) {
   using namespace mesh;
-  int     dim         = 3;
-  bool    flipNormals = false;
-  Mesh    mesh("TestMesh", dim, flipNormals);
+  int dim = 3;
+  bool flipNormals = false;
+  Mesh mesh("TestMesh", dim, flipNormals);
   Vertex &v000 = mesh.createVertex(Eigen::Vector3d(0.0, 0.0, 0.0));
   Vertex &v001 = mesh.createVertex(Eigen::Vector3d(0.0, 0.0, 1.0));
   Vertex &v010 = mesh.createVertex(Eigen::Vector3d(0.0, 1.0, 0.0));
@@ -1137,11 +1125,11 @@ BOOST_AUTO_TEST_CASE(QueryCube)
   mesh.computeState();
 
   io::ExportVTK exportMesh(true);
-  std::string   location = "";
+  std::string location = "";
   exportMesh.doExport("query-FindVoxelContentTest", location, mesh);
 
   // Query mesh
-  Eigen::Vector3d center      = Eigen::Vector3d::Zero();
+  Eigen::Vector3d center = Eigen::Vector3d::Zero();
   Eigen::Vector3d halflengths = Eigen::Vector3d::Zero();
 
   // Vertex queries with halflengths = 1.0/3.0

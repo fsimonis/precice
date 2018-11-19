@@ -8,8 +8,7 @@ using namespace precice::math::barycenter;
 BOOST_AUTO_TEST_SUITE(MathTests)
 BOOST_AUTO_TEST_SUITE(Barycenter)
 
-BOOST_AUTO_TEST_CASE(BarycenterEdge)
-{
+BOOST_AUTO_TEST_CASE(BarycenterEdge) {
   using Eigen::Vector2d;
   using Eigen::Vector3d;
   using precice::math::equals;
@@ -19,7 +18,7 @@ BOOST_AUTO_TEST_CASE(BarycenterEdge)
   {
     Vector3d l(0.5, 0.0, 0.0);
     Vector2d coords(0.5, 0.5);
-    auto     ret = calcBarycentricCoordsForEdge(
+    auto ret = calcBarycentricCoordsForEdge(
         a, b, n, l);
     BOOST_TEST(equals(ret.projected, l));
     BOOST_TEST(ret.barycentricCoords.sum() == 1.0);
@@ -28,7 +27,7 @@ BOOST_AUTO_TEST_CASE(BarycenterEdge)
   {
     Vector3d l(0.0, 0.0, 0.0);
     Vector2d coords(1.0, 0.0);
-    auto     ret = calcBarycentricCoordsForEdge(
+    auto ret = calcBarycentricCoordsForEdge(
         a, b, n, l);
     BOOST_TEST(equals(ret.projected, l));
     BOOST_TEST(ret.barycentricCoords.sum() == 1.0);
@@ -37,7 +36,7 @@ BOOST_AUTO_TEST_CASE(BarycenterEdge)
   {
     Vector3d l(1.0, 0.0, 0.0);
     Vector2d coords(0, 1.0);
-    auto     ret = calcBarycentricCoordsForEdge(
+    auto ret = calcBarycentricCoordsForEdge(
         a, b, n, l);
     BOOST_TEST(equals(ret.projected, l));
     BOOST_TEST(ret.barycentricCoords.sum() == 1.0);
@@ -47,15 +46,14 @@ BOOST_AUTO_TEST_CASE(BarycenterEdge)
     Vector3d l(0.75, 1.0, 0.0);
     Vector3d projected(0.75, 0.0, 0.0);
     Vector2d coords(0.25, 0.75);
-    auto     ret = calcBarycentricCoordsForEdge(a, b, n, l);
+    auto ret = calcBarycentricCoordsForEdge(a, b, n, l);
     BOOST_TEST(equals(ret.projected, projected));
     BOOST_TEST(ret.barycentricCoords.sum() == 1.0);
     BOOST_TEST(equals(ret.barycentricCoords, coords), "Coords are " << ret.barycentricCoords << " but should be " << coords);
   }
 }
 
-BOOST_AUTO_TEST_CASE(BarycenterTriangle)
-{
+BOOST_AUTO_TEST_CASE(BarycenterTriangle) {
   using Eigen::Vector3d;
   using precice::math::equals;
   Vector3d a(0.0, 0.0, 0.0);
@@ -65,7 +63,7 @@ BOOST_AUTO_TEST_CASE(BarycenterTriangle)
   // is a?
   {
     Vector3d coords(1.0, 0.0, 0.0);
-    auto     ret = calcBarycentricCoordsForTriangle(a, b, c, n, a);
+    auto ret = calcBarycentricCoordsForTriangle(a, b, c, n, a);
     BOOST_TEST(equals(ret.projected, a));
     BOOST_TEST(ret.barycentricCoords.sum() == 1.0);
     BOOST_TEST(equals(ret.barycentricCoords, coords));
@@ -73,7 +71,7 @@ BOOST_AUTO_TEST_CASE(BarycenterTriangle)
   // is b?
   {
     Vector3d coords(0.0, 1.0, 0.0);
-    auto     ret = calcBarycentricCoordsForTriangle(a, b, c, n, b);
+    auto ret = calcBarycentricCoordsForTriangle(a, b, c, n, b);
     BOOST_TEST(equals(ret.projected, b));
     BOOST_TEST(ret.barycentricCoords.sum() == 1.0);
     BOOST_TEST(equals(ret.barycentricCoords, coords));
@@ -81,7 +79,7 @@ BOOST_AUTO_TEST_CASE(BarycenterTriangle)
   // is c?
   {
     Vector3d coords(0.0, 0.0, 1.0);
-    auto     ret = calcBarycentricCoordsForTriangle(a, b, c, n, c);
+    auto ret = calcBarycentricCoordsForTriangle(a, b, c, n, c);
     BOOST_TEST(equals(ret.projected, c));
     BOOST_TEST(ret.barycentricCoords.sum() == 1.0);
     BOOST_TEST(equals(ret.barycentricCoords, coords));
@@ -90,7 +88,7 @@ BOOST_AUTO_TEST_CASE(BarycenterTriangle)
   {
     Vector3d l = (a + b + c) / 3;
     Vector3d coords(1.0 / 3.0, 1.0 / 3.0, 1.0 / 3.0);
-    auto     ret = calcBarycentricCoordsForTriangle(a, b, c, n, l);
+    auto ret = calcBarycentricCoordsForTriangle(a, b, c, n, l);
     BOOST_TEST(equals(ret.projected, l));
     BOOST_TEST(ret.barycentricCoords.sum() == 1.0);
     BOOST_TEST(equals(ret.barycentricCoords, coords));
@@ -99,7 +97,7 @@ BOOST_AUTO_TEST_CASE(BarycenterTriangle)
   {
     Vector3d l = (a + b) / 2;
     Vector3d coords(0.5, 0.5, 0.0);
-    auto     ret = calcBarycentricCoordsForTriangle(a, b, c, n, l);
+    auto ret = calcBarycentricCoordsForTriangle(a, b, c, n, l);
     BOOST_TEST(equals(ret.projected, l));
     BOOST_TEST(ret.barycentricCoords.sum() == 1.0);
     BOOST_TEST(equals(ret.barycentricCoords, coords));
@@ -108,7 +106,7 @@ BOOST_AUTO_TEST_CASE(BarycenterTriangle)
   {
     Vector3d l = (b + c) / 2;
     Vector3d coords(0.0, 0.5, 0.5);
-    auto     ret = calcBarycentricCoordsForTriangle(a, b, c, n, l);
+    auto ret = calcBarycentricCoordsForTriangle(a, b, c, n, l);
     BOOST_TEST(equals(ret.projected, l));
     BOOST_TEST(ret.barycentricCoords.sum() == 1.0);
     BOOST_TEST(equals(ret.barycentricCoords, coords));
@@ -117,7 +115,7 @@ BOOST_AUTO_TEST_CASE(BarycenterTriangle)
   {
     Vector3d l = (a + c) / 2;
     Vector3d coords(0.5, 0.0, 0.5);
-    auto     ret = calcBarycentricCoordsForTriangle(a, b, c, n, l);
+    auto ret = calcBarycentricCoordsForTriangle(a, b, c, n, l);
     BOOST_TEST(equals(ret.projected, l));
     BOOST_TEST(ret.barycentricCoords.sum() == 1.0);
     BOOST_TEST(equals(ret.barycentricCoords, coords));
@@ -125,13 +123,12 @@ BOOST_AUTO_TEST_CASE(BarycenterTriangle)
   // is outside
   {
     Vector3d l(2.0, 0.0, 0.0);
-    auto     ret = calcBarycentricCoordsForTriangle(a, b, c, n, l);
-    BOOST_TEST((ret.barycentricCoords.array() < -precice::math::NUMERICAL_ZERO_DIFFERENCE).any(), "Min 1 coord should be negative "<< ret.barycentricCoords);
+    auto ret = calcBarycentricCoordsForTriangle(a, b, c, n, l);
+    BOOST_TEST((ret.barycentricCoords.array() < -precice::math::NUMERICAL_ZERO_DIFFERENCE).any(), "Min 1 coord should be negative " << ret.barycentricCoords);
   }
 }
 
-BOOST_AUTO_TEST_CASE(BarycenterQuad)
-{
+BOOST_AUTO_TEST_CASE(BarycenterQuad) {
   /// @todo implement tests for interpolation on quads
 }
 

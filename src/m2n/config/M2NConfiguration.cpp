@@ -1,5 +1,4 @@
 #include "M2NConfiguration.hpp"
-#include <list>
 #include "com/MPIDirectCommunication.hpp"
 #include "com/MPIPortsCommunicationFactory.hpp"
 #include "com/MPISinglePortsCommunicationFactory.hpp"
@@ -8,20 +7,18 @@
 #include "m2n/GatherScatterComFactory.hpp"
 #include "m2n/M2N.hpp"
 #include "m2n/PointToPointComFactory.hpp"
+#include "utils/Helpers.hpp"
 #include "xml/ValidatorEquals.hpp"
 #include "xml/ValidatorOr.hpp"
 #include "xml/XMLAttribute.hpp"
-#include "utils/Helpers.hpp"
+#include <list>
 
-namespace precice
-{
-namespace m2n
-{
-M2NConfiguration::M2NConfiguration(xml::XMLTag &parent)
-{
+namespace precice {
+namespace m2n {
+M2NConfiguration::M2NConfiguration(xml::XMLTag &parent) {
   using namespace xml;
-  std::string        doc;
-  std::list<XMLTag>  tags;
+  std::string doc;
+  std::list<XMLTag> tags;
   XMLTag::Occurrence occ = XMLTag::OCCUR_ARBITRARY;
   {
     XMLTag tag(*this, "sockets", occ, TAG);
@@ -132,8 +129,7 @@ M2NConfiguration::M2NConfiguration(xml::XMLTag &parent)
   }
 }
 
-m2n::PtrM2N M2NConfiguration::getM2N(const std::string &from, const std::string &to)
-{
+m2n::PtrM2N M2NConfiguration::getM2N(const std::string &from, const std::string &to) {
   using std::get;
   for (M2NTuple &tuple : _m2ns) {
     if ((get<1>(tuple) == from) && (get<2>(tuple) == to)) {
@@ -147,26 +143,25 @@ m2n::PtrM2N M2NConfiguration::getM2N(const std::string &from, const std::string 
   throw error.str();
 }
 
-void M2NConfiguration::xmlTagCallback(xml::XMLTag &tag)
-{
+void M2NConfiguration::xmlTagCallback(xml::XMLTag &tag) {
   if (tag.getNamespace() == TAG) {
     std::string from = tag.getStringAttributeValue("from");
-    std::string to   = tag.getStringAttributeValue("to");
+    std::string to = tag.getStringAttributeValue("to");
     checkDuplicates(from, to);
     std::string distrType = tag.getStringAttributeValue(ATTR_DISTRIBUTION_TYPE);
 
     com::PtrCommunicationFactory comFactory;
-    com::PtrCommunication        com;
+    com::PtrCommunication com;
     if (tag.getName() == "sockets") {
       std::string network = tag.getStringAttributeValue("network");
-      int         port    = tag.getIntAttributeValue("port");
+      int port = tag.getIntAttributeValue("port");
 
       CHECK(not utils::isTruncated<unsigned short>(port),
             "The value given for the \"port\" attribute is not a 16-bit unsigned integer: " << port);
 
       std::string dir = tag.getStringAttributeValue(ATTR_EXCHANGE_DIRECTORY);
-      comFactory      = std::make_shared<com::SocketCommunicationFactory>(port, false, network, dir);
-      com             = comFactory->newCommunication();
+      comFactory = std::make_shared<com::SocketCommunicationFactory>(port, false, network, dir);
+      com = comFactory->newCommunication();
     } else if (tag.getName() == "mpi") {
       std::string dir = tag.getStringAttributeValue(ATTR_EXCHANGE_DIRECTORY);
 #ifdef PRECICE_NO_MPI
@@ -176,7 +171,7 @@ void M2NConfiguration::xmlTagCallback(xml::XMLTag &tag)
       throw error.str();
 #else
       comFactory = std::make_shared<com::MPIPortsCommunicationFactory>(dir);
-      com        = comFactory->newCommunication();
+      com = comFactory->newCommunication();
 #endif
     } else if (tag.getName() == "mpi-singleports") {
       std::string dir = tag.getStringAttributeValue(ATTR_EXCHANGE_DIRECTORY);
@@ -187,16 +182,18 @@ void M2NConfiguration::xmlTagCallback(xml::XMLTag &tag)
       throw error.str();
 #else
       comFactory = std::make_shared<com::MPISinglePortsCommunicationFactory>(dir);
-      com        = comFactory->newCommunication();
+      com = comFactory->newCommunication();
 #endif
     } else if (tag.getName() == "mpi-single") {
 #ifdef PRECICE_NO_MPI
       std::ostringstream error;
-      error << "Communication type \"" << "mpi-single" << "\" can only be used "
+      error << "Communication type \""
+            << "mpi-single"
+            << "\" can only be used "
             << "when preCICE is compiled with argument \"mpi=on\"";
       throw error.str();
 #else
-      com        = std::make_shared<com::MPIDirectCommunication>();
+      com = std::make_shared<com::MPIDirectCommunication>();
 #endif
     }
 
@@ -219,8 +216,7 @@ void M2NConfiguration::xmlTagCallback(xml::XMLTag &tag)
 
 void M2NConfiguration::checkDuplicates(
     const std::string &from,
-    const std::string &to)
-{
+    const std::string &to) {
   using std::get;
   bool alreadyAdded = false;
   for (M2NTuple &tuple : _m2ns) {

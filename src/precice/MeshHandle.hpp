@@ -1,69 +1,63 @@
 #pragma once
 
-#include <vector>
 #include <cstddef>
+#include <vector>
 
 namespace precice {
-  namespace mesh {
-    class Mesh;
-    class Group;
-  }
-  namespace impl {
-    struct VertexIteratorImplementation;
-    struct EdgeIteratorImplementation;
-    struct TriangleIteratorImplementation;
-    // no quad iterator yet
-  }
-}
-
+namespace mesh {
+class Mesh;
+class Group;
+} // namespace mesh
+namespace impl {
+struct VertexIteratorImplementation;
+struct EdgeIteratorImplementation;
+struct TriangleIteratorImplementation;
+// no quad iterator yet
+} // namespace impl
+} // namespace precice
 
 // ----------------------------------------------------------- CLASS DEFINITION
 
 namespace precice {
 
 /// Iterator over vertex coordinates and IDs.
-class VertexIterator
-{
+class VertexIterator {
 public:
+  VertexIterator(
+      const mesh::Group &content,
+      bool begin);
 
-  VertexIterator (
-    const mesh::Group& content,
-    bool               begin );
+  VertexIterator(const VertexIterator &toCopy);
 
-  VertexIterator ( const VertexIterator& toCopy );
-
-  VertexIterator& operator= ( const VertexIterator& toAssign );
+  VertexIterator &operator=(const VertexIterator &toAssign);
 
   ~VertexIterator();
 
   /// Postfix operator
-  VertexIterator& operator++(int unused);
+  VertexIterator &operator++(int unused);
 
   /// Prefix operator
-  VertexIterator& operator++();
+  VertexIterator &operator++();
 
-  VertexIterator& operator*();
+  VertexIterator &operator*();
 
   int vertexID();
 
-  const double* vertexCoords();
+  const double *vertexCoords();
 
-  bool operator!= ( const VertexIterator& vertexIterator );
+  bool operator!=(const VertexIterator &vertexIterator);
 
 private:
-
-  impl::VertexIteratorImplementation* _impl;
+  impl::VertexIteratorImplementation *_impl;
 };
 
 /// Offers methods begin() and end() to iterate over all vertices.
-class VertexHandle
-{
+class VertexHandle {
 public:
-
   typedef VertexIterator const_iterator;
 
   /// Constructor, reference to mesh object holding vertices required.
-  VertexHandle ( const mesh::Group& content );
+  VertexHandle(const mesh::Group &content);
 
   /// Returns iterator to begin of the geometry's vertices.
   VertexIterator begin() const;
@@ -74,120 +68,107 @@ public:
   std::size_t size() const;
 
 private:
-
   /// Group instance holding vertices.
-  const mesh::Group& _content;
+  const mesh::Group &_content;
 };
 
-class EdgeIterator
-{
+class EdgeIterator {
 public:
-
-  EdgeIterator (
-    const mesh::Group& mesh,
-    bool              begin );
+  EdgeIterator(
+      const mesh::Group &mesh,
+      bool begin);
 
   ~EdgeIterator();
 
-  EdgeIterator& operator++(int);
+  EdgeIterator &operator++(int);
 
-  const double* vertexCoords ( int vertexIndex );
+  const double *vertexCoords(int vertexIndex);
 
-  int vertexID ( int vertexIndex );
+  int vertexID(int vertexIndex);
 
-  bool operator!= ( const EdgeIterator& edgeIterator );
+  bool operator!=(const EdgeIterator &edgeIterator);
 
 private:
-
-  impl::EdgeIteratorImplementation* _impl;
+  impl::EdgeIteratorImplementation *_impl;
 };
 
 /**
  * @brief Offers methods begin() and end() to iterate over all edges.
  */
-class EdgeHandle
-{
+class EdgeHandle {
 public:
+  // @brief Necessary to be used by boost::foreach.
+  typedef EdgeIterator const_iterator;
 
-   // @brief Necessary to be used by boost::foreach.
-   typedef EdgeIterator const_iterator;
-
-   /**
+  /**
     * @brief Constructor, reference to mesh object holding edges required.
     */
-   EdgeHandle ( const mesh::Group& mesh );
+  EdgeHandle(const mesh::Group &mesh);
 
-   /**
+  /**
     * @brief Returns iterator to begin of the geometry's edges.
     */
-   EdgeIterator begin() const;
+  EdgeIterator begin() const;
 
-   /**
+  /**
     * @brief Returns iterator to end of the geometry's edges.
     */
-   EdgeIterator end() const;
+  EdgeIterator end() const;
 
   std::size_t size() const;
 
 private:
-
-   // @brief Mesh instance holding edges.
-   const mesh::Group& _content;
+  // @brief Mesh instance holding edges.
+  const mesh::Group &_content;
 };
 
-class TriangleIterator
-{
+class TriangleIterator {
 public:
-
-  TriangleIterator (
-    const mesh::Group& content,
-    bool               begin );
+  TriangleIterator(
+      const mesh::Group &content,
+      bool begin);
 
   ~TriangleIterator();
 
-  TriangleIterator& operator++(int);
+  TriangleIterator &operator++(int);
 
-  const double* vertexCoords ( int vertexIndex );
+  const double *vertexCoords(int vertexIndex);
 
-  int vertexID ( int vertexIndex );
+  int vertexID(int vertexIndex);
 
-  bool operator!= ( const TriangleIterator& triangleIterator );
+  bool operator!=(const TriangleIterator &triangleIterator);
 
 private:
-
-  impl::TriangleIteratorImplementation* _impl;
+  impl::TriangleIteratorImplementation *_impl;
 };
 
 /**
  * @brief Offers methods begin() and end() to iterate over all triangles.
  */
-class TriangleHandle
-{
+class TriangleHandle {
 public:
+  typedef TriangleIterator const_iterator;
 
-   typedef TriangleIterator const_iterator;
-
-   /**
+  /**
     * @brief Constructor, reference to mesh object holding triangles required.
     */
-   TriangleHandle ( const mesh::Group& content );
+  TriangleHandle(const mesh::Group &content);
 
-   /**
+  /**
     * @brief Returns iterator to begin of the geometry's triangles.
     */
-   TriangleIterator begin() const;
+  TriangleIterator begin() const;
 
-   /**
+  /**
     * @brief Returns iterator to end of the geometry's triangles.
     */
-   TriangleIterator end() const;
+  TriangleIterator end() const;
 
   std::size_t size() const;
 
 private:
-
-   // @brief Mesh instance holding triangles.
-   const mesh::Group& _content;
+  // @brief Mesh instance holding triangles.
+  const mesh::Group &_content;
 };
 
 /**
@@ -205,42 +186,39 @@ private:
  * by using operator*(). The operator -> is not supported, and does only return
  * pointers to the objects.
  */
-class MeshHandle
-{
+class MeshHandle {
 public:
-
-   /**
+  /**
     * @brief Standard constructor, not meant to be used by a solver.
     *
     * @param mesh [IN] The mesh representing the geometry.
     */
-   MeshHandle ( const mesh::Group& content );
+  MeshHandle(const mesh::Group &content);
 
-   /**
+  /**
     * @brief Returns handle for Vertex objects.
     */
-   const VertexHandle& vertices () const;
+  const VertexHandle &vertices() const;
 
-   /**
+  /**
     * @brief Returns handle for Edge objects.
     */
-   const EdgeHandle& edges () const;
+  const EdgeHandle &edges() const;
 
-   /**
+  /**
     * @brief Returns handle for Triangle objects.
     */
-   const TriangleHandle& triangles () const;
+  const TriangleHandle &triangles() const;
 
 private:
+  // @brief Handle for vertices.
+  VertexHandle _vertexHandle;
 
-   // @brief Handle for vertices.
-   VertexHandle _vertexHandle;
+  // @brief Handle for edges.
+  EdgeHandle _edgeHandle;
 
-   // @brief Handle for edges.
-   EdgeHandle _edgeHandle;
-
-   // @brief Handle for triangles.
-   TriangleHandle _triangleHandle;
+  // @brief Handle for triangles.
+  TriangleHandle _triangleHandle;
 };
 
 } // namespace precice

@@ -1,14 +1,13 @@
-#include <Eigen/Core>
-#include <string>
 #include "testing/Testing.hpp"
 #include "utils/Dimensions.hpp"
+#include <Eigen/Core>
+#include <string>
 
 using namespace precice::utils;
 
 BOOST_AUTO_TEST_SUITE(UtilsTests)
 
-BOOST_AUTO_TEST_CASE(LinearizeDelinearize)
-{
+BOOST_AUTO_TEST_CASE(LinearizeDelinearize) {
   { // 2D
     using Eigen::Vector2d;
     BOOST_TEST(linearize(Vector2d(0.0, 0.0)) == 0);

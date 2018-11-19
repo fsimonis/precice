@@ -1,21 +1,16 @@
 #include "ResidualSumPreconditioner.hpp"
 #include "utils/MasterSlave.hpp"
 
-namespace precice
-{
-namespace cplscheme
-{
-namespace impl
-{
+namespace precice {
+namespace cplscheme {
+namespace impl {
 
 ResidualSumPreconditioner::ResidualSumPreconditioner(
     int maxNonConstTimesteps)
-    : Preconditioner(maxNonConstTimesteps)
-{
+    : Preconditioner(maxNonConstTimesteps) {
 }
 
-void ResidualSumPreconditioner::initialize(std::vector<size_t> &svs)
-{
+void ResidualSumPreconditioner::initialize(std::vector<size_t> &svs) {
   TRACE();
   Preconditioner::initialize(svs);
 
@@ -24,8 +19,7 @@ void ResidualSumPreconditioner::initialize(std::vector<size_t> &svs)
 
 void ResidualSumPreconditioner::_update_(bool timestepComplete,
                                          const Eigen::VectorXd &oldValues,
-                                         const Eigen::VectorXd &res)
-{
+                                         const Eigen::VectorXd &res) {
   if (not timestepComplete) {
     std::vector<double> norms(_subVectorSizes.size(), 0.0);
 
@@ -53,7 +47,7 @@ void ResidualSumPreconditioner::_update_(bool timestepComplete,
     offset = 0;
     for (size_t k = 0; k < _subVectorSizes.size(); k++) {
       for (size_t i = 0; i < _subVectorSizes[k]; i++) {
-        _weights[i + offset]    = 1 / _residualSum[k];
+        _weights[i + offset] = 1 / _residualSum[k];
         _invWeights[i + offset] = _residualSum[k];
       }
       offset += _subVectorSizes[k];
@@ -66,6 +60,6 @@ void ResidualSumPreconditioner::_update_(bool timestepComplete,
     }
   }
 }
-}
-}
-} // namespace precice, cplscheme
+} // namespace impl
+} // namespace cplscheme
+} // namespace precice

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Eigen/Core>
 #include "com/SharedPointer.hpp"
+#include <Eigen/Core>
 
 #include "logging/Logger.hpp"
 
@@ -9,10 +9,8 @@ namespace precice {
 namespace utils {
 
 /// Utility class for managing Master-Slave operations.
-class MasterSlave
-{
+class MasterSlave {
 public:
-
   static int _rank;
 
   /// Number of ranks. This includes ranks from both participants, e.g. minimal size is 2.
@@ -33,34 +31,32 @@ public:
   static void configure(int rank, int size);
 
   /// The l2 norm of a vector is calculated on distributed data.
-  static double l2norm(const Eigen::VectorXd& vec);
+  static double l2norm(const Eigen::VectorXd &vec);
 
   // The dot product of 2 vectors is calculated on distributed data.
-  static double dot(const Eigen::VectorXd& vec1, const Eigen::VectorXd& vec2);
+  static double dot(const Eigen::VectorXd &vec1, const Eigen::VectorXd &vec2);
 
   static void reset();
 
-  static void reduceSum(double* sendData, double* rcvData, int size);
+  static void reduceSum(double *sendData, double *rcvData, int size);
 
-  static void reduceSum(int& sendData, int& rcvData, int size);
+  static void reduceSum(int &sendData, int &rcvData, int size);
 
-  static void allreduceSum(double* sendData, double* rcvData, int size);
+  static void allreduceSum(double *sendData, double *rcvData, int size);
 
-  static void allreduceSum(double& sendData, double& rcvData, int size);
+  static void allreduceSum(double &sendData, double &rcvData, int size);
 
-  static void allreduceSum(int& sendData, int& rcvData, int size);
+  static void allreduceSum(int &sendData, int &rcvData, int size);
 
-  static void broadcast(bool& value);
+  static void broadcast(bool &value);
 
-  static void broadcast(double& value);
-  
-  static void broadcast(double* values, int size);
+  static void broadcast(double &value);
+
+  static void broadcast(double *values, int size);
 
 private:
-
   static logging::Logger _log;
-
 };
 
-
-}} // namespace precice, utils
+} // namespace utils
+} // namespace precice

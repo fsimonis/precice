@@ -17,43 +17,42 @@ using namespace partition;
 BOOST_AUTO_TEST_SUITE(PartitionTests)
 BOOST_AUTO_TEST_SUITE(ProvidedPartitionTests)
 
-void setupParallelEnvironment(m2n::PtrM2N m2n)
-{
+void setupParallelEnvironment(m2n::PtrM2N m2n) {
   assertion(utils::Parallel::getCommunicatorSize() == 4);
 
   com::PtrCommunication masterSlaveCom = com::PtrCommunication(new com::MPIDirectCommunication());
-  utils::MasterSlave::_communication   = masterSlaveCom;
+  utils::MasterSlave::_communication = masterSlaveCom;
 
   utils::Parallel::synchronizeProcesses();
 
   if (utils::Parallel::getProcessRank() == 0) { //NASTIN
     utils::Parallel::splitCommunicator("Fluid");
     m2n->acceptMasterConnection("Fluid", "SolidMaster");
-    utils::MasterSlave::_slaveMode  = false;
+    utils::MasterSlave::_slaveMode = false;
     utils::MasterSlave::_masterMode = false;
   } else if (utils::Parallel::getProcessRank() == 1) { //Master
     utils::Parallel::splitCommunicator("SolidMaster");
     m2n->requestMasterConnection("Fluid", "SolidMaster");
-    utils::MasterSlave::_rank       = 0;
-    utils::MasterSlave::_size       = 3;
-    utils::MasterSlave::_slaveMode  = false;
+    utils::MasterSlave::_rank = 0;
+    utils::MasterSlave::_size = 3;
+    utils::MasterSlave::_slaveMode = false;
     utils::MasterSlave::_masterMode = true;
   } else if (utils::Parallel::getProcessRank() == 2) { //Slave1
     utils::Parallel::splitCommunicator("SolidSlaves");
-    utils::MasterSlave::_rank       = 1;
-    utils::MasterSlave::_size       = 3;
-    utils::MasterSlave::_slaveMode  = true;
+    utils::MasterSlave::_rank = 1;
+    utils::MasterSlave::_size = 3;
+    utils::MasterSlave::_slaveMode = true;
     utils::MasterSlave::_masterMode = false;
   } else if (utils::Parallel::getProcessRank() == 3) { //Slave2
     utils::Parallel::splitCommunicator("SolidSlaves");
-    utils::MasterSlave::_rank       = 2;
-    utils::MasterSlave::_size       = 3;
-    utils::MasterSlave::_slaveMode  = true;
+    utils::MasterSlave::_rank = 2;
+    utils::MasterSlave::_size = 3;
+    utils::MasterSlave::_slaveMode = true;
     utils::MasterSlave::_masterMode = false;
   }
 
-  if(utils::Parallel::getProcessRank() == 1){//Master
-    masterSlaveCom->acceptConnection ( "SolidMaster", "SolidSlaves", utils::Parallel::getProcessRank());
+  if (utils::Parallel::getProcessRank() == 1) { //Master
+    masterSlaveCom->acceptConnection("SolidMaster", "SolidSlaves", utils::Parallel::getProcessRank());
     masterSlaveCom->setRankOffset(1);
   } else if (utils::Parallel::getProcessRank() == 2) { //Slave1
     masterSlaveCom->requestConnection("SolidMaster", "SolidSlaves", 0, 2);
@@ -62,8 +61,7 @@ void setupParallelEnvironment(m2n::PtrM2N m2n)
   }
 }
 
-void tearDownParallelEnvironment()
-{
+void tearDownParallelEnvironment() {
   utils::MasterSlave::_communication = nullptr;
   utils::MasterSlave::reset();
   utils::Parallel::synchronizeProcesses();
@@ -73,8 +71,7 @@ void tearDownParallelEnvironment()
   utils::Parallel::setGlobalCommunicator(utils::Parallel::getCommunicatorWorld());
 }
 
-BOOST_AUTO_TEST_CASE(TestGatherAndCommunicate2D, *testing::OnSize(4))
-{
+BOOST_AUTO_TEST_CASE(TestGatherAndCommunicate2D, *testing::OnSize(4)) {
   com::PtrCommunication participantCom =
       com::PtrCommunication(new com::MPIDirectCommunication());
   m2n::DistributedComFactory::SharedPointer distrFactory = m2n::DistributedComFactory::SharedPointer(
@@ -83,7 +80,7 @@ BOOST_AUTO_TEST_CASE(TestGatherAndCommunicate2D, *testing::OnSize(4))
 
   setupParallelEnvironment(m2n);
 
-  int  dimensions  = 2;
+  int dimensions = 2;
   bool flipNormals = false;
 
   if (utils::Parallel::getProcessRank() == 0) { //NASTIN
@@ -127,7 +124,7 @@ BOOST_AUTO_TEST_CASE(TestGatherAndCommunicate2D, *testing::OnSize(4))
       pSolidzMesh->createEdge(v5, v6);
     }
 
-    bool              hasToSend = true;
+    bool hasToSend = true;
     ProvidedPartition part(pSolidzMesh, hasToSend);
     part.setM2N(m2n);
     part.communicate();
@@ -151,16 +148,15 @@ BOOST_AUTO_TEST_CASE(TestGatherAndCommunicate2D, *testing::OnSize(4))
   tearDownParallelEnvironment();
 }
 
-BOOST_AUTO_TEST_CASE(TestGatherAndCommunicate3D, *testing::OnSize(4))
-{
-  com::PtrCommunication                     participantCom = com::PtrCommunication(new com::MPIDirectCommunication());
-  m2n::DistributedComFactory::SharedPointer distrFactory   = m2n::DistributedComFactory::SharedPointer(
+BOOST_AUTO_TEST_CASE(TestGatherAndCommunicate3D, *testing::OnSize(4)) {
+  com::PtrCommunication participantCom = com::PtrCommunication(new com::MPIDirectCommunication());
+  m2n::DistributedComFactory::SharedPointer distrFactory = m2n::DistributedComFactory::SharedPointer(
       new m2n::GatherScatterComFactory(participantCom));
   m2n::PtrM2N m2n = m2n::PtrM2N(new m2n::M2N(participantCom, distrFactory));
 
   setupParallelEnvironment(m2n);
 
-  int  dimensions  = 3;
+  int dimensions = 3;
   bool flipNormals = false;
 
   if (utils::Parallel::getProcessRank() == 0) { //NASTIN
@@ -200,17 +196,17 @@ BOOST_AUTO_TEST_CASE(TestGatherAndCommunicate3D, *testing::OnSize(4))
       mesh::Vertex &v5 = pSolidzMesh->createVertex(position);
       position << 0.0, 7.0, 0.4;
       mesh::Vertex &v6 = pSolidzMesh->createVertex(position);
-      mesh::Edge &  e1 = pSolidzMesh->createEdge(v3, v4);
-      mesh::Edge &  e2 = pSolidzMesh->createEdge(v4, v5);
-      mesh::Edge &  e3 = pSolidzMesh->createEdge(v5, v3);
-      mesh::Edge &  e4 = pSolidzMesh->createEdge(v3, v6);
-      mesh::Edge &  e5 = pSolidzMesh->createEdge(v6, v5);
+      mesh::Edge &e1 = pSolidzMesh->createEdge(v3, v4);
+      mesh::Edge &e2 = pSolidzMesh->createEdge(v4, v5);
+      mesh::Edge &e3 = pSolidzMesh->createEdge(v5, v3);
+      mesh::Edge &e4 = pSolidzMesh->createEdge(v3, v6);
+      mesh::Edge &e5 = pSolidzMesh->createEdge(v6, v5);
 
       pSolidzMesh->createTriangle(e1, e2, e3);
       pSolidzMesh->createTriangle(e4, e5, e3);
     }
 
-    bool              hasToSend = true;
+    bool hasToSend = true;
     ProvidedPartition part(pSolidzMesh, hasToSend);
     part.setM2N(m2n);
     part.communicate();
@@ -262,12 +258,11 @@ BOOST_AUTO_TEST_CASE(TestGatherAndCommunicate3D, *testing::OnSize(4))
 }
 
 BOOST_AUTO_TEST_CASE(TestOnlyDistribution2D,
-                     *testing::OnSize(4) * boost::unit_test::fixture<testing::MasterComFixture>())
-{
+                     *testing::OnSize(4) * boost::unit_test::fixture<testing::MasterComFixture>()) {
   // Create mesh object
-  std::string   meshName("MyMesh");
-  int           dim         = 2;
-  bool          flipNormals = false; // The normals of triangles, edges, vertices
+  std::string meshName("MyMesh");
+  int dim = 2;
+  bool flipNormals = false; // The normals of triangles, edges, vertices
   mesh::PtrMesh pMesh(new mesh::Mesh(meshName, dim, flipNormals));
 
   if (utils::Parallel::getProcessRank() == 0) { //Master
@@ -289,7 +284,7 @@ BOOST_AUTO_TEST_CASE(TestOnlyDistribution2D,
     pMesh->createVertex(position);
   }
 
-  bool              hasToSend = false;
+  bool hasToSend = false;
   ProvidedPartition part(pMesh, hasToSend);
   part.communicate();
   part.compute();

@@ -1,20 +1,15 @@
 #include "ResidualPreconditioner.hpp"
 
-namespace precice
-{
-namespace cplscheme
-{
-namespace impl
-{
+namespace precice {
+namespace cplscheme {
+namespace impl {
 
 ResidualPreconditioner::ResidualPreconditioner(int maxNonConstTimesteps)
-    : Preconditioner(maxNonConstTimesteps)
-{}
+    : Preconditioner(maxNonConstTimesteps) {}
 
 void ResidualPreconditioner::_update_(bool timestepComplete,
                                       const Eigen::VectorXd &oldValues,
-                                      const Eigen::VectorXd &res)
-{
+                                      const Eigen::VectorXd &res) {
   if (not timestepComplete) {
     std::vector<double> norms(_subVectorSizes.size(), 0.0);
 
@@ -32,7 +27,7 @@ void ResidualPreconditioner::_update_(bool timestepComplete,
     offset = 0;
     for (size_t k = 0; k < _subVectorSizes.size(); k++) {
       for (size_t i = 0; i < _subVectorSizes[k]; i++) {
-        _weights[i + offset]    = 1.0 / norms[k];
+        _weights[i + offset] = 1.0 / norms[k];
         _invWeights[i + offset] = norms[k];
       }
       offset += _subVectorSizes[k];
@@ -41,6 +36,6 @@ void ResidualPreconditioner::_update_(bool timestepComplete,
     _requireNewQR = true;
   }
 }
-}
-}
-} // namespace precice, cplscheme
+} // namespace impl
+} // namespace cplscheme
+} // namespace precice

@@ -1,13 +1,13 @@
 #pragma once
 
-#include <Eigen/Core>
-#include <deque>
-#include <fstream>
-#include <sstream>
 #include "PostProcessing.hpp"
 #include "Preconditioner.hpp"
 #include "QRFactorization.hpp"
 #include "logging/Logger.hpp"
+#include <Eigen/Core>
+#include <deque>
+#include <fstream>
+#include <sstream>
 
 /* ****************************************************************************
  * 
@@ -44,36 +44,30 @@
 
 // ----------------------------------------------------------- CLASS DEFINITION
 
-namespace precice
-{
-namespace cplscheme
-{
-namespace impl
-{
+namespace precice {
+namespace cplscheme {
+namespace impl {
 
 /**
  * @brief Base Class for quasi-Newton post processing schemes
  * 
  */
-class BaseQNPostProcessing : public PostProcessing
-{
+class BaseQNPostProcessing: public PostProcessing {
 public:
-
   BaseQNPostProcessing(
-      double            initialRelaxation,
-      bool              forceInitialRelaxation,
-      int               maxIterationsUsed,
-      int               timestepsReused,
-      int               filter,
-      double            singularityLimit,
-      std::vector<int>  dataIDs,
+      double initialRelaxation,
+      bool forceInitialRelaxation,
+      int maxIterationsUsed,
+      int timestepsReused,
+      int filter,
+      double singularityLimit,
+      std::vector<int> dataIDs,
       PtrPreconditioner preconditioner);
 
   /**
     * @brief Destructor, empty.
     */
-  virtual ~BaseQNPostProcessing()
-  {
+  virtual ~BaseQNPostProcessing() {
     // not necessary for user, only for developer, if needed, this should be configurable
     //     if (utils::MasterSlave::_masterMode || (not utils::MasterSlave::_masterMode && not utils::MasterSlave::_slaveMode)){
     //       _infostream.open("precice-postProcessingInfo.log", std::ios_base::out);
@@ -85,8 +79,7 @@ public:
   /**
     * @brief Returns all IQN involved data IDs.
     */
-  virtual std::vector<int> getDataIDs() const
-  {
+  virtual std::vector<int> getDataIDs() const {
     return _dataIDs;
   }
 
@@ -123,7 +116,8 @@ public:
     *        Information needed to measure the convergence.
     *        In case of manifold mapping it also returns the design specification
     *        for the surrogate model which is updated in every iteration.
-    */ /// @todo: change to call by ref when Eigen is used.
+    */
+  /// @todo: change to call by ref when Eigen is used.
   virtual std::map<int, Eigen::VectorXd> getDesignSpecification(DataMap &cplData);
 
   /**
@@ -234,7 +228,7 @@ protected:
 
   /// @brief write some debug/post processing info to file
   std::ostringstream _infostringstream;
-  std::fstream       _infostream;
+  std::fstream _infostream;
 
   /** @brief: computes number of cols in least squares system, i.e, number of cols in
     *  _matrixV, _matrixW, _qrV, etc..
@@ -309,6 +303,6 @@ private:
   /// Additional debugging info, is not important for computation:
   int _nbDelCols = 0;
 };
-}
-}
-} // namespace precice, cplscheme, impl
+} // namespace impl
+} // namespace cplscheme
+} // namespace precice

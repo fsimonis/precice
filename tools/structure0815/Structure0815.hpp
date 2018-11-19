@@ -2,9 +2,9 @@
 #define STRUCTURE0815_HPP_
 
 #include "Globals.hpp"
+#include "io/TXTTableWriter.hpp"
 #include "precice/SolverInterface.hpp"
 #include "utils/Dimensions.hpp"
-#include "io/TXTTableWriter.hpp"
 
 using Eigen::VectorXd;
 
@@ -26,22 +26,20 @@ using Eigen::VectorXd;
  * Statistical data is written each timestep into a file
  * "structure0815-statistics.txt".
  */
-class Structure0815
-{
+class Structure0815 {
 public:
-
   Structure0815(
-    int              dim,
-    double           density,
-    const VectorXd& gravity,
-    const VectorXd& vertices,
-    const Eigen::VectorXi faces );
+      int dim,
+      double density,
+      const VectorXd &gravity,
+      const VectorXd &vertices,
+      const Eigen::VectorXi faces);
 
   /// Only allows rotations around the point of fixture.
-  void fixPoint(const VectorXd& fixture);
+  void fixPoint(const VectorXd &fixture);
 
   /// Fixes translations in given directions.
-  void fixTranslations(const Eigen::Matrix<bool, Eigen::Dynamic, 1>& fixedDirections);
+  void fixTranslations(const Eigen::Matrix<bool, Eigen::Dynamic, 1> &fixedDirections);
 
   /**
    * @brief Sets the centerOfGravity and totalVolume manually.
@@ -50,18 +48,28 @@ public:
    * every node is visible from the origin.
    */
   void fixCharacteristics(
-    const VectorXd& centerOfGravity,
-    double           totalVolume);
+      const VectorXd &centerOfGravity,
+      double totalVolume);
 
-  VectorXd& forces() { return _forces; }
+  VectorXd &forces() {
+    return _forces;
+  }
 
-  VectorXd& displacements() { return _displacements; }
+  VectorXd &displacements() {
+    return _displacements;
+  }
 
-  VectorXd& velocities() { return _velocities; }
+  VectorXd &velocities() {
+    return _velocities;
+  }
 
-  VectorXd& displacementDeltas() { return _displacementDeltas; }
+  VectorXd &displacementDeltas() {
+    return _displacementDeltas;
+  }
 
-  VectorXd& velocityDeltas() { return _velocityDeltas; }
+  VectorXd &velocityDeltas() {
+    return _velocityDeltas;
+  }
 
   /// Performs an iteration from the last timestep.
   void iterate(double dt);
@@ -69,12 +77,15 @@ public:
   /// Overwrites old timestep values with the current iteration.
   void timestep(double dt);
 
-  const VectorXd& getCenterOfGravity() const { return _centerOfGravity; }
+  const VectorXd &getCenterOfGravity() const {
+    return _centerOfGravity;
+  }
 
-  double getMass() const { return _totalMass; }
+  double getMass() const {
+    return _totalMass;
+  }
 
 private:
-
   // String constants for statistics writer entries
   const std::string TIMESTEPS;
   const std::string TIME;
@@ -109,10 +120,10 @@ private:
    *
    * Does not store the values in the member variables.
    */
-  void computeCharacteristics (
-    VectorXd&  centerOfGravity,
-    double&    totalMass,
-    double&    totalVolume );
+  void computeCharacteristics(
+      VectorXd &centerOfGravity,
+      double &totalMass,
+      double &totalVolume);
 };
 
 #endif /* STRUCTURE0815_HPP_ */

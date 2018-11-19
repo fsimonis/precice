@@ -4,22 +4,17 @@
 #include "logging/Logger.hpp"
 #include "mesh/SharedPointer.hpp"
 
-namespace precice
-{
-namespace mesh
-{
+namespace precice {
+namespace mesh {
 class Edge;
 class Triangle;
 } // namespace mesh
 } // namespace precice
 
-namespace precice
-{
-namespace action
-{
+namespace precice {
+namespace action {
 
-class ScaleByAreaAction : public Action
-{
+class ScaleByAreaAction: public Action {
 public:
   enum Scaling {
     /// Divides the data by the area of neighboring edges/triangles.
@@ -35,10 +30,10 @@ public:
    * @param[in] scalingType Type of scaling to be performed.
    */
   ScaleByAreaAction(
-      Timing               timing,
-      int                  targetDataID,
+      Timing timing,
+      int targetDataID,
       const mesh::PtrMesh &mesh,
-      Scaling              scaling);
+      Scaling scaling);
 
   virtual ~ScaleByAreaAction() {}
 

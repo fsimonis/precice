@@ -3,32 +3,28 @@
 #include "mesh/Edge.hpp"
 #include "mesh/Mesh.hpp"
 
-namespace precice
-{
-namespace action
-{
+namespace precice {
+namespace action {
 
 ScaleByAreaAction::ScaleByAreaAction(
-    Timing               timing,
-    int                  targetDataID,
+    Timing timing,
+    int targetDataID,
     const mesh::PtrMesh &mesh,
-    Scaling              scaling)
+    Scaling scaling)
     : Action(timing, mesh),
       _targetData(mesh->data(targetDataID)),
-      _scaling(scaling)
-{
+      _scaling(scaling) {
 }
 
 void ScaleByAreaAction::performAction(
     double time,
     double dt,
     double computedPartFullDt,
-    double fullDt)
-{
+    double fullDt) {
   TRACE();
   CHECK(getMesh()->getDimensions() == 2, "Not implemented for dimension != 2!");
-  auto &          targetValues = _targetData->values();
-  Eigen::VectorXd areas        = Eigen::VectorXd::Zero(getMesh()->vertices().size());
+  auto &targetValues = _targetData->values();
+  Eigen::VectorXd areas = Eigen::VectorXd::Zero(getMesh()->vertices().size());
   for (mesh::Edge &edge : getMesh()->edges()) {
     areas[edge.vertex(0).getID()] += edge.getEnclosingRadius();
     areas[edge.vertex(1).getID()] += edge.getEnclosingRadius();

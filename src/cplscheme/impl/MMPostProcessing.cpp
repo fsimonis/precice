@@ -1,5 +1,4 @@
 #include "MMPostProcessing.hpp"
-#include <Eigen/Dense>
 #include "QRFactorization.hpp"
 #include "com/Communication.hpp"
 #include "cplscheme/CouplingData.hpp"
@@ -8,14 +7,12 @@
 #include "utils/EigenHelperFunctions.hpp"
 #include "utils/Helpers.hpp"
 #include "utils/MasterSlave.hpp"
+#include <Eigen/Dense>
 //#include "utils/NumericalCompare.hpp"
 
-namespace precice
-{
-namespace cplscheme
-{
-namespace impl
-{
+namespace precice {
+namespace cplscheme {
+namespace impl {
 
 /* ----------------------------------------------------------------------------
  *     Constructor
@@ -23,13 +20,13 @@ namespace impl
  */
 MMPostProcessing::MMPostProcessing(
     impl::PtrPostProcessing coarseModelOptimization,
-    int                     maxIterationsUsed,
-    int                     timestepsReused,
-    int                     filter,
-    double                  singularityLimit,
-    bool                    estimateJacobian,
-    std::vector<int>        fineDataIDs,
-    std::vector<int>        coarseDataIDs,
+    int maxIterationsUsed,
+    int timestepsReused,
+    int filter,
+    double singularityLimit,
+    bool estimateJacobian,
+    std::vector<int> fineDataIDs,
+    std::vector<int> coarseDataIDs,
     //std::map<int, double> scalings,
     PtrPreconditioner preconditioner)
     : PostProcessing(),
@@ -44,8 +41,7 @@ MMPostProcessing::MMPostProcessing(
       _coarseDataIDs(coarseDataIDs),
       _estimateJacobian(estimateJacobian),
       _maxIterCoarseModelOpt(maxIterationsUsed),
-      _filter(filter)
-{
+      _filter(filter) {
   CHECK(_maxIterationsUsed > 0,
         "Maximal iterations used for MM post-processing has to be larger than zero!");
   CHECK(_maxIterCoarseModelOpt > 0,
@@ -61,11 +57,10 @@ MMPostProcessing::MMPostProcessing(
  * @brief: Initializes all the needed variables and data
  *  ---------------------------------------------------------------------------------------------
  */
-void MMPostProcessing::initialize(DataMap &cplData)
-{
+void MMPostProcessing::initialize(DataMap &cplData) {
   TRACE(cplData.size());
-  size_t              entries       = 0;
-  size_t              coarseEntries = 0;
+  size_t entries = 0;
+  size_t coarseEntries = 0;
   std::vector<size_t> subVectorSizes; //needed for preconditioner
 
   assertion(_fineDataIDs.size() == _coarseDataIDs.size(), _fineDataIDs.size(), _coarseDataIDs.size());
@@ -103,17 +98,17 @@ void MMPostProcessing::initialize(DataMap &cplData)
 
   _matrixCols.push_front(0);
   _firstIteration = true;
-  _firstTimeStep  = true;
+  _firstTimeStep = true;
 
   assertion(_coarseOldResiduals.size() == 0);
   assertion(_fineOldResiduals.size() == 0);
   _coarseOldResiduals = Eigen::VectorXd::Zero(entries);
-  _fineOldResiduals   = Eigen::VectorXd::Zero(entries);
-  _fineResiduals      = Eigen::VectorXd::Zero(entries);
-  _coarseResiduals    = Eigen::VectorXd::Zero(entries);
-  _outputFineModel    = Eigen::VectorXd::Zero(entries);
-  _outputCoarseModel  = Eigen::VectorXd::Zero(entries);
-  _input_Xstar        = Eigen::VectorXd::Zero(entries);
+  _fineOldResiduals = Eigen::VectorXd::Zero(entries);
+  _fineResiduals = Eigen::VectorXd::Zero(entries);
+  _coarseResiduals = Eigen::VectorXd::Zero(entries);
+  _outputFineModel = Eigen::VectorXd::Zero(entries);
+  _outputCoarseModel = Eigen::VectorXd::Zero(entries);
+  _input_Xstar = Eigen::VectorXd::Zero(entries);
 
   // if design specifiaction not initialized yet
   if (not(_designSpecification.size() > 0)) {
@@ -190,13 +185,12 @@ void MMPostProcessing::initialize(DataMap &cplData)
  *  ---------------------------------------------------------------------------------------------
  */
 void MMPostProcessing::registerSolutionCoarseModelOptimization(
-    DataMap &cplData)
-{
+    DataMap &cplData) {
   TRACE();
   // extract new solution x_star from coarse model optimization problem from coarse cplData
   int off = 0;
   for (int id : _coarseDataIDs) {
-    int   size       = cplData[id]->values->size();
+    int size = cplData[id]->values->size();
     auto &valuesPart = *(cplData[id]->values);
     for (int i = 0; i < size; i++) {
       // the coarse model optimization reverts its own scaling, hence valuesPart is not scaled, can be copied.
@@ -209,7 +203,7 @@ void MMPostProcessing::registerSolutionCoarseModelOptimization(
   // to fine model evaluation.
   off = 0;
   for (int id : _fineDataIDs) {
-    int   size       = cplData[id]->values->size();
+    int size = cplData[id]->values->size();
     auto &valuesPart = *(cplData[id]->values);
     for (int i = 0; i < size; i++) {
       // write new coarse model solution back as input data for the fine model evaluation
@@ -231,8 +225,7 @@ void MMPostProcessing::registerSolutionCoarseModelOptimization(
  *  ---------------------------------------------------------------------------------------------
  */
 void MMPostProcessing::setDesignSpecification(
-    Eigen::VectorXd &q)
-{
+    Eigen::VectorXd &q) {
   TRACE();
   assertion(q.size() == _fineResiduals.size(), q.size(), _fineResiduals.size());
   _designSpecification = (q.norm() <= 1.0e-15) ? Eigen::VectorXd::Zero(_fineResiduals.size()) : q;
@@ -250,15 +243,15 @@ void MMPostProcessing::setDesignSpecification(
  *         manifold mapping cycle. This information is needed for convergence measurements in the
  *         coupling scheme.
  *  ---------------------------------------------------------------------------------------------
- */ /// @todo: change to call by ref when Eigen is used.
+ */
+/// @todo: change to call by ref when Eigen is used.
 std::map<int, Eigen::VectorXd> MMPostProcessing::getDesignSpecification(
-    DataMap &cplData)
-{
+    DataMap &cplData) {
   std::map<int, Eigen::VectorXd> designSpecifications;
-  int                            off = 0;
+  int off = 0;
   for (int id : _fineDataIDs) {
-    int             size = cplData[id]->values->size();
-    Eigen::VectorXd q    = Eigen::VectorXd::Zero(size);
+    int size = cplData[id]->values->size();
+    Eigen::VectorXd q = Eigen::VectorXd::Zero(size);
     for (int i = 0; i < size; i++) {
       q(i) = _designSpecification(i + off);
     }
@@ -268,8 +261,8 @@ std::map<int, Eigen::VectorXd> MMPostProcessing::getDesignSpecification(
   }
   off = 0;
   for (int id : _coarseDataIDs) {
-    int             size = cplData[id]->values->size();
-    Eigen::VectorXd q    = Eigen::VectorXd::Zero(size);
+    int size = cplData[id]->values->size();
+    Eigen::VectorXd q = Eigen::VectorXd::Zero(size);
     for (int i = 0; i < size; i++) {
       q(i) = _coarseModel_designSpecification(i + off);
     }
@@ -288,14 +281,13 @@ std::map<int, Eigen::VectorXd> MMPostProcessing::getDesignSpecification(
  *  ---------------------------------------------------------------------------------------------
  */
 void MMPostProcessing::updateDifferenceMatrices(
-    DataMap &cplData)
-{
+    DataMap &cplData) {
   TRACE();
 
   /**
    * Compute current residual: vertex-data - oldData
    */
-  _fineResiduals   = _outputFineModel - _input_Xstar;
+  _fineResiduals = _outputFineModel - _input_Xstar;
   _coarseResiduals = _outputCoarseModel - _input_Xstar;
 
   /**
@@ -314,7 +306,7 @@ void MMPostProcessing::updateDifferenceMatrices(
     Eigen::VectorXd colC = _coarseResiduals - _coarseOldResiduals;
 
     bool columnLimitReached = getLSSystemCols() == _maxIterationsUsed;
-    bool overdetermined     = getLSSystemCols() <= getLSSystemRows();
+    bool overdetermined = getLSSystemCols() <= getLSSystemRows();
     if (not columnLimitReached && overdetermined) {
 
       utils::appendFront(_matrixF, colF);
@@ -336,7 +328,7 @@ void MMPostProcessing::updateDifferenceMatrices(
   /**
    *  Store residuals
    */
-  _fineOldResiduals   = _fineResiduals;
+  _fineOldResiduals = _fineResiduals;
   _coarseOldResiduals = _coarseResiduals;
 }
 
@@ -348,8 +340,7 @@ void MMPostProcessing::updateDifferenceMatrices(
  *  ---------------------------------------------------------------------------------------------
  */
 void MMPostProcessing::performPostProcessing(
-    DataMap &cplData)
-{
+    DataMap &cplData) {
   TRACE(_dataIDs.size(), cplData.size());
 
   //assertion(_fineDataIDs.size() == _scalings.size(), _fineDataIDs.size(), _scalings.size());
@@ -514,15 +505,14 @@ void MMPostProcessing::performPostProcessing(
  *     	   i. e., q_k = c(x_k) - T_k * (f(x_k) - q), q = 0 is the fine model design specification
  *  ---------------------------------------------------------------------------------------------
  */
-void MMPostProcessing::computeCoarseModelDesignSpecifiaction()
-{
+void MMPostProcessing::computeCoarseModelDesignSpecifiaction() {
   TRACE();
 
   /** update design specification
    *  alpha = (f(x) - q),
    *  q_k   = c(x)
    */
-  Eigen::VectorXd alpha            = _fineResiduals - _designSpecification;
+  Eigen::VectorXd alpha = _fineResiduals - _designSpecification;
   _coarseModel_designSpecification = _coarseResiduals;
 
   // if residual differences are available for fine and coarse model
@@ -541,7 +531,7 @@ void MMPostProcessing::computeCoarseModelDesignSpecifiaction()
 
       // Calculate singular value decomposition with Eigen
       Eigen::JacobiSVD<Eigen::MatrixXd> svd(_matrixF, Eigen::ComputeThinU | Eigen::ComputeThinV);
-      Eigen::VectorXd                   singularValues = svd.singularValues();
+      Eigen::VectorXd singularValues = svd.singularValues();
 
       for (int i = 0; i < singularValues.rows(); i++) {
         if (std::abs(singularValues(i)) <= _singularityLimit) {
@@ -617,17 +607,16 @@ void MMPostProcessing::computeCoarseModelDesignSpecifiaction()
 }
 
 void MMPostProcessing::concatenateCouplingData(
-    DataMap &cplData)
-{
+    DataMap &cplData) {
   TRACE();
 
   int offset = 0;
-  int k      = 0;
+  int k = 0;
   assertion(_fineDataIDs.size() == _coarseDataIDs.size(), _fineDataIDs.size(), _coarseDataIDs.size());
   for (int id : _fineDataIDs) {
-    int         size            = cplData[id]->values->size();
-    auto &      values          = *cplData[id]->values;
-    auto &      coarseValues    = *cplData[_coarseDataIDs.at(k)]->values;
+    int size = cplData[id]->values->size();
+    auto &values = *cplData[id]->values;
+    auto &coarseValues = *cplData[_coarseDataIDs.at(k)]->values;
     const auto &coarseOldValues = cplData[_coarseDataIDs.at(k)]->oldValues.col(0);
     assertion(values.size() == coarseValues.size(), values.size(), coarseValues.size());
     assertion(values.size() == coarseOldValues.size(), values.size(), coarseOldValues.size());
@@ -636,7 +625,7 @@ void MMPostProcessing::concatenateCouplingData(
       // ignore input from fine model as it must be exactly the
       // same as the input for the coarse model, if the fine model is evaluated
       _outputCoarseModel[i + offset] = coarseValues[i];
-      _input_Xstar[i + offset]       = coarseOldValues[i];
+      _input_Xstar[i + offset] = coarseOldValues[i];
     }
     offset += size;
     k++;
@@ -648,8 +637,7 @@ void MMPostProcessing::concatenateCouplingData(
  *   @brief indicates whether the design specification has been set and is valid
  *  -----------------------------------------------------------------------------------
  */
-bool MMPostProcessing::isSet(Eigen::VectorXd &designSpec)
-{
+bool MMPostProcessing::isSet(Eigen::VectorXd &designSpec) {
   // design specification is considered to be set and active if
   // 1. its size is larger then zero (i. e., it must be equal to the number of unknowns)
   // 2. its l2-norm is larger then 1.0e-15
@@ -668,8 +656,7 @@ bool MMPostProcessing::isSet(Eigen::VectorXd &designSpec)
  *  ---------------------------------------------------------------------------------------------
  */
 void MMPostProcessing::iterationsConverged(
-    DataMap &cplData)
-{
+    DataMap &cplData) {
   TRACE();
 
   its = 0;
@@ -755,8 +742,7 @@ void MMPostProcessing::iterationsConverged(
  *  ---------------------------------------------------------------------------------------------
  */
 void MMPostProcessing::removeMatrixColumn(
-    int columnIndex)
-{
+    int columnIndex) {
   TRACE(columnIndex, _matrixF.cols());
 
   // debugging information, can be removed
@@ -768,7 +754,7 @@ void MMPostProcessing::removeMatrixColumn(
 
   // Reduce column count
   std::deque<int>::iterator iter = _matrixCols.begin();
-  int                       cols = 0;
+  int cols = 0;
   while (iter != _matrixCols.end()) {
     cols += *iter;
     if (cols > columnIndex) {
@@ -784,22 +770,18 @@ void MMPostProcessing::removeMatrixColumn(
 }
 
 void MMPostProcessing::exportState(
-    io::TXTWriter &writer)
-{
+    io::TXTWriter &writer) {
 }
 
 void MMPostProcessing::importState(
-    io::TXTReader &reader)
-{
+    io::TXTReader &reader) {
 }
 
-int MMPostProcessing::getDeletedColumns()
-{
+int MMPostProcessing::getDeletedColumns() {
   return deletedColumns;
 }
 
-int MMPostProcessing::getLSSystemCols()
-{
+int MMPostProcessing::getLSSystemCols() {
   int cols = 0;
   for (int col : _matrixCols) {
     cols += col;
@@ -812,14 +794,13 @@ int MMPostProcessing::getLSSystemCols()
   return cols;
 }
 
-int MMPostProcessing::getLSSystemRows()
-{
+int MMPostProcessing::getLSSystemRows() {
   if (utils::MasterSlave::_masterMode || utils::MasterSlave::_slaveMode) {
     return _dimOffsets.back();
   }
   return _fineResiduals.size();
   //return _matrixF.rows();
 }
-}
-}
-} // namespace precice, cplscheme, impl
+} // namespace impl
+} // namespace cplscheme
+} // namespace precice

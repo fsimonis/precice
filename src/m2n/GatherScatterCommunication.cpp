@@ -3,35 +3,29 @@
 #include "mesh/Mesh.hpp"
 #include "utils/MasterSlave.hpp"
 
-namespace precice
-{
-namespace m2n
-{
+namespace precice {
+namespace m2n {
 GatherScatterCommunication::GatherScatterCommunication(
     com::PtrCommunication com,
-    mesh::PtrMesh         mesh)
+    mesh::PtrMesh mesh)
     : DistributedCommunication(mesh),
       _com(com),
-      _isConnected(false)
-{
+      _isConnected(false) {
 }
 
-GatherScatterCommunication::~GatherScatterCommunication()
-{
+GatherScatterCommunication::~GatherScatterCommunication() {
   if (isConnected()) {
     closeConnection();
   }
 }
 
-bool GatherScatterCommunication::isConnected()
-{
+bool GatherScatterCommunication::isConnected() {
   return _isConnected;
 }
 
 void GatherScatterCommunication::acceptConnection(
     const std::string &acceptorName,
-    const std::string &requesterName)
-{
+    const std::string &requesterName) {
   TRACE(acceptorName, requesterName);
   assertion(utils::MasterSlave::_slaveMode || _com->isConnected());
   _isConnected = true;
@@ -39,15 +33,13 @@ void GatherScatterCommunication::acceptConnection(
 
 void GatherScatterCommunication::requestConnection(
     const std::string &acceptorName,
-    const std::string &requesterName)
-{
+    const std::string &requesterName) {
   TRACE(acceptorName, requesterName);
   assertion(utils::MasterSlave::_slaveMode || _com->isConnected());
   _isConnected = true;
 }
 
-void GatherScatterCommunication::closeConnection()
-{
+void GatherScatterCommunication::closeConnection() {
   TRACE();
   assertion(utils::MasterSlave::_slaveMode || not _com->isConnected());
   _isConnected = false;
@@ -55,9 +47,8 @@ void GatherScatterCommunication::closeConnection()
 
 void GatherScatterCommunication::send(
     double *itemsToSend,
-    size_t  size,
-    int     valueDimension)
-{
+    size_t size,
+    int valueDimension) {
   TRACE(size);
   assertion(utils::MasterSlave::_slaveMode || utils::MasterSlave::_masterMode);
   assertion(utils::MasterSlave::_communication.get() != nullptr);
@@ -72,8 +63,8 @@ void GatherScatterCommunication::send(
     }
   } else { // Master
     assertion(utils::MasterSlave::_rank == 0);
-    mesh::Mesh::VertexDistribution  &vertexDistribution = _mesh->getVertexDistribution();
-    int                              globalSize         = _mesh->getGlobalNumberOfVertices() * valueDimension;
+    mesh::Mesh::VertexDistribution &vertexDistribution = _mesh->getVertexDistribution();
+    int globalSize = _mesh->getGlobalNumberOfVertices() * valueDimension;
     DEBUG("Global Size = " << globalSize);
     std::vector<double> globalItemsToSend(globalSize);
 
@@ -106,9 +97,8 @@ void GatherScatterCommunication::send(
 
 void GatherScatterCommunication::receive(
     double *itemsToReceive,
-    size_t  size,
-    int     valueDimension)
-{
+    size_t size,
+    int valueDimension) {
   TRACE(size);
   assertion(utils::MasterSlave::_slaveMode || utils::MasterSlave::_masterMode);
   assertion(utils::MasterSlave::_communication.get() != nullptr);

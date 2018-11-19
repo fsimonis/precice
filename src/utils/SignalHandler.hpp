@@ -6,12 +6,10 @@
 
 #include <boost/filesystem.hpp>
 
-
 namespace precice {
 namespace utils {
 
-void terminationSignalHandler(int signal)
-{
+void terminationSignalHandler(int signal) {
   // Print the events statistics
   precice::utils::EventRegistry::instance().signal_handler(signal);
 
@@ -30,5 +28,5 @@ void terminationSignalHandler(int signal)
 
   std::exit(-1);
 }
-}
-}
+} // namespace utils
+} // namespace precice

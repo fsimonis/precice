@@ -1,8 +1,5 @@
 #pragma once
 
-#include <string>
-#include <tuple>
-#include <vector>
 #include "cplscheme/Constants.hpp"
 #include "cplscheme/CouplingScheme.hpp"
 #include "cplscheme/MultiCouplingScheme.hpp"
@@ -14,37 +11,32 @@
 #include "precice/config/SharedPointer.hpp"
 #include "precice/impl/MeshContext.hpp"
 #include "xml/XMLTag.hpp"
+#include <string>
+#include <tuple>
+#include <vector>
 
-namespace precice
-{
-namespace cplscheme
-{
+namespace precice {
+namespace cplscheme {
 class CompositionalCouplingScheme;
 class BaseCouplingScheme;
-}
-}
+} // namespace cplscheme
+} // namespace precice
 
 // Forward declaration to friend the boost test struct
-namespace CplSchemeTests
-{
-namespace ParallelImplicitCouplingSchemeTests
-{
+namespace CplSchemeTests {
+namespace ParallelImplicitCouplingSchemeTests {
 struct testParseConfigurationWithRelaxation;
 }
-namespace SerialImplicitCouplingSchemeTests
-{
+namespace SerialImplicitCouplingSchemeTests {
 struct testParseConfigurationWithRelaxation;
 }
-}
+} // namespace CplSchemeTests
 
 // ----------------------------------------------------------- CLASS DEFINITION
-namespace precice
-{
-namespace cplscheme
-{
+namespace precice {
+namespace cplscheme {
 /// Configuration for coupling schemes.
-class CouplingSchemeConfiguration : public xml::XMLTag::Listener
-{
+class CouplingSchemeConfiguration: public xml::XMLTag::Listener {
 public:
   /**
    * @brief Constructor.
@@ -54,8 +46,8 @@ public:
    * @param[in] comConfig For checking if a communication between participants to be coupled is defined.
    */
   CouplingSchemeConfiguration(
-      xml::XMLTag &                               parent,
-      const mesh::PtrMeshConfiguration &          meshConfig,
+      xml::XMLTag &parent,
+      const mesh::PtrMeshConfiguration &meshConfig,
       const m2n::M2NConfiguration::SharedPointer &m2nConfig);
 
   /// Destructor, empty.
@@ -80,7 +72,6 @@ public:
   void addCouplingScheme(PtrCouplingScheme cplScheme, const std::string &participantName);
 
 private:
-
   mutable logging::Logger _log{"cplscheme::CouplingSchemeConfiguration"};
 
   const std::string TAG;
@@ -126,23 +117,23 @@ private:
   const std::string VALUE_FIRST_PARTICIPANT;
 
   struct Config {
-    std::string                   type;
-    std::string                   name;
-    std::vector<std::string>      participants;
-    std::string                   controller;
-    bool                          setController = false;
-    double                        maxTime = CouplingScheme::UNDEFINED_TIME;
-    int                           maxTimesteps = CouplingScheme::UNDEFINED_TIMESTEPS;
-    double                        timestepLength = CouplingScheme::UNDEFINED_TIMESTEP_LENGTH;
-    int                           validDigits = 16;
+    std::string type;
+    std::string name;
+    std::vector<std::string> participants;
+    std::string controller;
+    bool setController = false;
+    double maxTime = CouplingScheme::UNDEFINED_TIME;
+    int maxTimesteps = CouplingScheme::UNDEFINED_TIMESTEPS;
+    double timestepLength = CouplingScheme::UNDEFINED_TIMESTEP_LENGTH;
+    int validDigits = 16;
     constants::TimesteppingMethod dtMethod = constants::FIXED_DT;
     /// Tuples of exchange data, mesh, and participant name.
     typedef std::tuple<mesh::PtrData, mesh::PtrMesh, std::string, std::string, bool> Exchange;
-    std::vector<Exchange>                                                            exchanges;
+    std::vector<Exchange> exchanges;
     /// Tuples of data ID, mesh ID, and convergence measure.
     std::vector<std::tuple<int, bool, std::string, int, impl::PtrConvergenceMeasure>> convMeasures;
-    int                                                                               maxIterations = -1;
-    int                                                                               extrapolationOrder = 0;
+    int maxIterations = -1;
+    int extrapolationOrder = 0;
 
   } _config;
 
@@ -187,30 +178,30 @@ private:
   void addAbsoluteConvergenceMeasure(
       const std::string &dataName,
       const std::string &meshName,
-      double             limit,
-      bool               suffices,
-      int                level);
+      double limit,
+      bool suffices,
+      int level);
 
   void addRelativeConvergenceMeasure(
       const std::string &dataName,
       const std::string &meshName,
-      double             limit,
-      bool               suffices,
-      int                level);
+      double limit,
+      bool suffices,
+      int level);
 
   void addResidualRelativeConvergenceMeasure(
       const std::string &dataName,
       const std::string &meshName,
-      double             limit,
-      bool               suffices,
-      int                level);
+      double limit,
+      bool suffices,
+      int level);
 
   void addMinIterationConvergenceMeasure(
       const std::string &dataName,
       const std::string &meshName,
-      int                minIterations,
-      bool               suffices,
-      int                level);
+      int minIterations,
+      bool suffices,
+      int level);
 
   mesh::PtrData getData(
       const std::string &dataName,
@@ -241,7 +232,7 @@ private:
   /// Adds configured exchange data to be sent or received to scheme.
   void addDataToBeExchanged(
       BaseCouplingScheme &scheme,
-      const std::string & accessor) const;
+      const std::string &accessor) const;
 
   /**
    * @brief Adds configured exchange data to be sent or received to scheme.
@@ -249,16 +240,15 @@ private:
    */
   void addMultiDataToBeExchanged(
       MultiCouplingScheme &scheme,
-      const std::string &  accessor) const;
+      const std::string &accessor) const;
 
   void checkIfDataIsExchanged(
       int dataID) const;
 
   bool checkIfDataIsCoarse(int id) const;
 
-  friend struct CplSchemeTests::ParallelImplicitCouplingSchemeTests::testParseConfigurationWithRelaxation;  // For whitebox tests
-  friend struct CplSchemeTests::SerialImplicitCouplingSchemeTests::testParseConfigurationWithRelaxation;  // For whitebox tests
-
+  friend struct CplSchemeTests::ParallelImplicitCouplingSchemeTests::testParseConfigurationWithRelaxation; // For whitebox tests
+  friend struct CplSchemeTests::SerialImplicitCouplingSchemeTests::testParseConfigurationWithRelaxation; // For whitebox tests
 };
-}
-} // namespace precice, cplscheme
+} // namespace cplscheme
+} // namespace precice

@@ -1,16 +1,13 @@
 #pragma once
 
-#include <Eigen/Core>
-#include <fstream>
 #include "logging/Logger.hpp"
 #include "mesh/SharedPointer.hpp"
+#include <Eigen/Core>
+#include <fstream>
 
-namespace precice
-{
-namespace cplscheme
-{
-namespace impl
-{
+namespace precice {
+namespace cplscheme {
+namespace impl {
 
 /**
  * @brief Class that provides functionality for a dynamic QR-decomposition, that can be updated 
@@ -20,18 +17,17 @@ namespace impl
  * The Interface provides fnctions such as insertColumn, deleteColumn at arbitrary position an push or pull 
  * column at front or back, resp. 
  */
-class QRFactorization
-{
+class QRFactorization {
 public:
   /**
    * @brief Constructor.
    * @param theta - singularity limit for reothogonalization ||v_orth|| / ||v|| <= 1/theta
    */
   QRFactorization(
-      int    filter = 0,
-      double omega  = 0,
-      double theta  = 1. / 0.7,
-      double sigma  = std::numeric_limits<double>::min());
+      int filter = 0,
+      double omega = 0,
+      double theta = 1. / 0.7,
+      double sigma = std::numeric_limits<double>::min());
 
   /**
    * @brief Constructor.
@@ -39,10 +35,10 @@ public:
    */
   QRFactorization(
       Eigen::MatrixXd A,
-      int             filter,
-      double          omega = 0,
-      double          theta = 1. / 0.7,
-      double          sigma = std::numeric_limits<double>::min());
+      int filter,
+      double omega = 0,
+      double theta = 1. / 0.7,
+      double sigma = std::numeric_limits<double>::min());
 
   /**
    * @brief Constructor.
@@ -51,12 +47,12 @@ public:
   QRFactorization(
       Eigen::MatrixXd Q,
       Eigen::MatrixXd R,
-      int             rows,
-      int             cols,
-      int             filter,
-      double          omega = 0,
-      double          theta = 1. / 0.7,
-      double          sigma = std::numeric_limits<double>::min());
+      int rows,
+      int cols,
+      int filter,
+      double omega = 0,
+      double theta = 1. / 0.7,
+      double sigma = std::numeric_limits<double>::min());
 
   /**
     * @brief Destructor, empty.
@@ -74,21 +70,21 @@ public:
   void reset(
       Eigen::MatrixXd const &Q,
       Eigen::MatrixXd const &R,
-      int                    rows,
-      int                    cols,
-      double                 omega = 0,
-      double                 theta = 1. / 0.7,
-      double                 sigma = std::numeric_limits<double>::min());
+      int rows,
+      int cols,
+      double omega = 0,
+      double theta = 1. / 0.7,
+      double sigma = std::numeric_limits<double>::min());
 
   /**
     * @brief resets the QR factorization to be the factorization of A = QR
     */
   void reset(
       Eigen::MatrixXd const &A,
-      int                    globalRows,
-      double                 omega = 0,
-      double                 theta = 1. / 0.7,
-      double                 sigma = std::numeric_limits<double>::min());
+      int globalRows,
+      double omega = 0,
+      double theta = 1. / 0.7,
+      double sigma = std::numeric_limits<double>::min());
 
   /**
     * @brief inserts a new column at arbitrary position and updates the QR factorization
@@ -161,7 +157,7 @@ public:
 
 private:
   struct givensRot {
-    int    i, j;
+    int i, j;
     double sigma, gamma;
   };
 
@@ -211,17 +207,17 @@ private:
   int _rows;
   int _cols;
 
-  int    _filter;
+  int _filter;
   double _omega;
   double _theta;
   double _sigma;
 
   // @brief optional infostream that writes information to file
   std::fstream *_infostream;
-  bool          _fstream_set;
+  bool _fstream_set;
 
   int _globalRows;
 };
-}
-}
-} // namespace precice, cplscheme, impl
+} // namespace impl
+} // namespace cplscheme
+} // namespace precice

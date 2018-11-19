@@ -2,16 +2,12 @@
 
 #include "Preconditioner.hpp"
 
-namespace precice
-{
-namespace cplscheme
-{
-namespace impl
-{
+namespace precice {
+namespace cplscheme {
+namespace impl {
 
 /// Preconditioner that uses the constant user-defined factors to scale the quasi-Newton system.
-class ConstantPreconditioner : public Preconditioner
-{
+class ConstantPreconditioner: public Preconditioner {
 public:
   explicit ConstantPreconditioner(std::vector<double> factors);
 
@@ -20,7 +16,7 @@ public:
    */
   virtual ~ConstantPreconditioner() {}
 
-  virtual void initialize(std::vector<size_t> & svs);
+  virtual void initialize(std::vector<size_t> &svs);
 
 private:
   /**
@@ -35,6 +31,6 @@ private:
   /// Constant user-defined factors to scale the quasi-Newton system
   std::vector<double> _factors;
 };
-}
-}
-} // namespace precice, cplscheme, impl
+} // namespace impl
+} // namespace cplscheme
+} // namespace precice

@@ -32,11 +32,10 @@ BOOST_AUTO_TEST_SUITE(IOTests)
 using namespace precice;
 
 struct SetupMasterSlaveFixture {
-  SetupMasterSlaveFixture()
-  {
+  SetupMasterSlaveFixture() {
     assertion(utils::Parallel::getCommunicatorSize() == 4);
 
-    auto masterSlaveCom                = std::make_shared<com::MPIDirectCommunication>();
+    auto masterSlaveCom = std::make_shared<com::MPIDirectCommunication>();
     utils::MasterSlave::_communication = masterSlaveCom;
 
     utils::Parallel::synchronizeProcesses();
@@ -46,58 +45,55 @@ struct SetupMasterSlaveFixture {
       masterSlaveCom->acceptConnection("Master", "Slaves", utils::Parallel::getProcessRank());
       masterSlaveCom->setRankOffset(1);
       utils::MasterSlave::_masterMode = true;
-      utils::MasterSlave::_slaveMode  = false;
-      utils::MasterSlave::_rank       = 0;
+      utils::MasterSlave::_slaveMode = false;
+      utils::MasterSlave::_rank = 0;
     } else if (utils::Parallel::getProcessRank() == 1) {
       utils::Parallel::splitCommunicator("Slaves");
       masterSlaveCom->requestConnection("Master", "Slaves", 0, 3);
       utils::MasterSlave::_masterMode = false;
-      utils::MasterSlave::_slaveMode  = true;
-      utils::MasterSlave::_rank       = 1;
+      utils::MasterSlave::_slaveMode = true;
+      utils::MasterSlave::_rank = 1;
     } else if (utils::Parallel::getProcessRank() == 2) {
       utils::Parallel::splitCommunicator("Slaves");
       masterSlaveCom->requestConnection("Master", "Slaves", 1, 3);
       utils::MasterSlave::_masterMode = false;
-      utils::MasterSlave::_slaveMode  = true;
-      utils::MasterSlave::_rank       = 2;
+      utils::MasterSlave::_slaveMode = true;
+      utils::MasterSlave::_rank = 2;
     } else if (utils::Parallel::getProcessRank() == 3) {
       utils::Parallel::splitCommunicator("Slaves");
       masterSlaveCom->requestConnection("Master", "Slaves", 2, 3);
       utils::MasterSlave::_masterMode = false;
-      utils::MasterSlave::_slaveMode  = true;
-      utils::MasterSlave::_rank       = 3;
+      utils::MasterSlave::_slaveMode = true;
+      utils::MasterSlave::_rank = 3;
     }
 
     utils::MasterSlave::_size = 4;
   }
 
-  ~SetupMasterSlaveFixture()
-  {
+  ~SetupMasterSlaveFixture() {
     utils::Parallel::synchronizeProcesses();
-    utils::MasterSlave::_slaveMode  = false;
+    utils::MasterSlave::_slaveMode = false;
     utils::MasterSlave::_masterMode = false;
-    utils::MasterSlave::_rank       = -1;
-    utils::MasterSlave::_size       = -1;
+    utils::MasterSlave::_rank = -1;
+    utils::MasterSlave::_size = -1;
     utils::Parallel::clearGroups();
     utils::MasterSlave::_communication.reset();
   }
 };
 
-BOOST_FIXTURE_TEST_SUITE(VTKXMLExport, SetupMasterSlaveFixture,
-                         *testing::OnSize(4))
+BOOST_FIXTURE_TEST_SUITE(VTKXMLExport, SetupMasterSlaveFixture, *testing::OnSize(4))
 
-BOOST_AUTO_TEST_CASE(ExportPolygonalMesh)
-{
-  int        dim           = 2;
-  bool       invertNormals = false;
+BOOST_AUTO_TEST_CASE(ExportPolygonalMesh) {
+  int dim = 2;
+  bool invertNormals = false;
   mesh::Mesh mesh("MyMesh", dim, invertNormals);
 
   if (utils::Parallel::getProcessRank() == 0) {
-    mesh::Vertex &  v1      = mesh.createVertex(Eigen::VectorXd::Zero(dim));
-    mesh::Vertex &  v2      = mesh.createVertex(Eigen::VectorXd::Constant(dim, 1));
+    mesh::Vertex &v1 = mesh.createVertex(Eigen::VectorXd::Zero(dim));
+    mesh::Vertex &v2 = mesh.createVertex(Eigen::VectorXd::Constant(dim, 1));
     Eigen::VectorXd coords3 = Eigen::VectorXd::Zero(dim);
-    coords3[0]              = 1.0;
-    mesh::Vertex &v3        = mesh.createVertex(coords3);
+    coords3[0] = 1.0;
+    mesh::Vertex &v3 = mesh.createVertex(coords3);
 
     mesh.createEdge(v1, v2);
     mesh.createEdge(v2, v3);
@@ -109,11 +105,11 @@ BOOST_AUTO_TEST_CASE(ExportPolygonalMesh)
   } else if (utils::Parallel::getProcessRank() == 1) {
 
   } else if (utils::Parallel::getProcessRank() == 2) {
-    mesh::Vertex &  v1      = mesh.createVertex(Eigen::VectorXd::Constant(dim, 1));
-    mesh::Vertex &  v2      = mesh.createVertex(Eigen::VectorXd::Constant(dim, 2));
+    mesh::Vertex &v1 = mesh.createVertex(Eigen::VectorXd::Constant(dim, 1));
+    mesh::Vertex &v2 = mesh.createVertex(Eigen::VectorXd::Constant(dim, 2));
     Eigen::VectorXd coords3 = Eigen::VectorXd::Zero(dim);
-    coords3[1]              = 1.0;
-    mesh::Vertex &v3        = mesh.createVertex(coords3);
+    coords3[1] = 1.0;
+    mesh::Vertex &v3 = mesh.createVertex(coords3);
 
     mesh.createEdge(v1, v2);
     mesh.createEdge(v2, v3);
@@ -124,25 +120,24 @@ BOOST_AUTO_TEST_CASE(ExportPolygonalMesh)
 
   mesh.computeState();
 
-  bool             exportNormals = false;
+  bool exportNormals = false;
   io::ExportVTKXML exportVTKXML(exportNormals);
-  std::string      filename = "io-ExportVTKXMLTest-testExportPolygonalMesh";
-  std::string      location = "";
+  std::string filename = "io-ExportVTKXMLTest-testExportPolygonalMesh";
+  std::string location = "";
   exportVTKXML.doExport(filename, location, mesh);
 }
 
-BOOST_AUTO_TEST_CASE(ExportTriangulatedMesh)
-{
-  int        dim           = 3;
-  bool       invertNormals = false;
+BOOST_AUTO_TEST_CASE(ExportTriangulatedMesh) {
+  int dim = 3;
+  bool invertNormals = false;
   mesh::Mesh mesh("MyMesh", dim, invertNormals);
 
   if (utils::Parallel::getProcessRank() == 0) {
-    mesh::Vertex &  v1      = mesh.createVertex(Eigen::VectorXd::Zero(dim));
-    mesh::Vertex &  v2      = mesh.createVertex(Eigen::VectorXd::Constant(dim, 1));
+    mesh::Vertex &v1 = mesh.createVertex(Eigen::VectorXd::Zero(dim));
+    mesh::Vertex &v2 = mesh.createVertex(Eigen::VectorXd::Constant(dim, 1));
     Eigen::VectorXd coords3 = Eigen::VectorXd::Zero(dim);
-    coords3[0]              = 1.0;
-    mesh::Vertex &v3        = mesh.createVertex(coords3);
+    coords3[0] = 1.0;
+    mesh::Vertex &v3 = mesh.createVertex(coords3);
 
     mesh::Edge &e1 = mesh.createEdge(v1, v2);
     mesh::Edge &e2 = mesh.createEdge(v2, v3);
@@ -156,11 +151,11 @@ BOOST_AUTO_TEST_CASE(ExportTriangulatedMesh)
   } else if (utils::Parallel::getProcessRank() == 1) {
 
   } else if (utils::Parallel::getProcessRank() == 2) {
-    mesh::Vertex &  v1      = mesh.createVertex(Eigen::VectorXd::Constant(dim, 1));
-    mesh::Vertex &  v2      = mesh.createVertex(Eigen::VectorXd::Constant(dim, 2));
+    mesh::Vertex &v1 = mesh.createVertex(Eigen::VectorXd::Constant(dim, 1));
+    mesh::Vertex &v2 = mesh.createVertex(Eigen::VectorXd::Constant(dim, 2));
     Eigen::VectorXd coords3 = Eigen::VectorXd::Zero(dim);
-    coords3[1]              = 1.0;
-    mesh::Vertex &v3        = mesh.createVertex(coords3);
+    coords3[1] = 1.0;
+    mesh::Vertex &v3 = mesh.createVertex(coords3);
 
     mesh::Edge &e1 = mesh.createEdge(v1, v2);
     mesh::Edge &e2 = mesh.createEdge(v2, v3);
@@ -172,17 +167,16 @@ BOOST_AUTO_TEST_CASE(ExportTriangulatedMesh)
 
   mesh.computeState();
 
-  bool             exportNormals = false;
+  bool exportNormals = false;
   io::ExportVTKXML exportVTKXML(exportNormals);
-  std::string      filename = "io-ExportVTKXMLTest-testExportTriangulatedMesh";
-  std::string      location = "";
+  std::string filename = "io-ExportVTKXMLTest-testExportTriangulatedMesh";
+  std::string location = "";
   exportVTKXML.doExport(filename, location, mesh);
 }
 
-BOOST_AUTO_TEST_CASE(ExportQuadMesh)
-{
+BOOST_AUTO_TEST_CASE(ExportQuadMesh) {
   using namespace mesh;
-  int  dim           = 3;
+  int dim = 3;
   bool invertNormals = false;
   Mesh mesh("QuadMesh", dim, invertNormals);
 
@@ -223,7 +217,7 @@ BOOST_AUTO_TEST_CASE(ExportQuadMesh)
     Edge &e5 = mesh.createEdge(v5, v6);
     Edge &e6 = mesh.createEdge(v6, v7);
     // inbetween edges
-    Edge &e9  = mesh.createEdge(v1, v5);
+    Edge &e9 = mesh.createEdge(v1, v5);
     Edge &e10 = mesh.createEdge(v2, v6);
     Edge &e11 = mesh.createEdge(v3, v7);
     // x-z plane
@@ -235,10 +229,10 @@ BOOST_AUTO_TEST_CASE(ExportQuadMesh)
 
   mesh.computeState();
 
-  bool             exportNormals = false;
+  bool exportNormals = false;
   io::ExportVTKXML exportVTKXML(exportNormals);
-  std::string      filename = "io-ExportVTKXMLTest-testExportQuadMesh";
-  std::string      location = "";
+  std::string filename = "io-ExportVTKXMLTest-testExportQuadMesh";
+  std::string location = "";
   exportVTKXML.doExport(filename, location, mesh);
 }
 

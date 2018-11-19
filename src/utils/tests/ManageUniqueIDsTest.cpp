@@ -5,8 +5,7 @@ using namespace precice::utils;
 
 BOOST_AUTO_TEST_SUITE(UtilsTests)
 
-BOOST_AUTO_TEST_CASE(UniqueIDs)
-{
+BOOST_AUTO_TEST_CASE(UniqueIDs) {
   ManageUniqueIDs uniqueIDs;
   int id = uniqueIDs.getFreeID();
   BOOST_TEST(id == 0);

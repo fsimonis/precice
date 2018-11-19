@@ -1,10 +1,10 @@
 #pragma once
 
-#include "precice/impl/Participant.hpp"
-#include "mesh/SharedPointer.hpp"
-#include "mapping/SharedPointer.hpp"
 #include "io/SharedPointer.hpp"
 #include "logging/Logger.hpp"
+#include "mapping/SharedPointer.hpp"
+#include "mesh/SharedPointer.hpp"
+#include "precice/impl/Participant.hpp"
 #include "xml/XMLTag.hpp"
 #include <string>
 
@@ -14,44 +14,40 @@ namespace config {
 /**
  * @brief Performs XML configuration of a participant.
  */
-class ParticipantConfiguration : public xml::XMLTag::Listener
-{
+class ParticipantConfiguration: public xml::XMLTag::Listener {
 public:
+  ParticipantConfiguration(
+      xml::XMLTag &parent,
+      const mesh::PtrMeshConfiguration &meshConfiguration);
 
-  ParticipantConfiguration (
-    xml::XMLTag&                      parent,
-    const mesh::PtrMeshConfiguration& meshConfiguration);
-
-  void setDimensions ( int dimensions );
-
-  /**
-   * @brief Callback function required for use of automatic configuration.
-   *
-   * @return True, if successful.
-   */
-  virtual void xmlTagCallback ( xml::XMLTag& callingTag );
+  void setDimensions(int dimensions);
 
   /**
    * @brief Callback function required for use of automatic configuration.
    *
    * @return True, if successful.
    */
-  virtual void xmlEndTagCallback ( xml::XMLTag& callingTag );
+  virtual void xmlTagCallback(xml::XMLTag &callingTag);
+
+  /**
+   * @brief Callback function required for use of automatic configuration.
+   *
+   * @return True, if successful.
+   */
+  virtual void xmlEndTagCallback(xml::XMLTag &callingTag);
 
   /**
    * @brief For manual configuration.
    */
-  void addParticipant (
-    const impl::PtrParticipant&             participant,
-    const mapping::PtrMappingConfiguration& mappingConfig );
+  void addParticipant(
+      const impl::PtrParticipant &participant,
+      const mapping::PtrMappingConfiguration &mappingConfig);
 
   /// Returns all configured participants.
-  const std::vector<impl::PtrParticipant>& getParticipants() const;
+  const std::vector<impl::PtrParticipant> &getParticipants() const;
 
 private:
-
-  struct WatchPointConfig
-  {
+  struct WatchPointConfig {
     std::string name;
     std::string nameMesh;
     Eigen::VectorXd coordinates;
@@ -105,18 +101,18 @@ private:
 
   std::vector<WatchPointConfig> _watchPointConfigs;
 
-  partition::ReceivedPartition::GeometricFilter getGeoFilter(const std::string& geoFilter) const;
+  partition::ReceivedPartition::GeometricFilter getGeoFilter(const std::string &geoFilter) const;
 
-  mesh::PtrMesh copy ( const mesh::PtrMesh& mesh ) const;
+  mesh::PtrMesh copy(const mesh::PtrMesh &mesh) const;
 
-  const mesh::PtrData& getData (
-    const mesh::PtrMesh& mesh,
-    const std::string&   nameData ) const;
+  const mesh::PtrData &getData(
+      const mesh::PtrMesh &mesh,
+      const std::string &nameData) const;
 
-  mapping::PtrMapping getMapping ( const std::string& mappingName );
+  mapping::PtrMapping getMapping(const std::string &mappingName);
 
-  void finishParticipantConfiguration ( const impl::PtrParticipant& participant );
-
+  void finishParticipantConfiguration(const impl::PtrParticipant &participant);
 };
 
-}} // namespace precice, config
+} // namespace config
+} // namespace precice

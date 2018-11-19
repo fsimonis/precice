@@ -6,8 +6,7 @@ BOOST_AUTO_TEST_SUITE(IOTests)
 
 using namespace precice;
 
-BOOST_AUTO_TEST_CASE(Configuration)
-{
+BOOST_AUTO_TEST_CASE(Configuration) {
   using xml::XMLTag;
   XMLTag tag = xml::getRootTag();
   {

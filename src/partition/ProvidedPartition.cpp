@@ -7,21 +7,17 @@
 
 using precice::utils::Event;
 
-namespace precice
-{
-namespace partition
-{
+namespace precice {
+namespace partition {
 
 ProvidedPartition::ProvidedPartition(
     mesh::PtrMesh mesh,
-    bool          hasToSend)
+    bool hasToSend)
     : Partition(mesh),
-      _hasToSend(hasToSend)
-{
+      _hasToSend(hasToSend) {
 }
 
-void ProvidedPartition::communicate()
-{
+void ProvidedPartition::communicate() {
   TRACE();
 
   //@todo communication to more than one participant
@@ -38,10 +34,10 @@ void ProvidedPartition::communicate()
 
     // Gather Mesh
     INFO("Gather mesh " + _mesh->getName());
-    if (utils::MasterSlave::_slaveMode ) {
-        com::CommunicateMesh(utils::MasterSlave::_communication).sendMesh(*_mesh, 0);
+    if (utils::MasterSlave::_slaveMode) {
+      com::CommunicateMesh(utils::MasterSlave::_communication).sendMesh(*_mesh, 0);
     }
-    if (utils::MasterSlave::_masterMode)  {
+    if (utils::MasterSlave::_masterMode) {
       assertion(utils::MasterSlave::_rank == 0);
       assertion(utils::MasterSlave::_size > 1);
 
@@ -50,7 +46,7 @@ void ProvidedPartition::communicate()
         DEBUG("Received sub-mesh, from slave: " << rankSlave << ", global vertexCount: " << globalMesh.vertices().size());
       }
     }
-    
+
     // Set global index
     if (not utils::MasterSlave::_slaveMode) {
       int globalIndex = 0;
@@ -74,8 +70,7 @@ void ProvidedPartition::communicate()
   } //_hasToSend
 }
 
-void ProvidedPartition::compute()
-{
+void ProvidedPartition::compute() {
   TRACE();
   INFO("Compute partition for mesh " << _mesh->getName());
   Event e6("partition.feedbackMesh." + _mesh->getName());
@@ -128,8 +123,7 @@ void ProvidedPartition::compute()
   computeVertexOffsets();
 }
 
-void ProvidedPartition::createOwnerInformation()
-{
+void ProvidedPartition::createOwnerInformation() {
   TRACE();
   for (mesh::Vertex &v : _mesh->vertices()) {
     v.setOwner(true);

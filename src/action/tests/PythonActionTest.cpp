@@ -11,8 +11,7 @@ using namespace precice::action;
 BOOST_AUTO_TEST_SUITE(ActionTests)
 BOOST_AUTO_TEST_SUITE(Python)
 
-BOOST_AUTO_TEST_CASE(AllMethods)
-{
+BOOST_AUTO_TEST_CASE(AllMethods) {
   mesh::PtrMesh mesh(new mesh::Mesh("Mesh", 3, false));
   mesh->createVertex(Eigen::Vector3d::Constant(1.0));
   mesh->createVertex(Eigen::Vector3d::Constant(2.0));
@@ -20,7 +19,7 @@ BOOST_AUTO_TEST_CASE(AllMethods)
   int targetID = mesh->createData("TargetData", 1)->getID();
   int sourceID = mesh->createData("SourceData", 1)->getID();
   mesh->allocateDataValues();
-  std::string  path = testing::getPathToSources() + "/action/tests/";
+  std::string path = testing::getPathToSources() + "/action/tests/";
   PythonAction action(PythonAction::ALWAYS_PRIOR, path, "TestAllAction", mesh, targetID, sourceID);
   mesh->data(sourceID)->values() << 0.1, 0.2, 0.3;
   mesh->data(targetID)->values() = Eigen::VectorXd::Zero(mesh->data(targetID)->values().size());
@@ -33,12 +32,11 @@ BOOST_AUTO_TEST_CASE(AllMethods)
   BOOST_TEST(testing::equals(mesh->data(targetID)->values(), result));
 }
 
-BOOST_AUTO_TEST_CASE(OmitMethods)
-{
+BOOST_AUTO_TEST_CASE(OmitMethods) {
   std::string path = testing::getPathToSources() + "/action/tests/";
   {
     mesh::PtrMesh mesh;
-    PythonAction  action(PythonAction::ALWAYS_PRIOR, path, "TestOmitAction1", mesh, -1, -1);
+    PythonAction action(PythonAction::ALWAYS_PRIOR, path, "TestOmitAction1", mesh, -1, -1);
     action.performAction(0.0, 0.0, 0.0, 0.0);
   }
   {

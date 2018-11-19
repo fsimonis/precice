@@ -1,33 +1,30 @@
 #include "ConfigParser.hpp"
-#include <libxml/SAX.h>
 #include <fstream>
+#include <libxml/SAX.h>
 
-namespace precice
-{
-namespace xml
-{
+namespace precice {
+namespace xml {
 
 // ------------------------- Callback functions for libxml2  -------------------------
 
 void OnStartElementNs(
-    void *          ctx,
-    const xmlChar * localname,
-    const xmlChar * prefix,
-    const xmlChar * URI,
-    int             nb_namespaces,
+    void *ctx,
+    const xmlChar *localname,
+    const xmlChar *prefix,
+    const xmlChar *URI,
+    int nb_namespaces,
     const xmlChar **namespaces,
-    int             nb_attributes,
-    int             nb_defaulted,
-    const xmlChar **attributes)
-{
+    int nb_attributes,
+    int nb_defaulted,
+    const xmlChar **attributes) {
   ConfigParser::CTag::AttributePair attributesMap;
-  unsigned int                      index = 0;
+  unsigned int index = 0;
   for (int indexAttribute = 0; indexAttribute < nb_attributes; ++indexAttribute, index += 5) {
     std::string attributeName(reinterpret_cast<const char *>(attributes[index]));
 
     const xmlChar *valueBegin = attributes[index + 3];
-    const xmlChar *valueEnd   = attributes[index + 4];
-    std::string    value((const char *) valueBegin, (const char *) valueEnd);
+    const xmlChar *valueEnd = attributes[index + 4];
+    std::string value((const char *) valueBegin, (const char *) valueEnd);
 
     attributesMap[attributeName] = value;
   }
@@ -40,17 +37,15 @@ void OnStartElementNs(
 }
 
 void OnEndElementNs(
-    void *         ctx,
+    void *ctx,
     const xmlChar *localname,
     const xmlChar *prefix,
-    const xmlChar *URI)
-{
+    const xmlChar *URI) {
   ConfigParser *pParser = static_cast<ConfigParser *>(ctx);
   pParser->OnEndElement();
 }
 
-void OnCharacters(void *ctx, const xmlChar *ch, int len)
-{
+void OnCharacters(void *ctx, const xmlChar *ch, int len) {
   ConfigParser *pParser = static_cast<ConfigParser *>(ctx);
   pParser->OnTextSection(std::string(reinterpret_cast<const char *>(ch), len));
 }
@@ -59,8 +54,7 @@ void OnCharacters(void *ctx, const xmlChar *ch, int len)
 
 precice::logging::Logger ConfigParser::_log("xml::XMLParser");
 
-ConfigParser::ConfigParser(const std::string &filePath, std::shared_ptr<precice::xml::XMLTag> pXmlTag)
-{
+ConfigParser::ConfigParser(const std::string &filePath, std::shared_ptr<precice::xml::XMLTag> pXmlTag) {
   m_pXmlTag = pXmlTag;
   readXmlFile(filePath);
 
@@ -79,16 +73,14 @@ ConfigParser::ConfigParser(const std::string &filePath, std::shared_ptr<precice:
   }
 }
 
-ConfigParser::ConfigParser(const std::string &filePath)
-{
+ConfigParser::ConfigParser(const std::string &filePath) {
   readXmlFile(filePath);
 }
 
-void ConfigParser::GenericErrorFunc(void *ctx, const char *msg, ...)
-{
+void ConfigParser::GenericErrorFunc(void *ctx, const char *msg, ...) {
   const int TMP_BUF_SIZE = 256;
 
-  char    err[TMP_BUF_SIZE];
+  char err[TMP_BUF_SIZE];
   va_list arg_ptr;
   va_start(arg_ptr, msg);
   vsnprintf(err, TMP_BUF_SIZE, msg, arg_ptr);
@@ -97,8 +89,7 @@ void ConfigParser::GenericErrorFunc(void *ctx, const char *msg, ...)
   ERROR(err);
 }
 
-int ConfigParser::readXmlFile(std::string const &filePath)
-{
+int ConfigParser::readXmlFile(std::string const &filePath) {
   auto handler = static_cast<xmlGenericErrorFunc>(ConfigParser::GenericErrorFunc);
   initGenericErrorDefaultFunc(&handler);
 
@@ -106,10 +97,10 @@ int ConfigParser::readXmlFile(std::string const &filePath)
 
   memset(&SAXHandler, 0, sizeof(xmlSAXHandler));
 
-  SAXHandler.initialized    = XML_SAX2_MAGIC;
+  SAXHandler.initialized = XML_SAX2_MAGIC;
   SAXHandler.startElementNs = OnStartElementNs;
-  SAXHandler.endElementNs   = OnEndElementNs;
-  SAXHandler.characters     = OnCharacters;
+  SAXHandler.endElementNs = OnEndElementNs;
+  SAXHandler.characters = OnCharacters;
 
   std::ifstream ifs(filePath);
   if (not ifs) {
@@ -118,7 +109,7 @@ int ConfigParser::readXmlFile(std::string const &filePath)
 
   std::string content{std::istreambuf_iterator<char>(ifs), std::istreambuf_iterator<char>()};
 
-  xmlParserCtxtPtr ctxt = xmlCreatePushParserCtxt(&SAXHandler, static_cast<void*>(this),
+  xmlParserCtxtPtr ctxt = xmlCreatePushParserCtxt(&SAXHandler, static_cast<void *>(this),
                                                   content.c_str(), content.size(), nullptr);
 
   xmlParseChunk(ctxt, nullptr, 0, 1);
@@ -128,8 +119,7 @@ int ConfigParser::readXmlFile(std::string const &filePath)
   return 0;
 }
 
-void ConfigParser::connectTags(std::vector<std::shared_ptr<XMLTag>> &DefTags, CTagPtrVec &SubTags)
-{
+void ConfigParser::connectTags(std::vector<std::shared_ptr<XMLTag>> &DefTags, CTagPtrVec &SubTags) {
   std::vector<std::string> usedTags;
 
   for (auto subtag : SubTags) {
@@ -137,7 +127,7 @@ void ConfigParser::connectTags(std::vector<std::shared_ptr<XMLTag>> &DefTags, CT
     bool found = false;
 
     for (auto pDefSubTag : DefTags) {
-      
+
       if (pDefSubTag->_fullName == ((subtag->m_Prefix.length() ? subtag->m_Prefix + ":" : "") + subtag->m_Name)) {
         found = true;
         pDefSubTag->resetAttributes();
@@ -171,14 +161,13 @@ void ConfigParser::connectTags(std::vector<std::shared_ptr<XMLTag>> &DefTags, CT
 }
 
 void ConfigParser::OnStartElement(
-    std::string         localname,
-    std::string         prefix,
-    CTag::AttributePair attributes)
-{
+    std::string localname,
+    std::string prefix,
+    CTag::AttributePair attributes) {
   auto pTag = std::make_shared<CTag>();
 
-  pTag->m_Prefix      = std::move(prefix);
-  pTag->m_Name        = std::move(localname);
+  pTag->m_Prefix = std::move(prefix);
+  pTag->m_Name = std::move(localname);
   pTag->m_aAttributes = std::move(attributes);
 
   if (not m_CurrentTags.empty()) {
@@ -190,14 +179,12 @@ void ConfigParser::OnStartElement(
   m_CurrentTags.push_back(pTag);
 }
 
-void ConfigParser::OnEndElement()
-{
+void ConfigParser::OnEndElement() {
   m_CurrentTags.pop_back();
 }
 
-void ConfigParser::OnTextSection(std::string ch)
-{
+void ConfigParser::OnTextSection(std::string ch) {
   // This page intentionally left blank
 }
-}
-}
+} // namespace xml
+} // namespace precice

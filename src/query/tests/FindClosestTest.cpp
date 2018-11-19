@@ -1,4 +1,3 @@
-#include <vector>
 #include "io/ExportVTK.hpp"
 #include "mesh/Edge.hpp"
 #include "mesh/Mesh.hpp"
@@ -8,6 +7,7 @@
 #include "query/ExportVTKNeighbors.hpp"
 #include "query/FindClosest.hpp"
 #include "testing/Testing.hpp"
+#include <vector>
 
 using namespace precice;
 using namespace precice::query;
@@ -15,17 +15,16 @@ using namespace precice::query;
 BOOST_AUTO_TEST_SUITE(QueryTests)
 BOOST_AUTO_TEST_SUITE(FindClosestTests)
 
-BOOST_AUTO_TEST_CASE(FindClosestDistanceToVertices)
-{
+BOOST_AUTO_TEST_CASE(FindClosestDistanceToVertices) {
   for (int dim = 2; dim <= 3; dim++) {
     mesh::Mesh mesh("RootMesh", dim, false);
     mesh.createVertex(Eigen::VectorXd::Zero(dim));
     Eigen::VectorXd queryCoords0 = Eigen::VectorXd::Zero(dim);
-    queryCoords0[0]              = 1.0;
+    queryCoords0[0] = 1.0;
     FindClosest find(queryCoords0);
     find(mesh);
-    query::ClosestElement closest  = find.getClosest();
-    double                distance = closest.distance;
+    query::ClosestElement closest = find.getClosest();
+    double distance = closest.distance;
     BOOST_TEST(distance == 1.0);
     if (dim == 3) {
       mesh::Mesh mesh3D("Mesh3D", dim, false);
@@ -38,18 +37,17 @@ BOOST_AUTO_TEST_CASE(FindClosestDistanceToVertices)
   }
 }
 
-BOOST_AUTO_TEST_CASE(SignOfShortestDistance)
-{
+BOOST_AUTO_TEST_CASE(SignOfShortestDistance) {
   for (int dim = 2; dim <= 3; dim++) {
-    mesh::Mesh      mesh("Mesh", dim, false);
-    mesh::Vertex &  vertex = mesh.createVertex(Eigen::VectorXd::Zero(dim));
+    mesh::Mesh mesh("Mesh", dim, false);
+    mesh::Vertex &vertex = mesh.createVertex(Eigen::VectorXd::Zero(dim));
     Eigen::VectorXd normal = Eigen::VectorXd::Zero(dim);
-    normal[0]              = 1.0;
+    normal[0] = 1.0;
     vertex.setNormal(normal);
 
     // Check point that lies outside of mesh
     Eigen::VectorXd queryCoords = Eigen::VectorXd::Zero(dim);
-    queryCoords(0)              = 1.0;
+    queryCoords(0) = 1.0;
     FindClosest find(queryCoords);
     find(mesh);
     double distance = find.getClosest().distance;
@@ -64,10 +62,9 @@ BOOST_AUTO_TEST_CASE(SignOfShortestDistance)
   }
 }
 
-BOOST_AUTO_TEST_CASE(IndependenceOfSignOfShortestDistance)
-{
+BOOST_AUTO_TEST_CASE(IndependenceOfSignOfShortestDistance) {
   for (int dim = 2; dim <= 3; dim++) {
-    mesh::Mesh    mesh("Mesh", dim, false);
+    mesh::Mesh mesh("Mesh", dim, false);
     mesh::Vertex &vertex = mesh.createVertex(Eigen::VectorXd::Constant(dim, 1));
     vertex.setNormal(Eigen::VectorXd::Constant(dim, 1));
     mesh::Vertex &vertex2 = mesh.createVertex(Eigen::VectorXd::Constant(dim, -2));
@@ -80,7 +77,7 @@ BOOST_AUTO_TEST_CASE(IndependenceOfSignOfShortestDistance)
 
     // Invert normal of futher away vertex, should have no influence
     Eigen::VectorXd normal = Eigen::VectorXd::Zero(dim);
-    normal[1]              = -1.0;
+    normal[1] = -1.0;
     vertex2.setNormal(normal);
     find.reset();
     find(mesh);
@@ -96,16 +93,15 @@ BOOST_AUTO_TEST_CASE(IndependenceOfSignOfShortestDistance)
   }
 }
 
-BOOST_AUTO_TEST_CASE(FindClosestDistanceToEdges)
-{
+BOOST_AUTO_TEST_CASE(FindClosestDistanceToEdges) {
   for (int dim = 2; dim <= 3; dim++) {
     // Create mesh consisting of two vertices and an edge
-    mesh::Mesh      mesh("Mesh", dim, false);
-    mesh::Vertex &  v1     = mesh.createVertex(Eigen::VectorXd::Constant(dim, -1));
-    mesh::Vertex &  v2     = mesh.createVertex(Eigen::VectorXd::Constant(dim, 1));
-    mesh::Edge &    edge   = mesh.createEdge(v1, v2);
+    mesh::Mesh mesh("Mesh", dim, false);
+    mesh::Vertex &v1 = mesh.createVertex(Eigen::VectorXd::Constant(dim, -1));
+    mesh::Vertex &v2 = mesh.createVertex(Eigen::VectorXd::Constant(dim, 1));
+    mesh::Edge &edge = mesh.createEdge(v1, v2);
     Eigen::VectorXd normal = Eigen::VectorXd::Constant(dim, -1);
-    normal[1]              = 1.0;
+    normal[1] = 1.0;
     v1.setNormal(normal);
     v2.setNormal(normal);
     edge.setNormal(normal);
@@ -113,10 +109,10 @@ BOOST_AUTO_TEST_CASE(FindClosestDistanceToEdges)
     // Create query points
     // Query point 0 lies outside of the mesh
     Eigen::VectorXd queryCoords0 = Eigen::VectorXd::Constant(dim, -1);
-    queryCoords0[1]              = 1.0;
+    queryCoords0[1] = 1.0;
     // Query point 1 lies inside of the mesh
     Eigen::VectorXd queryCoords1 = Eigen::VectorXd::Constant(dim, 1);
-    queryCoords1[1]              = -1.0;
+    queryCoords1[1] = -1.0;
     // Query point 2 lies on the query edge
     Eigen::VectorXd queryCoords2 = Eigen::VectorXd::Constant(dim, 0);
     // Query point 3 lies on the same line as the edge, but above
@@ -148,14 +144,13 @@ BOOST_AUTO_TEST_CASE(FindClosestDistanceToEdges)
   }
 }
 
-BOOST_AUTO_TEST_CASE(FindClosestDistanceToEdges3D)
-{
+BOOST_AUTO_TEST_CASE(FindClosestDistanceToEdges3D) {
   int dim = 3;
   // Cremeshetry consisting of two vertices and an edge
-  mesh::Mesh      mesh("Mesh", dim, false);
-  mesh::Vertex &  v1   = mesh.createVertex(Eigen::Vector3d(-1.0, -1.0, 0.0));
-  mesh::Vertex &  v2   = mesh.createVertex(Eigen::Vector3d(1.0, 1.0, 0.0));
-  mesh::Edge &    edge = mesh.createEdge(v1, v2);
+  mesh::Mesh mesh("Mesh", dim, false);
+  mesh::Vertex &v1 = mesh.createVertex(Eigen::Vector3d(-1.0, -1.0, 0.0));
+  mesh::Vertex &v2 = mesh.createVertex(Eigen::Vector3d(1.0, 1.0, 0.0));
+  mesh::Edge &edge = mesh.createEdge(v1, v2);
   Eigen::VectorXd normal(dim);
   normal << -1.0, 1.0, 0.0;
   v1.setNormal(normal);
@@ -163,7 +158,7 @@ BOOST_AUTO_TEST_CASE(FindClosestDistanceToEdges3D)
   edge.setNormal(normal);
 
   io::ExportVTK exportMesh(true);
-  std::string   location = "";
+  std::string location = "";
   exportMesh.doExport("query-FindClosestTest-testFindClosestDistanceToEdges3D", location, mesh);
 
   // Create query points
@@ -203,33 +198,32 @@ BOOST_AUTO_TEST_CASE(FindClosestDistanceToEdges3D)
   }
 }
 
-BOOST_AUTO_TEST_CASE(FindClosestDistanceToTriangles)
-{
+BOOST_AUTO_TEST_CASE(FindClosestDistanceToTriangles) {
   // Create mesh to query
-  mesh::Mesh    mesh("Mesh", 3, true);
+  mesh::Mesh mesh("Mesh", 3, true);
   mesh::Vertex &v0 = mesh.createVertex(Eigen::Vector3d(0.0, 0.0, 0.0));
   mesh::Vertex &v1 = mesh.createVertex(Eigen::Vector3d(1.0, 1.0, 0.0));
   mesh::Vertex &v2 = mesh.createVertex(Eigen::Vector3d(1.0, 1.0, 1.0));
-  mesh::Edge &  e0 = mesh.createEdge(v0, v1);
-  mesh::Edge &  e1 = mesh.createEdge(v1, v2);
-  mesh::Edge &  e2 = mesh.createEdge(v2, v0);
+  mesh::Edge &e0 = mesh.createEdge(v0, v1);
+  mesh::Edge &e1 = mesh.createEdge(v1, v2);
+  mesh::Edge &e2 = mesh.createEdge(v2, v0);
   mesh.createTriangle(e0, e1, e2);
   mesh.computeState();
 
   // Prepare and issue queries
   std::vector<Eigen::Vector3d> queries;
-  queries.push_back(Eigen::Vector3d(0.6, 0.6, 0.5));    //  0: on triangle middle
-  queries.push_back(Eigen::Vector3d(0.0, 0.0, 0.0));    //  1: on vertex0
-  queries.push_back(Eigen::Vector3d(1.0, 1.0, 0.0));    //  2: on vertex1
-  queries.push_back(Eigen::Vector3d(1.0, 1.0, 1.0));    //  3: on vertex2
-  queries.push_back(Eigen::Vector3d(0.5, 0.5, 0.0));    //  4: on edge0
-  queries.push_back(Eigen::Vector3d(1.0, 1.0, 0.5));    //  5: on edge1
-  queries.push_back(Eigen::Vector3d(0.5, 0.5, 0.5));    //  6: on edge2
-  queries.push_back(Eigen::Vector3d(0.0, 1.0, 0.3));    //  7: outside triangle
-  queries.push_back(Eigen::Vector3d(1.0, 0.0, 0.3));    //  8: inside triangle
+  queries.push_back(Eigen::Vector3d(0.6, 0.6, 0.5)); //  0: on triangle middle
+  queries.push_back(Eigen::Vector3d(0.0, 0.0, 0.0)); //  1: on vertex0
+  queries.push_back(Eigen::Vector3d(1.0, 1.0, 0.0)); //  2: on vertex1
+  queries.push_back(Eigen::Vector3d(1.0, 1.0, 1.0)); //  3: on vertex2
+  queries.push_back(Eigen::Vector3d(0.5, 0.5, 0.0)); //  4: on edge0
+  queries.push_back(Eigen::Vector3d(1.0, 1.0, 0.5)); //  5: on edge1
+  queries.push_back(Eigen::Vector3d(0.5, 0.5, 0.5)); //  6: on edge2
+  queries.push_back(Eigen::Vector3d(0.0, 1.0, 0.3)); //  7: outside triangle
+  queries.push_back(Eigen::Vector3d(1.0, 0.0, 0.3)); //  8: inside triangle
   queries.push_back(Eigen::Vector3d(-0.5, -0.5, -0.5)); //  9: outside vertex0
-  queries.push_back(Eigen::Vector3d(1.5, 1.5, -0.5));   // 10: outside vertex1
-  queries.push_back(Eigen::Vector3d(1.5, 1.5, 1.5));    // 11: outside vertex2
+  queries.push_back(Eigen::Vector3d(1.5, 1.5, -0.5)); // 10: outside vertex1
+  queries.push_back(Eigen::Vector3d(1.5, 1.5, 1.5)); // 11: outside vertex2
   std::vector<std::shared_ptr<FindClosest>> findVisitors;
   for (size_t i = 0; i < queries.size(); i++) {
     std::shared_ptr<FindClosest> find(new FindClosest(queries[i]));
@@ -258,10 +252,9 @@ BOOST_AUTO_TEST_CASE(FindClosestDistanceToTriangles)
   BOOST_TEST(std::abs(findVisitors[11]->getClosest().distance) == expect.norm());
 }
 
-BOOST_AUTO_TEST_CASE(FindClosestDistanceToTrianglesAndVertices)
-{
-  int           dim = 2;
-  mesh::Mesh    mesh("Mesh", dim, false);
+BOOST_AUTO_TEST_CASE(FindClosestDistanceToTrianglesAndVertices) {
+  int dim = 2;
+  mesh::Mesh mesh("Mesh", dim, false);
   mesh::Vertex &vertex1 = mesh.createVertex(Eigen::Vector2d(0.0, 0.0));
   vertex1.setNormal(Eigen::Vector2d(-0.5, 0.5));
 
@@ -297,16 +290,15 @@ BOOST_AUTO_TEST_CASE(FindClosestDistanceToTrianglesAndVertices)
   BOOST_TEST(distance == -1.0);
 }
 
-BOOST_AUTO_TEST_CASE(MultipleMeshIDs)
-{
-  int                         dim = 2;
-  mesh::Mesh                  mesh("Mesh", dim, true);
-  query::ExportVTKNeighbors   exportNeighbors;
+BOOST_AUTO_TEST_CASE(MultipleMeshIDs) {
+  int dim = 2;
+  mesh::Mesh mesh("Mesh", dim, true);
+  query::ExportVTKNeighbors exportNeighbors;
   std::vector<mesh::Vertex *> vertices(dim);
   for (int i = 0; i < dim; i++) {
     Eigen::VectorXd vertexCoords = Eigen::VectorXd::Zero(dim);
-    vertexCoords[i]              = 1.0;
-    vertices[i]                  = &mesh.createVertex(vertexCoords);
+    vertexCoords[i] = 1.0;
+    vertices[i] = &mesh.createVertex(vertexCoords);
   }
   mesh::Edge &face = mesh.createEdge(*vertices[0], *vertices[1]);
   face.addParent(mesh.setSubID("face-2"));
@@ -321,30 +313,30 @@ BOOST_AUTO_TEST_CASE(MultipleMeshIDs)
   }
 
   // Perform queries
-  std::vector<double>           distances(dim);
+  std::vector<double> distances(dim);
   std::vector<std::vector<int>> geoIDs(dim);
-  query::ClosestElement         closest(dim);
+  query::ClosestElement closest(dim);
   for (int i = 0; i < dim; i++) {
     Eigen::VectorXd query = Eigen::VectorXd::Zero(dim);
-    query[i]              = 2.0;
+    query[i] = 2.0;
     FindClosest findClosest(query);
     BOOST_TEST(findClosest(mesh));
     closest = findClosest.getClosest();
     exportNeighbors.addNeighbors(query, closest);
     distances[i] = closest.distance;
-    geoIDs[i]    = closest.meshIDs;
+    geoIDs[i] = closest.meshIDs;
   }
   Eigen::VectorXd query = Eigen::VectorXd::Zero(dim);
-  FindClosest     findClosest(query);
+  FindClosest findClosest(query);
   BOOST_TEST(findClosest(mesh));
   closest = findClosest.getClosest();
   exportNeighbors.addNeighbors(query, closest);
-  double           faceDistance = closest.distance;
-  std::vector<int> faceGeoIDs   = closest.meshIDs;
+  double faceDistance = closest.distance;
+  std::vector<int> faceGeoIDs = closest.meshIDs;
 
   // Visualize queries
   io::ExportVTK exportVTK(true);
-  std::string   location = "";
+  std::string location = "";
   exportVTK.doExport("query-FindClosestTest-testMultipleMeshIDs.vtk", location, mesh);
   exportNeighbors.exportNeighbors("query-FindClosestTest-testMultipleMeshIDs_neighb.vtk");
 
@@ -357,8 +349,7 @@ BOOST_AUTO_TEST_CASE(MultipleMeshIDs)
   BOOST_TEST(faceGeoIDs[1] == idFace);
 }
 
-BOOST_AUTO_TEST_CASE(WeigthsOfVertices)
-{
+BOOST_AUTO_TEST_CASE(WeigthsOfVertices) {
   int dim = 2;
 
   // Create mesh

@@ -1,30 +1,26 @@
 #include "ComputeCurvatureAction.hpp"
-#include <Eigen/Dense>
 #include "mesh/Edge.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/Triangle.hpp"
 #include "mesh/Vertex.hpp"
+#include <Eigen/Dense>
 
-namespace precice
-{
-namespace action
-{
+namespace precice {
+namespace action {
 
 ComputeCurvatureAction::ComputeCurvatureAction(
-    Timing               timing,
-    int                  dataID,
+    Timing timing,
+    int dataID,
     const mesh::PtrMesh &mesh)
     : Action(timing, mesh),
-      _data(mesh->data(dataID))
-{
+      _data(mesh->data(dataID)) {
 }
 
 void ComputeCurvatureAction::performAction(
     double time,
     double dt,
     double computedPartFullDt,
-    double fullDt)
-{
+    double fullDt) {
   TRACE();
   auto &dataValues = _data->values();
 
@@ -35,7 +31,7 @@ void ComputeCurvatureAction::performAction(
     for (mesh::Edge &edge : getMesh()->edges()) {
       mesh::Vertex &v0 = edge.vertex(0);
       mesh::Vertex &v1 = edge.vertex(1);
-      tangent          = v1.getCoords();
+      tangent = v1.getCoords();
       tangent -= v0.getCoords();
       tangent /= tangent.norm();
       for (int d = 0; d < 2; d++) {
@@ -57,7 +53,7 @@ void ComputeCurvatureAction::performAction(
       for (int i = 0; i < 3; i++) {
         mesh::Vertex &v0 = tri.vertex(i);
         mesh::Vertex &v1 = tri.vertex((i + 1) % 3);
-        edge             = v1.getCoords();
+        edge = v1.getCoords();
         edge -= v0.getCoords();
         contribution = edge.cross(normal);
         for (int d = 0; d < 3; d++) {

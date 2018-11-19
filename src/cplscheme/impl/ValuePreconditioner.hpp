@@ -2,16 +2,12 @@
 
 #include "Preconditioner.hpp"
 
-namespace precice
-{
-namespace cplscheme
-{
-namespace impl
-{
+namespace precice {
+namespace cplscheme {
+namespace impl {
 
 /// Preconditioner that uses the values from the previous timestep to scale the quasi-Newton system.
-class ValuePreconditioner : public Preconditioner
-{
+class ValuePreconditioner: public Preconditioner {
 public:
   ValuePreconditioner(
       int maxNonConstTimesteps);
@@ -22,7 +18,7 @@ public:
 
 private:
   logging::Logger _log{"cplscheme::ValuePreconditioner"};
-  
+
   /**
    * @brief Update the scaling after every FSI iteration.
    *
@@ -32,6 +28,6 @@ private:
 
   bool _firstTimestep = true;
 };
-}
-}
-} // namespace precice, cplscheme, impl
+} // namespace impl
+} // namespace cplscheme
+} // namespace precice

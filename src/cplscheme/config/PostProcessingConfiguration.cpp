@@ -20,10 +20,8 @@
 #include "xml/XMLAttribute.hpp"
 #include "xml/XMLTag.hpp"
 
-namespace precice
-{
-namespace cplscheme
-{
+namespace precice {
+namespace cplscheme {
 
 PostProcessingConfiguration::PostProcessingConfiguration(
     const mesh::PtrMeshConfiguration &meshConfig)
@@ -74,20 +72,18 @@ PostProcessingConfiguration::PostProcessingConfiguration(
       _neededMeshes(),
       _preconditioner(),
       _config(),
-      _isAddManifoldMappingTagAllowed(true)
-{
+      _isAddManifoldMappingTagAllowed(true) {
   assertion(meshConfig.get() != nullptr);
 }
 
-void PostProcessingConfiguration::connectTags(xml::XMLTag &parent)
-{
+void PostProcessingConfiguration::connectTags(xml::XMLTag &parent) {
   using namespace xml;
 
   // static int recursionCounter = 0;
   // recursionCounter++;
 
   XMLTag::Occurrence occ = XMLTag::OCCUR_NOT_OR_ONCE;
-  std::list<XMLTag>  tags;
+  std::list<XMLTag> tags;
   {
     XMLTag tag(*this, VALUE_CONSTANT, occ, TAG);
     addTypeSpecificSubtags(tag);
@@ -141,19 +137,16 @@ void PostProcessingConfiguration::connectTags(xml::XMLTag &parent)
   }
 }
 
-impl::PtrPostProcessing PostProcessingConfiguration::getPostProcessing()
-{
+impl::PtrPostProcessing PostProcessingConfiguration::getPostProcessing() {
   return _postProcessing;
 }
 
-PtrPostProcessingConfiguration PostProcessingConfiguration::getCoarseModelOptimizationConfig()
-{
+PtrPostProcessingConfiguration PostProcessingConfiguration::getCoarseModelOptimizationConfig() {
   return _coarseModelOptimizationConfig;
 }
 
 void PostProcessingConfiguration::xmlTagCallback(
-    xml::XMLTag &callingTag)
-{
+    xml::XMLTag &callingTag) {
   TRACE(callingTag.getFullName());
 
   if (callingTag.getNamespace() == TAG) {
@@ -167,8 +160,8 @@ void PostProcessingConfiguration::xmlTagCallback(
     _config.relaxationFactor = callingTag.getDoubleAttributeValue(ATTR_VALUE);
   } else if (callingTag.getName() == TAG_DATA) {
     std::string dataName = callingTag.getStringAttributeValue(ATTR_NAME);
-    _meshName            = callingTag.getStringAttributeValue(ATTR_MESH);
-    double scaling       = 1.0;
+    _meshName = callingTag.getStringAttributeValue(ATTR_MESH);
+    double scaling = 1.0;
     if (_config.type == VALUE_IQNILS || _config.type == VALUE_MVQN ||
         _config.type == VALUE_ManifoldMapping || _config.type == VALUE_BROYDEN) {
       scaling = callingTag.getDoubleAttributeValue(ATTR_SCALING);
@@ -193,7 +186,7 @@ void PostProcessingConfiguration::xmlTagCallback(
     }
     _neededMeshes.push_back(_meshName);
   } else if (callingTag.getName() == TAG_INIT_RELAX) {
-    _config.relaxationFactor       = callingTag.getDoubleAttributeValue(ATTR_VALUE);
+    _config.relaxationFactor = callingTag.getDoubleAttributeValue(ATTR_VALUE);
     _config.forceInitialRelaxation = callingTag.getBooleanAttributeValue(ATTR_ENFORCE);
   } else if (callingTag.getName() == TAG_MAX_USED_ITERATIONS) {
     _config.maxIterationsUsed = callingTag.getIntAttributeValue(ATTR_VALUE);
@@ -215,7 +208,7 @@ void PostProcessingConfiguration::xmlTagCallback(
     if (_config.type == VALUE_ManifoldMapping)
       _config.estimateJacobian = callingTag.getBooleanAttributeValue(ATTR_VALUE);
   } else if (callingTag.getName() == TAG_PRECONDITIONER) {
-    _config.preconditionerType       = callingTag.getStringAttributeValue(ATTR_TYPE);
+    _config.preconditionerType = callingTag.getStringAttributeValue(ATTR_TYPE);
     _config.precond_nbNonConstTSteps = callingTag.getIntAttributeValue(ATTR_PRECOND_NONCONST_TIMESTEPS);
   } else if (callingTag.getName() == TAG_IMVJRESTART) {
 
@@ -224,17 +217,17 @@ void PostProcessingConfiguration::xmlTagCallback(
 
 #ifndef PRECICE_NO_MPI
     _config.imvjChunkSize = callingTag.getIntAttributeValue(ATTR_IMVJCHUNKSIZE);
-    auto f                = callingTag.getStringAttributeValue(ATTR_TYPE);
+    auto f = callingTag.getStringAttributeValue(ATTR_TYPE);
     if (f == VALUE_NO_RESTART) {
       _config.imvjRestartType = impl::MVQNPostProcessing::NO_RESTART;
     } else if (f == VALUE_ZERO_RESTART) {
       _config.imvjRestartType = impl::MVQNPostProcessing::RS_ZERO;
     } else if (f == VALUE_LS_RESTART) {
       _config.imvjRSLS_reustedTimesteps = callingTag.getIntAttributeValue(ATTR_RSLS_REUSEDTSTEPS);
-      _config.imvjRestartType           = impl::MVQNPostProcessing::RS_LS;
+      _config.imvjRestartType = impl::MVQNPostProcessing::RS_LS;
     } else if (f == VALUE_SVD_RESTART) {
       _config.imvjRSSVD_truncationEps = callingTag.getDoubleAttributeValue(ATTR_RSSVD_TRUNCATIONEPS);
-      _config.imvjRestartType         = impl::MVQNPostProcessing::RS_SVD;
+      _config.imvjRestartType = impl::MVQNPostProcessing::RS_SVD;
     } else if (f == VALUE_SLIDE_RESTART) {
       _config.imvjRestartType = impl::MVQNPostProcessing::RS_SLIDE;
     } else {
@@ -248,8 +241,7 @@ void PostProcessingConfiguration::xmlTagCallback(
 }
 
 void PostProcessingConfiguration::xmlEndTagCallback(
-    xml::XMLTag &callingTag)
-{
+    xml::XMLTag &callingTag) {
   TRACE(callingTag.getName());
   if (callingTag.getNamespace() == TAG) {
 
@@ -338,7 +330,7 @@ void PostProcessingConfiguration::xmlEndTagCallback(
               _config.timestepsReused,
               _config.filter, _config.singularityLimit,
               _config.estimateJacobian,
-              _config.dataIDs,                                                   // fine data IDs
+              _config.dataIDs, // fine data IDs
               _coarseModelOptimizationConfig->getPostProcessing()->getDataIDs(), // coarse data IDs
               _preconditioner));
     } else if (callingTag.getName() == VALUE_BROYDEN) {
@@ -357,24 +349,22 @@ void PostProcessingConfiguration::xmlEndTagCallback(
   }
 }
 
-void PostProcessingConfiguration::clear()
-{
-  _config         = ConfigurationData();
+void PostProcessingConfiguration::clear() {
+  _config = ConfigurationData();
   _postProcessing = impl::PtrPostProcessing();
   _neededMeshes.clear();
 }
 
 void PostProcessingConfiguration::addTypeSpecificSubtags(
-    xml::XMLTag &tag)
-{
+    xml::XMLTag &tag) {
   using namespace xml;
   if (tag.getName() == VALUE_CONSTANT) {
-    XMLTag               tagRelax(*this, TAG_RELAX, XMLTag::OCCUR_ONCE);
+    XMLTag tagRelax(*this, TAG_RELAX, XMLTag::OCCUR_ONCE);
     XMLAttribute<double> attrValue(ATTR_VALUE);
     tagRelax.addAttribute(attrValue);
     tag.addSubtag(tagRelax);
   } else if (tag.getName() == VALUE_AITKEN) {
-    XMLTag               tagInitRelax(*this, TAG_INIT_RELAX, XMLTag::OCCUR_ONCE);
+    XMLTag tagInitRelax(*this, TAG_INIT_RELAX, XMLTag::OCCUR_ONCE);
     XMLAttribute<double> attrValue(ATTR_VALUE);
     tagInitRelax.addAttribute(attrValue);
     XMLAttribute<bool> attrEnforce(ATTR_ENFORCE);
@@ -382,14 +372,14 @@ void PostProcessingConfiguration::addTypeSpecificSubtags(
     tagInitRelax.addAttribute(attrEnforce);
     tag.addSubtag(tagInitRelax);
 
-    XMLTag                    tagData(*this, TAG_DATA, XMLTag::OCCUR_ONCE_OR_MORE);
+    XMLTag tagData(*this, TAG_DATA, XMLTag::OCCUR_ONCE_OR_MORE);
     XMLAttribute<std::string> attrName(ATTR_NAME);
     XMLAttribute<std::string> attrMesh(ATTR_MESH);
     tagData.addAttribute(attrName);
     tagData.addAttribute(attrMesh);
     tag.addSubtag(tagData);
   } else if (tag.getName() == VALUE_HIERARCHICAL_AITKEN) {
-    XMLTag               tagInitRelax(*this, TAG_INIT_RELAX, XMLTag::OCCUR_ONCE);
+    XMLTag tagInitRelax(*this, TAG_INIT_RELAX, XMLTag::OCCUR_ONCE);
     XMLAttribute<double> attrValue(ATTR_VALUE);
     tagInitRelax.addAttribute(attrValue);
     XMLAttribute<bool> attrEnforce(ATTR_ENFORCE);
@@ -397,14 +387,14 @@ void PostProcessingConfiguration::addTypeSpecificSubtags(
     tagInitRelax.addAttribute(attrEnforce);
     tag.addSubtag(tagInitRelax);
 
-    XMLTag                    tagData(*this, TAG_DATA, XMLTag::OCCUR_ONCE_OR_MORE);
+    XMLTag tagData(*this, TAG_DATA, XMLTag::OCCUR_ONCE_OR_MORE);
     XMLAttribute<std::string> attrName(ATTR_NAME);
     XMLAttribute<std::string> attrMesh(ATTR_MESH);
     tagData.addAttribute(attrName);
     tagData.addAttribute(attrMesh);
     tag.addSubtag(tagData);
   } else if (tag.getName() == VALUE_IQNILS) {
-    XMLTag               tagInitRelax(*this, TAG_INIT_RELAX, XMLTag::OCCUR_ONCE);
+    XMLTag tagInitRelax(*this, TAG_INIT_RELAX, XMLTag::OCCUR_ONCE);
     XMLAttribute<double> attrDoubleValue(ATTR_VALUE);
     tagInitRelax.addAttribute(attrDoubleValue);
     XMLAttribute<bool> attrEnforce(ATTR_ENFORCE);
@@ -412,7 +402,7 @@ void PostProcessingConfiguration::addTypeSpecificSubtags(
     tagInitRelax.addAttribute(attrEnforce);
     tag.addSubtag(tagInitRelax);
 
-    XMLTag            tagMaxUsedIter(*this, TAG_MAX_USED_ITERATIONS, XMLTag::OCCUR_ONCE);
+    XMLTag tagMaxUsedIter(*this, TAG_MAX_USED_ITERATIONS, XMLTag::OCCUR_ONCE);
     XMLAttribute<int> attrIntValue(ATTR_VALUE);
     tagMaxUsedIter.addAttribute(attrIntValue);
     tag.addSubtag(tagMaxUsedIter);
@@ -421,10 +411,10 @@ void PostProcessingConfiguration::addTypeSpecificSubtags(
     tagTimestepsReused.addAttribute(attrIntValue);
     tag.addSubtag(tagTimestepsReused);
 
-    XMLTag                    tagData(*this, TAG_DATA, XMLTag::OCCUR_ONCE_OR_MORE);
+    XMLTag tagData(*this, TAG_DATA, XMLTag::OCCUR_ONCE_OR_MORE);
     XMLAttribute<std::string> attrName(ATTR_NAME);
     XMLAttribute<std::string> attrMesh(ATTR_MESH);
-    XMLAttribute<double>      attrScaling(ATTR_SCALING);
+    XMLAttribute<double> attrScaling(ATTR_SCALING);
     attrScaling.setDefaultValue(1.0);
     attrScaling.setDocumentation("To improve the performance of a parallel or a multi coupling schemes, "
                                  "data values can be manually scaled. We recommend, however, to use an automatic scaling via a preconditioner.");
@@ -433,8 +423,8 @@ void PostProcessingConfiguration::addTypeSpecificSubtags(
     tagData.addAttribute(attrMesh);
     tag.addSubtag(tagData);
 
-    XMLTag                       tagFilter(*this, TAG_FILTER, XMLTag::OCCUR_NOT_OR_ONCE);
-    XMLAttribute<std::string>    attrFilterName(ATTR_TYPE);
+    XMLTag tagFilter(*this, TAG_FILTER, XMLTag::OCCUR_NOT_OR_ONCE);
+    XMLAttribute<std::string> attrFilterName(ATTR_TYPE);
     ValidatorEquals<std::string> validQR1(VALUE_QR1FILTER);
     ValidatorEquals<std::string> validQR1abs(VALUE_QR1_ABSFILTER);
     ValidatorEquals<std::string> validQR2(VALUE_QR2FILTER);
@@ -453,8 +443,8 @@ void PostProcessingConfiguration::addTypeSpecificSubtags(
                                "are filtered out.");
     tag.addSubtag(tagFilter);
 
-    XMLTag                       tagPreconditioner(*this, TAG_PRECONDITIONER, XMLTag::OCCUR_NOT_OR_ONCE);
-    XMLAttribute<std::string>    attrPreconditionerType(ATTR_TYPE);
+    XMLTag tagPreconditioner(*this, TAG_PRECONDITIONER, XMLTag::OCCUR_NOT_OR_ONCE);
+    XMLAttribute<std::string> attrPreconditionerType(ATTR_TYPE);
     ValidatorEquals<std::string> valid1(VALUE_CONSTANT_PRECONDITIONER);
     ValidatorEquals<std::string> valid2(VALUE_VALUE_PRECONDITIONER);
     ValidatorEquals<std::string> valid3(VALUE_RESIDUAL_PRECONDITIONER);
@@ -474,7 +464,7 @@ void PostProcessingConfiguration::addTypeSpecificSubtags(
     tag.addSubtag(tagPreconditioner);
 
   } else if (tag.getName() == VALUE_MVQN) {
-    XMLTag               tagInitRelax(*this, TAG_INIT_RELAX, XMLTag::OCCUR_ONCE);
+    XMLTag tagInitRelax(*this, TAG_INIT_RELAX, XMLTag::OCCUR_ONCE);
     XMLAttribute<double> attrDoubleValue(ATTR_VALUE);
     tagInitRelax.addAttribute(attrDoubleValue);
     XMLAttribute<bool> attrEnforce(ATTR_ENFORCE);
@@ -482,8 +472,8 @@ void PostProcessingConfiguration::addTypeSpecificSubtags(
     tagInitRelax.addAttribute(attrEnforce);
     tag.addSubtag(tagInitRelax);
 
-    XMLTag                       tagIMVJRESTART(*this, TAG_IMVJRESTART, XMLTag::OCCUR_NOT_OR_ONCE);
-    XMLAttribute<std::string>    attrRestartName(ATTR_TYPE);
+    XMLTag tagIMVJRESTART(*this, TAG_IMVJRESTART, XMLTag::OCCUR_NOT_OR_ONCE);
+    XMLAttribute<std::string> attrRestartName(ATTR_TYPE);
     ValidatorEquals<std::string> validNO_RS(VALUE_NO_RESTART);
     ValidatorEquals<std::string> validRS_ZERO(VALUE_ZERO_RESTART);
     ValidatorEquals<std::string> validRS_LS(VALUE_LS_RESTART);
@@ -512,7 +502,7 @@ void PostProcessingConfiguration::addTypeSpecificSubtags(
     tagIMVJRESTART.addAttribute(attrRSSVD_truncationEps);
     tag.addSubtag(tagIMVJRESTART);
 
-    XMLTag            tagMaxUsedIter(*this, TAG_MAX_USED_ITERATIONS, XMLTag::OCCUR_ONCE);
+    XMLTag tagMaxUsedIter(*this, TAG_MAX_USED_ITERATIONS, XMLTag::OCCUR_ONCE);
     XMLAttribute<int> attrIntValue(ATTR_VALUE);
     tagMaxUsedIter.addAttribute(attrIntValue);
     tag.addSubtag(tagMaxUsedIter);
@@ -521,10 +511,10 @@ void PostProcessingConfiguration::addTypeSpecificSubtags(
     tagTimestepsReused.addAttribute(attrIntValue);
     tag.addSubtag(tagTimestepsReused);
 
-    XMLTag                    tagData(*this, TAG_DATA, XMLTag::OCCUR_ONCE_OR_MORE);
+    XMLTag tagData(*this, TAG_DATA, XMLTag::OCCUR_ONCE_OR_MORE);
     XMLAttribute<std::string> attrName(ATTR_NAME);
     XMLAttribute<std::string> attrMesh(ATTR_MESH);
-    XMLAttribute<double>      attrScaling(ATTR_SCALING);
+    XMLAttribute<double> attrScaling(ATTR_SCALING);
     attrScaling.setDefaultValue(1.0);
     attrScaling.setDocumentation("To improve the performance of a parallel or a multi coupling schemes, "
                                  "data values can be manually scaled. We recommend, however, to use an automatic scaling via a preconditioner.");
@@ -533,11 +523,11 @@ void PostProcessingConfiguration::addTypeSpecificSubtags(
     tagData.addAttribute(attrMesh);
     tag.addSubtag(tagData);
 
-    XMLTag               tagFilter(*this, TAG_FILTER, XMLTag::OCCUR_NOT_OR_ONCE);
+    XMLTag tagFilter(*this, TAG_FILTER, XMLTag::OCCUR_NOT_OR_ONCE);
     XMLAttribute<double> attrSingularityLimit(ATTR_SINGULARITYLIMIT);
     attrSingularityLimit.setDefaultValue(1e-16);
     tagFilter.addAttribute(attrSingularityLimit);
-    XMLAttribute<std::string>    attrFilterName(ATTR_TYPE);
+    XMLAttribute<std::string> attrFilterName(ATTR_TYPE);
     ValidatorEquals<std::string> validQR1(VALUE_QR1FILTER);
     ValidatorEquals<std::string> validQR1abs(VALUE_QR1_ABSFILTER);
     ValidatorEquals<std::string> validQR2(VALUE_QR2FILTER);
@@ -553,8 +543,8 @@ void PostProcessingConfiguration::addTypeSpecificSubtags(
                                "are filtered out.");
     tag.addSubtag(tagFilter);
 
-    XMLTag                       tagPreconditioner(*this, TAG_PRECONDITIONER, XMLTag::OCCUR_NOT_OR_ONCE);
-    XMLAttribute<std::string>    attrPreconditionerType(ATTR_TYPE);
+    XMLTag tagPreconditioner(*this, TAG_PRECONDITIONER, XMLTag::OCCUR_NOT_OR_ONCE);
+    XMLAttribute<std::string> attrPreconditionerType(ATTR_TYPE);
     ValidatorEquals<std::string> valid1(VALUE_CONSTANT_PRECONDITIONER);
     ValidatorEquals<std::string> valid2(VALUE_VALUE_PRECONDITIONER);
     ValidatorEquals<std::string> valid3(VALUE_RESIDUAL_PRECONDITIONER);
@@ -584,7 +574,7 @@ void PostProcessingConfiguration::addTypeSpecificSubtags(
     _coarseModelOptimizationConfig->setIsAddManifoldMappingTagAllowed(false);
     _coarseModelOptimizationConfig->connectTags(tag);
 
-    XMLTag             tagEstimateJacobian(*this, TAG_ESTIMATEJACOBIAN, XMLTag::OCCUR_NOT_OR_ONCE);
+    XMLTag tagEstimateJacobian(*this, TAG_ESTIMATEJACOBIAN, XMLTag::OCCUR_NOT_OR_ONCE);
     XMLAttribute<bool> attrBoolValue(ATTR_VALUE);
     attrBoolValue.setDocumentation("If manifold mapping is used as post-processing one can switch"
                                    " between explicit estimation and updating of the Jacobian (multi-vector method)"
@@ -592,7 +582,7 @@ void PostProcessingConfiguration::addTypeSpecificSubtags(
     tagEstimateJacobian.addAttribute(attrBoolValue);
     tag.addSubtag(tagEstimateJacobian);
 
-    XMLTag            tagMaxUsedIter(*this, TAG_MAX_USED_ITERATIONS, XMLTag::OCCUR_ONCE);
+    XMLTag tagMaxUsedIter(*this, TAG_MAX_USED_ITERATIONS, XMLTag::OCCUR_ONCE);
     XMLAttribute<int> attrIntValue(ATTR_VALUE);
     tagMaxUsedIter.addAttribute(attrIntValue);
     tag.addSubtag(tagMaxUsedIter);
@@ -601,10 +591,10 @@ void PostProcessingConfiguration::addTypeSpecificSubtags(
     tagTimestepsReused.addAttribute(attrIntValue);
     tag.addSubtag(tagTimestepsReused);
 
-    XMLTag                    tagData(*this, TAG_DATA, XMLTag::OCCUR_ONCE_OR_MORE);
+    XMLTag tagData(*this, TAG_DATA, XMLTag::OCCUR_ONCE_OR_MORE);
     XMLAttribute<std::string> attrName(ATTR_NAME);
     XMLAttribute<std::string> attrMesh(ATTR_MESH);
-    XMLAttribute<double>      attrScaling(ATTR_SCALING);
+    XMLAttribute<double> attrScaling(ATTR_SCALING);
     attrScaling.setDefaultValue(1.0);
     attrScaling.setDocumentation("To improve the performance of a parallel or a multi coupling schemes, "
                                  "data values can be manually scaled. We recommend, however, to use an automatic scaling via a preconditioner.");
@@ -613,8 +603,8 @@ void PostProcessingConfiguration::addTypeSpecificSubtags(
     tagData.addAttribute(attrMesh);
     tag.addSubtag(tagData);
 
-    XMLTag                       tagFilter(*this, TAG_FILTER, XMLTag::OCCUR_NOT_OR_ONCE);
-    XMLAttribute<std::string>    attrFilterName(ATTR_TYPE);
+    XMLTag tagFilter(*this, TAG_FILTER, XMLTag::OCCUR_NOT_OR_ONCE);
+    XMLAttribute<std::string> attrFilterName(ATTR_TYPE);
     ValidatorEquals<std::string> validQR1(VALUE_QR1FILTER);
     ValidatorEquals<std::string> validQR1abs(VALUE_QR1_ABSFILTER);
     ValidatorEquals<std::string> validQR2(VALUE_QR2FILTER);
@@ -633,8 +623,8 @@ void PostProcessingConfiguration::addTypeSpecificSubtags(
                                "are filtered out.");
     tag.addSubtag(tagFilter);
 
-    XMLTag                       tagPreconditioner(*this, TAG_PRECONDITIONER, XMLTag::OCCUR_NOT_OR_ONCE);
-    XMLAttribute<std::string>    attrPreconditionerType(ATTR_TYPE);
+    XMLTag tagPreconditioner(*this, TAG_PRECONDITIONER, XMLTag::OCCUR_NOT_OR_ONCE);
+    XMLAttribute<std::string> attrPreconditionerType(ATTR_TYPE);
     ValidatorEquals<std::string> valid1(VALUE_CONSTANT_PRECONDITIONER);
     ValidatorEquals<std::string> valid2(VALUE_VALUE_PRECONDITIONER);
     ValidatorEquals<std::string> valid3(VALUE_RESIDUAL_PRECONDITIONER);
@@ -654,7 +644,7 @@ void PostProcessingConfiguration::addTypeSpecificSubtags(
     tag.addSubtag(tagPreconditioner);
 
   } else if (tag.getName() == VALUE_BROYDEN) {
-    XMLTag               tagInitRelax(*this, TAG_INIT_RELAX, XMLTag::OCCUR_ONCE);
+    XMLTag tagInitRelax(*this, TAG_INIT_RELAX, XMLTag::OCCUR_ONCE);
     XMLAttribute<double> attrDoubleValue(ATTR_VALUE);
     tagInitRelax.addAttribute(attrDoubleValue);
     XMLAttribute<bool> attrEnforce(ATTR_ENFORCE);
@@ -662,7 +652,7 @@ void PostProcessingConfiguration::addTypeSpecificSubtags(
     tagInitRelax.addAttribute(attrEnforce);
     tag.addSubtag(tagInitRelax);
 
-    XMLTag            tagMaxUsedIter(*this, TAG_MAX_USED_ITERATIONS, XMLTag::OCCUR_ONCE);
+    XMLTag tagMaxUsedIter(*this, TAG_MAX_USED_ITERATIONS, XMLTag::OCCUR_ONCE);
     XMLAttribute<int> attrIntValue(ATTR_VALUE);
     tagMaxUsedIter.addAttribute(attrIntValue);
     tag.addSubtag(tagMaxUsedIter);
@@ -671,10 +661,10 @@ void PostProcessingConfiguration::addTypeSpecificSubtags(
     tagTimestepsReused.addAttribute(attrIntValue);
     tag.addSubtag(tagTimestepsReused);
 
-    XMLTag                    tagData(*this, TAG_DATA, XMLTag::OCCUR_ONCE_OR_MORE);
+    XMLTag tagData(*this, TAG_DATA, XMLTag::OCCUR_ONCE_OR_MORE);
     XMLAttribute<std::string> attrName(ATTR_NAME);
     XMLAttribute<std::string> attrMesh(ATTR_MESH);
-    XMLAttribute<double>      attrScaling(ATTR_SCALING);
+    XMLAttribute<double> attrScaling(ATTR_SCALING);
     attrScaling.setDefaultValue(1.0);
     attrScaling.setDocumentation("To improve the performance of a parallel or a multi coupling schemes, "
                                  "data values can be manually scaled. We recommend, however, to use an automatic scaling via a preconditioner.");
@@ -687,5 +677,5 @@ void PostProcessingConfiguration::addTypeSpecificSubtags(
           << tag.getName() << "\" is unknown!");
   }
 }
-}
-} // namespace precice, cplscheme
+} // namespace cplscheme
+} // namespace precice

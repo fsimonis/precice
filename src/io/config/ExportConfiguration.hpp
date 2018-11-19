@@ -1,10 +1,10 @@
 #pragma once
 
 #include "io/ExportContext.hpp"
-#include "xml/XMLTag.hpp"
 #include "logging/Logger.hpp"
-#include <string>
+#include "xml/XMLTag.hpp"
 #include <list>
+#include <string>
 
 namespace precice {
 namespace io {
@@ -12,23 +12,25 @@ namespace io {
 /**
  * @brief Configuration class for exports.
  */
-class ExportConfiguration : public xml::XMLTag::Listener
-{
+class ExportConfiguration: public xml::XMLTag::Listener {
 public:
-
-  ExportConfiguration ( xml::XMLTag& parent );
+  ExportConfiguration(xml::XMLTag &parent);
 
   /**
    * @brief Returns the configured export context
    */
-  std::list<ExportContext>& exportContexts() { return _contexts; }
+  std::list<ExportContext> &exportContexts() {
+    return _contexts;
+  }
 
-  virtual void xmlTagCallback ( xml::XMLTag& callingTag );
+  virtual void xmlTagCallback(xml::XMLTag &callingTag);
 
   /// Callback from automatic configuration. Not utilitzed here.
-  virtual void xmlEndTagCallback ( xml::XMLTag& callingTag ) {}
+  virtual void xmlEndTagCallback(xml::XMLTag &callingTag) {}
 
-  void resetExports() { _contexts.clear(); }
+  void resetExports() {
+    _contexts.clear();
+  }
 
 private:
   logging::Logger _log{"io::ExportConfiguration"};
@@ -49,4 +51,5 @@ private:
   std::list<ExportContext> _contexts;
 };
 
-}} // namespace precice, io
+} // namespace io
+} // namespace precice

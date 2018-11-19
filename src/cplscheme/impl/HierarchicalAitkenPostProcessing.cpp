@@ -1,41 +1,36 @@
 #include "HierarchicalAitkenPostProcessing.hpp"
-#include <limits>
 #include "../CouplingData.hpp"
 #include "math/math.hpp"
 #include "utils/EigenHelperFunctions.hpp"
 #include "utils/Helpers.hpp"
+#include <limits>
 
-namespace precice
-{
-namespace cplscheme
-{
-namespace impl
-{
+namespace precice {
+namespace cplscheme {
+namespace impl {
 
 HierarchicalAitkenPostProcessing::HierarchicalAitkenPostProcessing(
-    double           initialRelaxation,
+    double initialRelaxation,
     std::vector<int> dataIDs)
     : _initialRelaxation(initialRelaxation),
-      _dataIDs(dataIDs)
-{
+      _dataIDs(dataIDs) {
   CHECK((_initialRelaxation > 0.0) && (_initialRelaxation <= 1.0),
         "Initial relaxation factor for aitken post processing has to "
-        << "be larger than zero and smaller or equal than one!");
+            << "be larger than zero and smaller or equal than one!");
 }
 
-void HierarchicalAitkenPostProcessing::initialize(DataMap &cplData)
-{
+void HierarchicalAitkenPostProcessing::initialize(DataMap &cplData) {
   TRACE();
   CHECK(utils::contained(*_dataIDs.begin(), cplData),
         "Data with ID " << *_dataIDs.begin() << " is not contained in data given at initialization!");
   size_t entries = cplData[*_dataIDs.begin()]->values->size(); // Add zero boundaries
-  assertion((entries - 1) % 2 == 0);                           // entries has to be an odd number
-  double          initializer = std::numeric_limits<double>::max();
-  Eigen::VectorXd toAppend    = Eigen::VectorXd::Constant(entries, initializer);
+  assertion((entries - 1) % 2 == 0); // entries has to be an odd number
+  double initializer = std::numeric_limits<double>::max();
+  Eigen::VectorXd toAppend = Eigen::VectorXd::Constant(entries, initializer);
   utils::append(_residual, toAppend);
 
   size_t entriesCurrentLevel = 1;
-  size_t totalEntries        = 2;               // Boundary entries
+  size_t totalEntries = 2; // Boundary entries
   _aitkenFactors.push_back(_initialRelaxation); // Boundary entries
   while (totalEntries < entries) {
     _aitkenFactors.push_back(_initialRelaxation);
@@ -55,8 +50,7 @@ void HierarchicalAitkenPostProcessing::initialize(DataMap &cplData)
 }
 
 void HierarchicalAitkenPostProcessing::performPostProcessing(
-    DataMap &cplData)
-{
+    DataMap &cplData) {
   TRACE();
   typedef Eigen::VectorXd DataValues;
 
@@ -87,8 +81,8 @@ void HierarchicalAitkenPostProcessing::performPostProcessing(
   //  INFO ( "residualDelta = " << residualDelta );
 
   // Hierarchize entries
-  size_t entries             = residual.size();
-  size_t treatedEntries      = 2;
+  size_t entries = residual.size();
+  size_t treatedEntries = 2;
   size_t entriesCurrentLevel = std::pow(2.0, (int) (_aitkenFactors.size() - 2));
   for (size_t level = _aitkenFactors.size() - 1; level > 0; level--) {
     size_t stepsize = (entries - 1) / std::pow(2.0, (int) (level - 1));
@@ -125,26 +119,26 @@ void HierarchicalAitkenPostProcessing::performPostProcessing(
   denominators[0] = residualDelta(0) * residualDelta(0) +
                     residualDelta(entries - 1) * residualDelta(entries - 1);
   computeAitkenFactor(0, nominators[0], denominators[0]);
-  double omega         = _aitkenFactors[0];
+  double omega = _aitkenFactors[0];
   double oneMinusOmega = 1.0 - omega;
   for (DataMap::value_type &pair : cplData) {
-    auto &      values    = *pair.second->values;
+    auto &values = *pair.second->values;
     const auto &oldValues = pair.second->oldValues.col(0);
-    values(0)             = values(0) * omega + oldValues(0) * oneMinusOmega;
-    values(entries - 1)   = values(entries - 1) * omega + oldValues(entries - 1) * oneMinusOmega;
+    values(0) = values(0) * omega + oldValues(0) * oneMinusOmega;
+    values(entries - 1) = values(entries - 1) * omega + oldValues(entries - 1) * oneMinusOmega;
   }
-  treatedEntries      = 2;
+  treatedEntries = 2;
   entriesCurrentLevel = 1;
   for (size_t level = 1; level < _aitkenFactors.size(); level++) {
     size_t stepsize = (entries - 1) / std::pow(2.0, (int) (level - 1));
-    size_t index    = stepsize / 2;
+    size_t index = stepsize / 2;
     for (size_t i = 0; i < entriesCurrentLevel; i++) {
       nominators[level] += _residual(index) * residualDelta(index);
       denominators[level] += residualDelta(index) * residualDelta(index);
       index += stepsize;
     }
     computeAitkenFactor(level, nominators[level], denominators[level]);
-    omega         = _aitkenFactors[level];
+    omega = _aitkenFactors[level];
     oneMinusOmega = 1.0 - omega;
     //for ( DataMap::value_type & pair : cplData ) {
     //  DataValues & values = *pair.second.values;
@@ -183,11 +177,11 @@ void HierarchicalAitkenPostProcessing::performPostProcessing(
   //  INFO ( "relaxed hierarchized values = " << values );
 
   // Dehierarchization
-  treatedEntries      = 2;
+  treatedEntries = 2;
   entriesCurrentLevel = 1;
   for (size_t level = 1; level < _aitkenFactors.size(); level++) {
     size_t stepsize = (entries - 1) / std::pow(2.0, (int) (level - 1));
-    size_t index    = stepsize / 2;
+    size_t index = stepsize / 2;
     for (size_t i = 0; i < entriesCurrentLevel; i++) {
       values(index) +=
           (values(index - stepsize / 2) + values(index + stepsize / 2)) / 2.0;
@@ -209,17 +203,15 @@ void HierarchicalAitkenPostProcessing::performPostProcessing(
 }
 
 void HierarchicalAitkenPostProcessing::iterationsConverged(
-    DataMap &cplData)
-{
+    DataMap &cplData) {
   _iterationCounter = 0;
-  _residual         = Eigen::VectorXd::Constant(_residual.size(), std::numeric_limits<double>::max());
+  _residual = Eigen::VectorXd::Constant(_residual.size(), std::numeric_limits<double>::max());
 }
 
 void HierarchicalAitkenPostProcessing::computeAitkenFactor(
     size_t level,
     double nominator,
-    double denominator)
-{
+    double denominator) {
   // Select/compute aitken factor depending on current iteration count
   if (_iterationCounter == 0) {
     //INFO ( "First iteration (nom = " << nominator << ", den = " << denominator );
@@ -245,15 +237,14 @@ void HierarchicalAitkenPostProcessing::computeAitkenFactor(
  *  ---------------------------------------------------------------------------------------------
  */
 std::map<int, Eigen::VectorXd> HierarchicalAitkenPostProcessing::getDesignSpecification(
-    DataMap &cplData)
-{
+    DataMap &cplData) {
   ERROR("Design specification for Aitken relaxation is not supported yet.");
 
   std::map<int, Eigen::VectorXd> designSpecifications;
-  int                            off = 0;
+  int off = 0;
   for (int id : _dataIDs) {
-    int             size = cplData[id]->values->size();
-    Eigen::VectorXd q    = Eigen::VectorXd::Zero(size);
+    int size = cplData[id]->values->size();
+    Eigen::VectorXd q = Eigen::VectorXd::Zero(size);
     for (int i = 0; i < size; i++) {
       q(i) = _designSpecification(i + off);
     }
@@ -265,11 +256,10 @@ std::map<int, Eigen::VectorXd> HierarchicalAitkenPostProcessing::getDesignSpecif
 }
 
 void HierarchicalAitkenPostProcessing::setDesignSpecification(
-    Eigen::VectorXd &q)
-{
+    Eigen::VectorXd &q) {
   _designSpecification = q;
   ERROR("design specification for Aitken relaxation is not supported yet.");
 }
-}
-}
-} // namespace precice, cplscheme, impl
+} // namespace impl
+} // namespace cplscheme
+} // namespace precice

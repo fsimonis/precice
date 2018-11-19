@@ -1,18 +1,14 @@
 #include "math/barycenter.hpp"
 
-namespace precice
-{
-namespace math
-{
-namespace barycenter
-{
+namespace precice {
+namespace math {
+namespace barycenter {
 
 BarycentricCoordsAndProjected calcBarycentricCoordsForEdge(
     const Eigen::VectorXd &edgeA,
     const Eigen::VectorXd &edgeB,
     const Eigen::VectorXd &edgeNormal,
-    const Eigen::VectorXd &location)
-{
+    const Eigen::VectorXd &location) {
   using Eigen::Vector2d;
   using Eigen::Vector3d;
   using Eigen::VectorXd;
@@ -25,12 +21,12 @@ BarycentricCoordsAndProjected calcBarycentricCoordsForEdge(
   Vector2d barycentricCoords;
   VectorXd projected = VectorXd::Zero(dimensions);
   Vector2d a, b, ab, c, d;
-  bool     collinear = false;
+  bool collinear = false;
 
   if (dimensions == 2) {
     // Get parameters for parametric edge representation: p(s) = a + s(b-a)
-    a  = edgeA.head<2>();
-    b  = edgeB.head<2>();
+    a = edgeA.head<2>();
+    b = edgeB.head<2>();
     ab = b;
     ab -= a;
     // Same for intersecting normal from searchpoint: q(t) = c + t(d - c)
@@ -45,19 +41,19 @@ BarycentricCoordsAndProjected calcBarycentricCoordsForEdge(
       assertion(!math::equals(ab(iMax), 0.0));
       barycentricCoords[0] = (location(iMax) - a(iMax)) / ab(iMax);
       barycentricCoords[1] = 1.0 - barycentricCoords[0];
-      projected            = location.head<2>();
+      projected = location.head<2>();
       std::swap(barycentricCoords(0), barycentricCoords(1));
       return {barycentricCoords, projected};
     }
   } else { // 3D
     assertion(dimensions == 3, dimensions);
     // Get parameters for parametric triangle representation: p(s) = a + s(b-a)
-    Vector3d a3D  = edgeA;
-    Vector3d b3D  = edgeB;
-    Vector3d c3D  = location;
+    Vector3d a3D = edgeA;
+    Vector3d b3D = edgeB;
+    Vector3d c3D = location;
     Vector3d ab3D = b3D - a3D;
     Vector3d ac3D = c3D - a3D;
-    collinear     = math::geometry::collinear(a3D, b3D, c3D);
+    collinear = math::geometry::collinear(a3D, b3D, c3D);
     if (collinear) {
       // From p(s) = a + s(b-a) we get: s = (p(s) - a) / (b-a)
       int iMax;
@@ -66,7 +62,7 @@ BarycentricCoordsAndProjected calcBarycentricCoordsForEdge(
       barycentricCoords[0] =
           (location(iMax) - edgeA(iMax)) / ab3D(iMax);
       barycentricCoords[1] = 1.0 - barycentricCoords[0];
-      projected            = location;
+      projected = location;
       std::swap(barycentricCoords(0), barycentricCoords(1));
       return {barycentricCoords, projected};
     }
@@ -112,14 +108,14 @@ BarycentricCoordsAndProjected calcBarycentricCoordsForEdge(
   // Compute coordinates of projected point, which has to be done dimension
   // dependent again:
   if (dimensions == 2) {
-    projected = ab;                    // = b - a
+    projected = ab; // = b - a
     projected *= barycentricCoords[0]; // = bary0 * (b - a)
-    projected += a;                    // = a + bary0 * (b - a)
+    projected += a; // = a + bary0 * (b - a)
   } else {
-    projected = edgeB;                 // = b
-    projected -= edgeA;                // = b - a
+    projected = edgeB; // = b
+    projected -= edgeA; // = b - a
     projected *= barycentricCoords[0]; // = bary0 * (b - a)
-    projected += edgeA;                // = a + bary0 * (b - a)
+    projected += edgeA; // = a + bary0 * (b - a)
   }
 
   std::swap(barycentricCoords(0), barycentricCoords(1));
@@ -131,8 +127,7 @@ BarycentricCoordsAndProjected calcBarycentricCoordsForTriangle(
     const Eigen::VectorXd &b,
     const Eigen::VectorXd &c,
     const Eigen::VectorXd &normal,
-    const Eigen::VectorXd &location)
-{
+    const Eigen::VectorXd &location) {
   using Eigen::Vector2d;
   using Eigen::Vector3d;
 
@@ -173,7 +168,7 @@ BarycentricCoordsAndProjected calcBarycentricCoordsForTriangle(
                c[indices[1]]);
   Vector2d projected2D(projected[indices[0]], projected[indices[1]]);
   // Compute barycentric coordinates by solving linear 3x3 system
-  Vector3d                    rhs(projected2D(0), projected2D(1), 1);
+  Vector3d rhs(projected2D(0), projected2D(1), 1);
   Eigen::Matrix<double, 3, 3> A;
   A << a2D(0), b2D(0), c2D(0),
       a2D(1), b2D(1), c2D(1),
@@ -189,8 +184,7 @@ BarycentricCoordsAndProjected calcBarycentricCoordsForQuad(
     const Eigen::VectorXd &c,
     const Eigen::VectorXd &d,
     const Eigen::VectorXd &normal,
-    const Eigen::VectorXd &location)
-{
+    const Eigen::VectorXd &location) {
   assertion("Interpolation on Quads is not implemented!");
 }
 } // namespace barycenter
