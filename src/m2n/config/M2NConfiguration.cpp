@@ -1,5 +1,4 @@
 #include "M2NConfiguration.hpp"
-#include <list>
 #include "com/MPIDirectCommunication.hpp"
 #include "com/MPIPortsCommunicationFactory.hpp"
 #include "com/MPISinglePortsCommunicationFactory.hpp"
@@ -8,17 +7,15 @@
 #include "m2n/GatherScatterComFactory.hpp"
 #include "m2n/M2N.hpp"
 #include "m2n/PointToPointComFactory.hpp"
+#include "utils/Helpers.hpp"
 #include "xml/ValidatorEquals.hpp"
 #include "xml/ValidatorOr.hpp"
 #include "xml/XMLAttribute.hpp"
-#include "utils/Helpers.hpp"
+#include <list>
 
-namespace precice
-{
-namespace m2n
-{
-M2NConfiguration::M2NConfiguration(xml::XMLTag &parent)
-{
+namespace precice {
+namespace m2n {
+M2NConfiguration::M2NConfiguration(xml::XMLTag &parent) {
   using namespace xml;
   std::string        doc;
   std::list<XMLTag>  tags;
@@ -132,8 +129,7 @@ M2NConfiguration::M2NConfiguration(xml::XMLTag &parent)
   }
 }
 
-m2n::PtrM2N M2NConfiguration::getM2N(const std::string &from, const std::string &to)
-{
+m2n::PtrM2N M2NConfiguration::getM2N(const std::string &from, const std::string &to) {
   using std::get;
   for (M2NTuple &tuple : _m2ns) {
     if ((get<1>(tuple) == from) && (get<2>(tuple) == to)) {
@@ -147,8 +143,7 @@ m2n::PtrM2N M2NConfiguration::getM2N(const std::string &from, const std::string 
   throw error.str();
 }
 
-void M2NConfiguration::xmlTagCallback(xml::XMLTag &tag)
-{
+void M2NConfiguration::xmlTagCallback(xml::XMLTag &tag) {
   if (tag.getNamespace() == TAG) {
     std::string from = tag.getStringAttributeValue("from");
     std::string to   = tag.getStringAttributeValue("to");
@@ -192,7 +187,9 @@ void M2NConfiguration::xmlTagCallback(xml::XMLTag &tag)
     } else if (tag.getName() == "mpi-single") {
 #ifdef PRECICE_NO_MPI
       std::ostringstream error;
-      error << "Communication type \"" << "mpi-single" << "\" can only be used "
+      error << "Communication type \""
+            << "mpi-single"
+            << "\" can only be used "
             << "when preCICE is compiled with argument \"mpi=on\"";
       throw error.str();
 #else
@@ -219,8 +216,7 @@ void M2NConfiguration::xmlTagCallback(xml::XMLTag &tag)
 
 void M2NConfiguration::checkDuplicates(
     const std::string &from,
-    const std::string &to)
-{
+    const std::string &to) {
   using std::get;
   bool alreadyAdded = false;
   for (M2NTuple &tuple : _m2ns) {

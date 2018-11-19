@@ -2,14 +2,11 @@
 
 #include <string>
 
-namespace precice
-{
-namespace xml
-{
+namespace precice {
+namespace xml {
 
-template <typename VALUE_T>
-class Validator
-{
+template<typename VALUE_T>
+class Validator {
 public:
   Validator() {}
 
@@ -28,5 +25,5 @@ private:
 
   Validator<VALUE_T> &operator=(const Validator<VALUE_T> &rhs);
 };
-}
-} // namespace precice, xml
+} // namespace xml
+} // namespace precice

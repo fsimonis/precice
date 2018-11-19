@@ -1,18 +1,14 @@
 #include "math/barycenter.hpp"
 
-namespace precice
-{
-namespace math
-{
-namespace barycenter
-{
+namespace precice {
+namespace math {
+namespace barycenter {
 
 BarycentricCoordsAndProjected calcBarycentricCoordsForEdge(
     const Eigen::VectorXd &edgeA,
     const Eigen::VectorXd &edgeB,
     const Eigen::VectorXd &edgeNormal,
-    const Eigen::VectorXd &location)
-{
+    const Eigen::VectorXd &location) {
   using Eigen::Vector2d;
   using Eigen::Vector3d;
   using Eigen::VectorXd;
@@ -131,8 +127,7 @@ BarycentricCoordsAndProjected calcBarycentricCoordsForTriangle(
     const Eigen::VectorXd &b,
     const Eigen::VectorXd &c,
     const Eigen::VectorXd &normal,
-    const Eigen::VectorXd &location)
-{
+    const Eigen::VectorXd &location) {
   using Eigen::Vector2d;
   using Eigen::Vector3d;
 
@@ -189,8 +184,7 @@ BarycentricCoordsAndProjected calcBarycentricCoordsForQuad(
     const Eigen::VectorXd &c,
     const Eigen::VectorXd &d,
     const Eigen::VectorXd &normal,
-    const Eigen::VectorXd &location)
-{
+    const Eigen::VectorXd &location) {
   assertion("Interpolation on Quads is not implemented!");
 }
 } // namespace barycenter

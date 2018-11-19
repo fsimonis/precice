@@ -1,30 +1,25 @@
 #include "HierarchicalAitkenPostProcessing.hpp"
-#include <limits>
 #include "../CouplingData.hpp"
 #include "math/math.hpp"
 #include "utils/EigenHelperFunctions.hpp"
 #include "utils/Helpers.hpp"
+#include <limits>
 
-namespace precice
-{
-namespace cplscheme
-{
-namespace impl
-{
+namespace precice {
+namespace cplscheme {
+namespace impl {
 
 HierarchicalAitkenPostProcessing::HierarchicalAitkenPostProcessing(
     double           initialRelaxation,
     std::vector<int> dataIDs)
     : _initialRelaxation(initialRelaxation),
-      _dataIDs(dataIDs)
-{
+      _dataIDs(dataIDs) {
   CHECK((_initialRelaxation > 0.0) && (_initialRelaxation <= 1.0),
         "Initial relaxation factor for aitken post processing has to "
-        << "be larger than zero and smaller or equal than one!");
+            << "be larger than zero and smaller or equal than one!");
 }
 
-void HierarchicalAitkenPostProcessing::initialize(DataMap &cplData)
-{
+void HierarchicalAitkenPostProcessing::initialize(DataMap &cplData) {
   TRACE();
   CHECK(utils::contained(*_dataIDs.begin(), cplData),
         "Data with ID " << *_dataIDs.begin() << " is not contained in data given at initialization!");
@@ -55,8 +50,7 @@ void HierarchicalAitkenPostProcessing::initialize(DataMap &cplData)
 }
 
 void HierarchicalAitkenPostProcessing::performPostProcessing(
-    DataMap &cplData)
-{
+    DataMap &cplData) {
   TRACE();
   typedef Eigen::VectorXd DataValues;
 
@@ -209,8 +203,7 @@ void HierarchicalAitkenPostProcessing::performPostProcessing(
 }
 
 void HierarchicalAitkenPostProcessing::iterationsConverged(
-    DataMap &cplData)
-{
+    DataMap &cplData) {
   _iterationCounter = 0;
   _residual         = Eigen::VectorXd::Constant(_residual.size(), std::numeric_limits<double>::max());
 }
@@ -218,8 +211,7 @@ void HierarchicalAitkenPostProcessing::iterationsConverged(
 void HierarchicalAitkenPostProcessing::computeAitkenFactor(
     size_t level,
     double nominator,
-    double denominator)
-{
+    double denominator) {
   // Select/compute aitken factor depending on current iteration count
   if (_iterationCounter == 0) {
     //INFO ( "First iteration (nom = " << nominator << ", den = " << denominator );
@@ -245,8 +237,7 @@ void HierarchicalAitkenPostProcessing::computeAitkenFactor(
  *  ---------------------------------------------------------------------------------------------
  */
 std::map<int, Eigen::VectorXd> HierarchicalAitkenPostProcessing::getDesignSpecification(
-    DataMap &cplData)
-{
+    DataMap &cplData) {
   ERROR("Design specification for Aitken relaxation is not supported yet.");
 
   std::map<int, Eigen::VectorXd> designSpecifications;
@@ -265,11 +256,10 @@ std::map<int, Eigen::VectorXd> HierarchicalAitkenPostProcessing::getDesignSpecif
 }
 
 void HierarchicalAitkenPostProcessing::setDesignSpecification(
-    Eigen::VectorXd &q)
-{
+    Eigen::VectorXd &q) {
   _designSpecification = q;
   ERROR("design specification for Aitken relaxation is not supported yet.");
 }
-}
-}
-} // namespace precice, cplscheme, impl
+} // namespace impl
+} // namespace cplscheme
+} // namespace precice

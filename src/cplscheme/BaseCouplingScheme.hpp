@@ -1,7 +1,5 @@
 #pragma once
 
-#include <Eigen/Core>
-#include <set>
 #include "Constants.hpp"
 #include "CouplingData.hpp"
 #include "CouplingScheme.hpp"
@@ -10,11 +8,11 @@
 #include "io/TXTTableWriter.hpp"
 #include "logging/Logger.hpp"
 #include "m2n/SharedPointer.hpp"
+#include <Eigen/Core>
+#include <set>
 
-namespace precice
-{
-namespace cplscheme
-{
+namespace precice {
+namespace cplscheme {
 
 /**
  * @brief Abstract base class for standard coupling schemes.
@@ -44,8 +42,7 @@ namespace cplscheme
  * -# when the method isCouplingOngoing() returns false, call finalize() to
  *    stop the coupling scheme
  */
-class BaseCouplingScheme : public CouplingScheme
-{
+class BaseCouplingScheme: public CouplingScheme {
 public:
   BaseCouplingScheme(
       double maxTime,
@@ -94,8 +91,7 @@ public:
       bool          initialize);
 
   /// Returns true, if initialize has been called.
-  virtual bool isInitialized() const
-  {
+  virtual bool isInitialized() const {
     return _isInitialized;
   }
 
@@ -123,14 +119,12 @@ public:
   virtual int getTimesteps() const;
 
   /// Returns the maximal time to be computed.
-  virtual double getMaxTime() const
-  {
+  virtual double getMaxTime() const {
     return _maxTime;
   }
 
   /// Returns the maximal timesteps to be computed.
-  virtual int getMaxTimesteps() const
-  {
+  virtual int getMaxTimesteps() const {
     return _maxTimesteps;
   }
 
@@ -157,8 +151,7 @@ public:
   virtual double getThisTimestepRemainder() const;
 
   /// Returns part of the current timestep that has been computed already.
-  virtual double getComputedTimestepPart() const
-  {
+  virtual double getComputedTimestepPart() const {
     return _computedTimestepPart;
   }
 
@@ -227,8 +220,7 @@ public:
   virtual void initializeData() = 0;
 
   /// Returns whether the solver has to evaluate the coarse or the fine model representation
-  virtual bool isCoarseModelOptimizationActive()
-  {
+  virtual bool isCoarseModelOptimizationActive() {
     return _isCoarseModelOptimizationActive;
   }
 
@@ -277,8 +269,7 @@ protected:
   void sendDt();
 
   /// @return True, if local participant is the one starting the scheme.
-  bool doesFirstStep() const
-  {
+  bool doesFirstStep() const {
     return _doesFirstStep;
   }
 
@@ -289,24 +280,20 @@ protected:
   std::vector<int> receiveData(m2n::PtrM2N m2n);
 
   /// Returns all data to be sent.
-  const DataMap &getSendData() const
-  {
+  const DataMap &getSendData() const {
     return _sendData;
   }
 
-  const DataMap &getReceiveData() const
-  {
+  const DataMap &getReceiveData() const {
     return _receiveData;
   }
 
   /// Returns all data to be sent.
-  DataMap &getSendData()
-  {
+  DataMap &getSendData() {
     return _sendData;
   }
 
-  DataMap &getReceiveData()
-  {
+  DataMap &getReceiveData() {
     return _receiveData;
   }
 
@@ -317,8 +304,7 @@ protected:
   CouplingData *getReceiveData(int dataID);
 
   /// Sets value for computed timestep part.
-  void setComputedTimestepPart(double computedTimestepPart)
-  {
+  void setComputedTimestepPart(double computedTimestepPart) {
     _computedTimestepPart = computedTimestepPart;
   }
 
@@ -330,8 +316,7 @@ protected:
    *
    * Used from subclasses and when a checkpoint has been read.
    */
-  void setTime(double time)
-  {
+  void setTime(double time) {
     _time = time;
   }
 
@@ -340,23 +325,19 @@ protected:
    *
    * Used from subclasses and when a checkpoint has been read.
    */
-  void setTimesteps(int timesteps)
-  {
+  void setTimesteps(int timesteps) {
     _timesteps = timesteps;
   }
 
-  void setTimestepLength(double timestepLength)
-  {
+  void setTimestepLength(double timestepLength) {
     _timestepLength = timestepLength;
   }
 
-  void setIsCouplingTimestepComplete(bool isCouplingTimestepComplete)
-  {
+  void setIsCouplingTimestepComplete(bool isCouplingTimestepComplete) {
     _isCouplingTimestepComplete = isCouplingTimestepComplete;
   }
 
-  void setIsInitialized(bool isInitialized)
-  {
+  void setIsInitialized(bool isInitialized) {
     _isInitialized = isInitialized;
   }
 
@@ -397,39 +378,32 @@ protected:
   std::string _localParticipant = "unknown";
 
   /// @return Communication device to the other coupling participant.
-  m2n::PtrM2N getM2N()
-  {
+  m2n::PtrM2N getM2N() {
     assertion(_m2n.use_count() > 0);
     return _m2n;
   }
 
-  void setHasToSendInitData(bool hasToSendInitData)
-  {
+  void setHasToSendInitData(bool hasToSendInitData) {
     _hasToSendInitData = hasToSendInitData;
   }
 
-  void setHasToReceiveInitData(bool hasToReceiveInitData)
-  {
+  void setHasToReceiveInitData(bool hasToReceiveInitData) {
     _hasToReceiveInitData = hasToReceiveInitData;
   }
 
-  bool hasToSendInitData()
-  {
+  bool hasToSendInitData() {
     return _hasToSendInitData;
   }
 
-  bool hasToReceiveInitData()
-  {
+  bool hasToReceiveInitData() {
     return _hasToReceiveInitData;
   }
 
-  bool participantReceivesDt()
-  {
+  bool participantReceivesDt() {
     return _participantReceivesDt;
   }
 
-  bool participantSetsDt()
-  {
+  bool participantSetsDt() {
     return _participantSetsDt;
   }
 
@@ -470,8 +444,7 @@ protected:
    */
   void setupDataMatrices(DataMap &data);
 
-  impl::PtrPostProcessing getPostProcessing()
-  {
+  impl::PtrPostProcessing getPostProcessing() {
     return _postProcessing;
   }
 
@@ -481,13 +454,11 @@ protected:
 
   void updateTimeAndIterations(bool convergence, bool convergenceCoarseOptimization = true);
 
-  int getMaxIterations() const
-  {
+  int getMaxIterations() const {
     return _maxIterations;
   }
 
-  int getExtrapolationOrder()
-  {
+  int getExtrapolationOrder() {
     return _extrapolationOrder;
   }
 
@@ -580,5 +551,5 @@ private:
 
   int getVertexOffset(std::map<int, int> &vertexDistribution, int rank, int dim);
 };
-}
-} // namespace precice, cplscheme
+} // namespace cplscheme
+} // namespace precice

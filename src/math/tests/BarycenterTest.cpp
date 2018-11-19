@@ -8,8 +8,7 @@ using namespace precice::math::barycenter;
 BOOST_AUTO_TEST_SUITE(MathTests)
 BOOST_AUTO_TEST_SUITE(Barycenter)
 
-BOOST_AUTO_TEST_CASE(BarycenterEdge)
-{
+BOOST_AUTO_TEST_CASE(BarycenterEdge) {
   using Eigen::Vector2d;
   using Eigen::Vector3d;
   using precice::math::equals;
@@ -54,8 +53,7 @@ BOOST_AUTO_TEST_CASE(BarycenterEdge)
   }
 }
 
-BOOST_AUTO_TEST_CASE(BarycenterTriangle)
-{
+BOOST_AUTO_TEST_CASE(BarycenterTriangle) {
   using Eigen::Vector3d;
   using precice::math::equals;
   Vector3d a(0.0, 0.0, 0.0);
@@ -126,12 +124,11 @@ BOOST_AUTO_TEST_CASE(BarycenterTriangle)
   {
     Vector3d l(2.0, 0.0, 0.0);
     auto     ret = calcBarycentricCoordsForTriangle(a, b, c, n, l);
-    BOOST_TEST((ret.barycentricCoords.array() < -precice::math::NUMERICAL_ZERO_DIFFERENCE).any(), "Min 1 coord should be negative "<< ret.barycentricCoords);
+    BOOST_TEST((ret.barycentricCoords.array() < -precice::math::NUMERICAL_ZERO_DIFFERENCE).any(), "Min 1 coord should be negative " << ret.barycentricCoords);
   }
 }
 
-BOOST_AUTO_TEST_CASE(BarycenterQuad)
-{
+BOOST_AUTO_TEST_CASE(BarycenterQuad) {
   /// @todo implement tests for interpolation on quads
 }
 

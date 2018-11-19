@@ -16,17 +16,16 @@ BOOST_AUTO_TEST_SUITE(M2NTests)
 using namespace precice;
 using namespace m2n;
 
-BOOST_AUTO_TEST_CASE(GatherScatterTest, *testing::OnSize(4))
-{
+BOOST_AUTO_TEST_CASE(GatherScatterTest, *testing::OnSize(4)) {
   assertion(utils::Parallel::getCommunicatorSize() == 4);
 
-  com::PtrCommunication participantCom = com::PtrCommunication(new com::MPIDirectCommunication());
+  com::PtrCommunication                     participantCom = com::PtrCommunication(new com::MPIDirectCommunication());
   m2n::DistributedComFactory::SharedPointer distrFactory =
       m2n::DistributedComFactory::SharedPointer(
           new m2n::GatherScatterComFactory(participantCom));
-  m2n::PtrM2N           m2n = m2n::PtrM2N(new m2n::M2N(participantCom, distrFactory));
+  m2n::PtrM2N           m2n            = m2n::PtrM2N(new m2n::M2N(participantCom, distrFactory));
   com::PtrCommunication masterSlaveCom = com::PtrCommunication(new com::MPIDirectCommunication());
-  utils::MasterSlave::_communication = masterSlaveCom;
+  utils::MasterSlave::_communication   = masterSlaveCom;
 
   utils::Parallel::synchronizeProcesses();
 

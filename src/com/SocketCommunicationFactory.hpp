@@ -7,12 +7,9 @@
 
 #include <string>
 
-namespace precice
-{
-namespace com
-{
-class SocketCommunicationFactory : public CommunicationFactory
-{
+namespace precice {
+namespace com {
+class SocketCommunicationFactory: public CommunicationFactory {
 public:
   SocketCommunicationFactory(unsigned short     portNumber       = 0,
                              bool               reuseAddress     = false,

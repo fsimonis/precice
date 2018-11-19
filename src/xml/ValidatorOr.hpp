@@ -2,39 +2,33 @@
 
 #include "Validator.hpp"
 
-namespace precice
-{
-namespace xml
-{
+namespace precice {
+namespace xml {
 
-template <typename VALUE_T>
+template<typename VALUE_T>
 class ValidatorOr;
 
-template <typename VALUE_T>
+template<typename VALUE_T>
 const Validator<VALUE_T> &operator||(
     const Validator<VALUE_T> &lhs,
     const Validator<VALUE_T> &rhs);
-}
-}
+} // namespace xml
+} // namespace precice
 
 // ----------------------------------------------------------- CLASS DEFINITION
 
-namespace precice
-{
-namespace xml
-{
+namespace precice {
+namespace xml {
 
-template <typename VALUE_T>
+template<typename VALUE_T>
 class ValidatorOr
-    : public Validator<VALUE_T>
-{
+    : public Validator<VALUE_T> {
 public:
   ValidatorOr(
       const Validator<VALUE_T> &lhs,
       const Validator<VALUE_T> &rhs);
 
-  virtual ~ValidatorOr()
-  {
+  virtual ~ValidatorOr() {
     delete _lhs;
     delete _rhs;
   }
@@ -58,5 +52,5 @@ private:
 };
 
 #include "ValidatorOr.cpph"
-}
-} // namespace precice, xml
+} // namespace xml
+} // namespace precice

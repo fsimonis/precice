@@ -1,34 +1,30 @@
-#include <string>
 #include "testing/Testing.hpp"
 #include "xml/ValidatorEquals.hpp"
 #include "xml/ValidatorOr.hpp"
 #include "xml/XMLAttribute.hpp"
 #include "xml/XMLTag.hpp"
-
+#include <string>
 
 using namespace precice::xml;
 using precice::testing::getPathToSources;
 
 BOOST_AUTO_TEST_SUITE(XML)
 
-struct CallbackHost : public XMLTag::Listener {
+struct CallbackHost: public XMLTag::Listener {
   Eigen::VectorXd eigenVectorXd;
 
-  void xmlTagCallback(XMLTag &callingTag)
-  {
+  void xmlTagCallback(XMLTag &callingTag) {
     if (callingTag.getName() == "test-eigen-vectorxd-attributes") {
       eigenVectorXd = callingTag.getEigenVectorXdAttributeValue("value", 3);
     }
   }
 
-  void xmlEndTagCallback(XMLTag &callingTag)
-  {
+  void xmlEndTagCallback(XMLTag &callingTag) {
     std::ignore = callingTag;
   }
 };
 
-BOOST_AUTO_TEST_CASE(AttributeConcatenation)
-{
+BOOST_AUTO_TEST_CASE(AttributeConcatenation) {
   std::string filename(getPathToSources() + "/xml/tests/config_xmltest_concatenation.xml");
 
   CallbackHost cb;
@@ -50,8 +46,7 @@ BOOST_AUTO_TEST_CASE(AttributeConcatenation)
   configure(rootTag, filename);
 }
 
-BOOST_AUTO_TEST_CASE(VectorAttributes)
-{
+BOOST_AUTO_TEST_CASE(VectorAttributes) {
   std::string filename(getPathToSources() + "/xml/tests/config_xmltest_vectorattributes.xml");
 
   CallbackHost cb;

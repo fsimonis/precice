@@ -23,10 +23,8 @@
 #include "xml/XMLAttribute.hpp"
 #include "xml/XMLTag.hpp"
 
-namespace precice
-{
-namespace cplscheme
-{
+namespace precice {
+namespace cplscheme {
 
 using precice::impl::PtrParticipant;
 
@@ -77,8 +75,7 @@ CouplingSchemeConfiguration::CouplingSchemeConfiguration(
       _meshConfig(meshConfig),
       _m2nConfig(m2nConfig),
       _couplingSchemes(),
-      _couplingSchemeCompositions()
-{
+      _couplingSchemeCompositions() {
   using namespace xml;
 
   XMLTag::Occurrence occ = XMLTag::OCCUR_ARBITRARY;
@@ -132,14 +129,12 @@ CouplingSchemeConfiguration::CouplingSchemeConfiguration(
 }
 
 bool CouplingSchemeConfiguration::hasCouplingScheme(
-    const std::string &participantName) const
-{
+    const std::string &participantName) const {
   return utils::contained(participantName, _couplingSchemes);
 }
 
 const PtrCouplingScheme &CouplingSchemeConfiguration::getCouplingScheme(
-    const std::string &participantName) const
-{
+    const std::string &participantName) const {
   CHECK(utils::contained(participantName, _couplingSchemes),
         "No coupling scheme defined for "
             << "participant \"" << participantName << "\"!");
@@ -147,8 +142,7 @@ const PtrCouplingScheme &CouplingSchemeConfiguration::getCouplingScheme(
 }
 
 void CouplingSchemeConfiguration::xmlTagCallback(
-    xml::XMLTag &tag)
-{
+    xml::XMLTag &tag) {
   TRACE(tag.getFullName());
   if (tag.getNamespace() == TAG) {
     _config.type = tag.getName();
@@ -251,8 +245,7 @@ void CouplingSchemeConfiguration::xmlTagCallback(
 }
 
 void CouplingSchemeConfiguration::xmlEndTagCallback(
-    xml::XMLTag &tag)
-{
+    xml::XMLTag &tag) {
   TRACE(tag.getFullName());
   if (tag.getNamespace() == TAG) {
     if (_config.type == VALUE_SERIAL_EXPLICIT) {
@@ -311,8 +304,7 @@ void CouplingSchemeConfiguration::xmlEndTagCallback(
 
 void CouplingSchemeConfiguration::addCouplingScheme(
     PtrCouplingScheme  cplScheme,
-    const std::string &participantName)
-{
+    const std::string &participantName) {
   TRACE(participantName);
   if (utils::contained(participantName, _couplingSchemes)) {
     DEBUG("Coupling scheme exists already for participant");
@@ -341,8 +333,7 @@ void CouplingSchemeConfiguration::addCouplingScheme(
 void CouplingSchemeConfiguration::addTypespecifcSubtags(
     const std::string &type,
     //const std::string& name,
-    xml::XMLTag &tag)
-{
+    xml::XMLTag &tag) {
   TRACE(type);
   addTransientLimitTags(tag);
   _config.type = type;
@@ -390,8 +381,7 @@ void CouplingSchemeConfiguration::addTypespecifcSubtags(
 }
 
 void CouplingSchemeConfiguration::addTransientLimitTags(
-    xml::XMLTag &tag)
-{
+    xml::XMLTag &tag) {
   using namespace xml;
   XMLTag               tagMaxTime(*this, TAG_MAX_TIME, XMLTag::OCCUR_NOT_OR_ONCE);
   XMLAttribute<double> attrValueMaxTime(ATTR_VALUE);
@@ -421,8 +411,7 @@ void CouplingSchemeConfiguration::addTransientLimitTags(
 }
 
 void CouplingSchemeConfiguration::addTagParticipants(
-    xml::XMLTag &tag)
-{
+    xml::XMLTag &tag) {
   using namespace xml;
   XMLTag                    tagParticipants(*this, TAG_PARTICIPANTS, XMLTag::OCCUR_ONCE);
   XMLAttribute<std::string> attrFirst(ATTR_FIRST);
@@ -433,8 +422,7 @@ void CouplingSchemeConfiguration::addTagParticipants(
 }
 
 void CouplingSchemeConfiguration::addTagParticipant(
-    xml::XMLTag &tag)
-{
+    xml::XMLTag &tag) {
   using namespace xml;
   XMLTag                    tagParticipant(*this, TAG_PARTICIPANT, XMLTag::OCCUR_ONCE_OR_MORE);
   XMLAttribute<std::string> attrName(ATTR_NAME);
@@ -446,8 +434,7 @@ void CouplingSchemeConfiguration::addTagParticipant(
 }
 
 void CouplingSchemeConfiguration::addTagExchange(
-    xml::XMLTag &tag)
-{
+    xml::XMLTag &tag) {
   using namespace xml;
   XMLTag                    tagExchange(*this, TAG_EXCHANGE, XMLTag::OCCUR_ONCE_OR_MORE);
   XMLAttribute<std::string> attrData(ATTR_DATA);
@@ -465,8 +452,7 @@ void CouplingSchemeConfiguration::addTagExchange(
 }
 
 void CouplingSchemeConfiguration::addTagAbsoluteConvergenceMeasure(
-    xml::XMLTag &tag)
-{
+    xml::XMLTag &tag) {
   using namespace xml;
   XMLTag tagConvergenceMeasure(*this, TAG_ABS_CONV_MEASURE, XMLTag::OCCUR_ARBITRARY);
   addBaseAttributesTagConvergenceMeasure(tagConvergenceMeasure);
@@ -476,8 +462,7 @@ void CouplingSchemeConfiguration::addTagAbsoluteConvergenceMeasure(
 }
 
 void CouplingSchemeConfiguration::addTagResidualRelativeConvergenceMeasure(
-    xml::XMLTag &tag)
-{
+    xml::XMLTag &tag) {
   using namespace xml;
   XMLTag tagConvergenceMeasure(*this, TAG_RES_REL_CONV_MEASURE,
                                XMLTag::OCCUR_ARBITRARY);
@@ -488,8 +473,7 @@ void CouplingSchemeConfiguration::addTagResidualRelativeConvergenceMeasure(
 }
 
 void CouplingSchemeConfiguration::addTagRelativeConvergenceMeasure(
-    xml::XMLTag &tag)
-{
+    xml::XMLTag &tag) {
   using namespace xml;
   XMLTag tagConvergenceMeasure(*this, TAG_REL_CONV_MEASURE, XMLTag::OCCUR_ARBITRARY);
   addBaseAttributesTagConvergenceMeasure(tagConvergenceMeasure);
@@ -499,8 +483,7 @@ void CouplingSchemeConfiguration::addTagRelativeConvergenceMeasure(
 }
 
 void CouplingSchemeConfiguration::addTagMinIterationConvergenceMeasure(
-    xml::XMLTag &tag)
-{
+    xml::XMLTag &tag) {
   xml::XMLTag tagMinIterationConvMeasure(*this,
                                          TAG_MIN_ITER_CONV_MEASURE, xml::XMLTag::OCCUR_ARBITRARY);
   addBaseAttributesTagConvergenceMeasure(tagMinIterationConvMeasure);
@@ -510,8 +493,7 @@ void CouplingSchemeConfiguration::addTagMinIterationConvergenceMeasure(
 }
 
 void CouplingSchemeConfiguration::addBaseAttributesTagConvergenceMeasure(
-    xml::XMLTag &tag)
-{
+    xml::XMLTag &tag) {
   xml::XMLAttribute<std::string> attrData(ATTR_DATA);
   attrData.setDocumentation("Data to be measured.");
   tag.addAttribute(attrData);
@@ -529,8 +511,7 @@ void CouplingSchemeConfiguration::addBaseAttributesTagConvergenceMeasure(
 }
 
 void CouplingSchemeConfiguration::addTagMaxIterations(
-    xml::XMLTag &tag)
-{
+    xml::XMLTag &tag) {
   using namespace xml;
   XMLTag            tagMaxIterations(*this, TAG_MAX_ITERATIONS, XMLTag::OCCUR_NOT_OR_ONCE);
   XMLAttribute<int> attrValue(ATTR_VALUE);
@@ -539,8 +520,7 @@ void CouplingSchemeConfiguration::addTagMaxIterations(
 }
 
 void CouplingSchemeConfiguration::addTagExtrapolation(
-    xml::XMLTag &tag)
-{
+    xml::XMLTag &tag) {
   using namespace xml;
   XMLTag            tagExtrapolation(*this, TAG_EXTRAPOLATION, XMLTag::OCCUR_NOT_OR_ONCE);
   XMLAttribute<int> attrValue(ATTR_VALUE);
@@ -550,8 +530,7 @@ void CouplingSchemeConfiguration::addTagExtrapolation(
 }
 
 void CouplingSchemeConfiguration::addTagPostProcessing(
-    xml::XMLTag &tag)
-{
+    xml::XMLTag &tag) {
   TRACE(tag.getFullName());
   if (_postProcConfig.get() == nullptr) {
     _postProcConfig = PtrPostProcessingConfiguration(
@@ -566,8 +545,7 @@ void CouplingSchemeConfiguration::addAbsoluteConvergenceMeasure(
     const std::string &meshName,
     double             limit,
     bool               suffices,
-    int                level)
-{
+    int                level) {
   TRACE();
   impl::PtrConvergenceMeasure measure(new impl::AbsoluteConvergenceMeasure(limit));
   int                         dataID = getData(dataName, meshName)->getID();
@@ -579,8 +557,7 @@ void CouplingSchemeConfiguration::addRelativeConvergenceMeasure(
     const std::string &meshName,
     double             limit,
     bool               suffices,
-    int                level)
-{
+    int                level) {
   TRACE();
   impl::PtrConvergenceMeasure measure(
       new impl::RelativeConvergenceMeasure(limit));
@@ -593,8 +570,7 @@ void CouplingSchemeConfiguration::addResidualRelativeConvergenceMeasure(
     const std::string &meshName,
     double             limit,
     bool               suffices,
-    int                level)
-{
+    int                level) {
   TRACE();
   impl::PtrConvergenceMeasure measure(
       new impl::ResidualRelativeConvergenceMeasure(limit));
@@ -607,8 +583,7 @@ void CouplingSchemeConfiguration::addMinIterationConvergenceMeasure(
     const std::string &meshName,
     int                minIterations,
     bool               suffices,
-    int                level)
-{
+    int                level) {
   TRACE();
   impl::PtrConvergenceMeasure measure(
       new impl::MinIterationConvergenceMeasure(minIterations));
@@ -618,8 +593,7 @@ void CouplingSchemeConfiguration::addMinIterationConvergenceMeasure(
 
 mesh::PtrData CouplingSchemeConfiguration::getData(
     const std::string &dataName,
-    const std::string &meshName) const
-{
+    const std::string &meshName) const {
   for (mesh::PtrMesh mesh : _meshConfig->meshes()) {
     if (meshName == mesh->getName()) {
       for (mesh::PtrData data : mesh->data()) {
@@ -634,8 +608,7 @@ mesh::PtrData CouplingSchemeConfiguration::getData(
 }
 
 PtrCouplingScheme CouplingSchemeConfiguration::createSerialExplicitCouplingScheme(
-    const std::string &accessor) const
-{
+    const std::string &accessor) const {
   TRACE(accessor);
   m2n::PtrM2N m2n = _m2nConfig->getM2N(
       _config.participants[0], _config.participants[1]);
@@ -650,8 +623,7 @@ PtrCouplingScheme CouplingSchemeConfiguration::createSerialExplicitCouplingSchem
 }
 
 PtrCouplingScheme CouplingSchemeConfiguration::createParallelExplicitCouplingScheme(
-    const std::string &accessor) const
-{
+    const std::string &accessor) const {
   TRACE(accessor);
   m2n::PtrM2N m2n = _m2nConfig->getM2N(
       _config.participants[0], _config.participants[1]);
@@ -666,8 +638,7 @@ PtrCouplingScheme CouplingSchemeConfiguration::createParallelExplicitCouplingSch
 }
 
 PtrCouplingScheme CouplingSchemeConfiguration::createSerialImplicitCouplingScheme(
-    const std::string &accessor) const
-{
+    const std::string &accessor) const {
   TRACE(accessor);
 
   m2n::PtrM2N m2n = _m2nConfig->getM2N(
@@ -708,8 +679,7 @@ PtrCouplingScheme CouplingSchemeConfiguration::createSerialImplicitCouplingSchem
 }
 
 PtrCouplingScheme CouplingSchemeConfiguration::createParallelImplicitCouplingScheme(
-    const std::string &accessor) const
-{
+    const std::string &accessor) const {
   TRACE(accessor);
   m2n::PtrM2N m2n = _m2nConfig->getM2N(
       _config.participants[0], _config.participants[1]);
@@ -749,8 +719,7 @@ PtrCouplingScheme CouplingSchemeConfiguration::createParallelImplicitCouplingSch
 }
 
 PtrCouplingScheme CouplingSchemeConfiguration::createMultiCouplingScheme(
-    const std::string &accessor) const
-{
+    const std::string &accessor) const {
   TRACE(accessor);
 
   BaseCouplingScheme *scheme;
@@ -812,8 +781,7 @@ PtrCouplingScheme CouplingSchemeConfiguration::createMultiCouplingScheme(
 
 constants::TimesteppingMethod
 CouplingSchemeConfiguration::getTimesteppingMethod(
-    const std::string &method) const
-{
+    const std::string &method) const {
   TRACE(method);
   if (method == VALUE_FIXED) {
     return constants::FIXED_DT;
@@ -829,8 +797,7 @@ CouplingSchemeConfiguration::getTimesteppingMethod(
 
 void CouplingSchemeConfiguration::addDataToBeExchanged(
     BaseCouplingScheme &scheme,
-    const std::string & accessor) const
-{
+    const std::string & accessor) const {
   TRACE();
   using std::get;
   for (const Config::Exchange &tuple : _config.exchanges) {
@@ -862,8 +829,7 @@ void CouplingSchemeConfiguration::addDataToBeExchanged(
 
 void CouplingSchemeConfiguration::addMultiDataToBeExchanged(
     MultiCouplingScheme &scheme,
-    const std::string &  accessor) const
-{
+    const std::string &  accessor) const {
   TRACE();
   using std::get;
   for (const Config::Exchange &tuple : _config.exchanges) {
@@ -908,8 +874,7 @@ void CouplingSchemeConfiguration::addMultiDataToBeExchanged(
 }
 
 void CouplingSchemeConfiguration::checkIfDataIsExchanged(
-    int dataID) const
-{
+    int dataID) const {
   bool hasFound = false;
   for (const Config::Exchange &tuple : _config.exchanges) {
     mesh::PtrData data = std::get<0>(tuple);
@@ -923,8 +888,7 @@ void CouplingSchemeConfiguration::checkIfDataIsExchanged(
 }
 
 bool CouplingSchemeConfiguration::checkIfDataIsCoarse(
-    int id) const
-{
+    int id) const {
   bool isCoarse = false;
   bool err      = false;
   // check if post processing is defined.
@@ -967,5 +931,5 @@ bool CouplingSchemeConfiguration::checkIfDataIsCoarse(
     ERROR("Data ID " << id << " is not contained in the exchange data for the fine model and no coarse model optimization method is defined.");
   return true;
 }
-}
-} // namespace precice, cplscheme
+} // namespace cplscheme
+} // namespace precice

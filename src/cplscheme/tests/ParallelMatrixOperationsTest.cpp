@@ -1,6 +1,5 @@
 #ifndef PRECICE_NO_MPI
 
-#include <Eigen/Core>
 #include "../impl/ParallelMatrixOperations.hpp"
 #include "com/Communication.hpp"
 #include "com/MPIDirectCommunication.hpp"
@@ -10,6 +9,7 @@
 #include "testing/Testing.hpp"
 #include "utils/MasterSlave.hpp"
 #include "utils/Parallel.hpp"
+#include <Eigen/Core>
 
 BOOST_AUTO_TEST_SUITE(CplSchemeTests)
 
@@ -22,8 +22,7 @@ void validate_result_equals_reference(
     Eigen::MatrixXd & result_local,
     Eigen::MatrixXd & reference_global,
     std::vector<int> &offsets,
-    bool              partitionedRowWise)
-{
+    bool              partitionedRowWise) {
   int off = offsets[utils::MasterSlave::_rank];
   for (int i = 0; i < result_local.rows(); i++) {
     for (int j = 0; j < result_local.cols(); j++) {
@@ -38,8 +37,7 @@ void validate_result_equals_reference(
   }
 }
 
-BOOST_AUTO_TEST_CASE(ParVectorOperations, * boost::unit_test::fixture<testing::MasterComFixture>())
-{
+BOOST_AUTO_TEST_CASE(ParVectorOperations, *boost::unit_test::fixture<testing::MasterComFixture>()) {
   int              n_global = 10;
   int              n_local;
   double           a = 0;
@@ -150,8 +148,7 @@ BOOST_AUTO_TEST_CASE(ParVectorOperations, * boost::unit_test::fixture<testing::M
   BOOST_TEST(testing::equals(dotproduct, 7.069617899295469));
 }
 
-BOOST_AUTO_TEST_CASE(ParallelMatrixMatrixOp,  * boost::unit_test::fixture<testing::MasterComFixture>())
-{
+BOOST_AUTO_TEST_CASE(ParallelMatrixMatrixOp, *boost::unit_test::fixture<testing::MasterComFixture>()) {
   com::PtrCommunication _cyclicCommLeft  = com::PtrCommunication(new com::MPIPortsCommunication("."));
   com::PtrCommunication _cyclicCommRight = com::PtrCommunication(new com::MPIPortsCommunication("."));
 

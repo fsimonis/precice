@@ -16,8 +16,7 @@ BOOST_AUTO_TEST_SUITE(FindVoxelContentTests)
 void performTestVertices(
     int                    testDim,
     bool                   positive,
-    const Eigen::VectorXd &offset)
-{
+    const Eigen::VectorXd &offset) {
   int dim = offset.size();
   assertion(not math::oneGreater(offset, Eigen::VectorXd::Constant(dim, 1.0)));
   assertion(math::allGreater(offset, Eigen::VectorXd::Constant(dim, -1.0)));
@@ -123,8 +122,7 @@ void performTestVertices(
 void performTestEdges(
     int                    testDim,
     bool                   positive,
-    const Eigen::VectorXd &offset)
-{
+    const Eigen::VectorXd &offset) {
   int dim = offset.size();
   assertion(not math::oneGreater(offset, Eigen::VectorXd::Constant(dim, 1.0)));
   assertion(math::allGreater(offset, Eigen::VectorXd::Constant(dim, -1.0)));
@@ -243,8 +241,7 @@ void performTestEdges(
 void performTestTriangles(
     int  testDim,
     int  secondDimension,
-    bool positive)
-{
+    bool positive) {
   int dim = 3;
   assertion(testDim != secondDimension);
   bool            flipNormals = false;
@@ -623,8 +620,7 @@ void performTestTriangles(
   BOOST_TEST(size == 9);
 }
 
-BOOST_AUTO_TEST_CASE(Vertices)
-{
+BOOST_AUTO_TEST_CASE(Vertices) {
   for (int dim = 2; dim <= 3; dim++) {
     for (int testDim = 0; testDim < dim; testDim++) {
       bool            positiveDirection = true;
@@ -642,8 +638,7 @@ BOOST_AUTO_TEST_CASE(Vertices)
   }
 }
 
-BOOST_AUTO_TEST_CASE(Edges)
-{
+BOOST_AUTO_TEST_CASE(Edges) {
   for (int dim = 2; dim <= 3; dim++) {
     for (int testDim = 0; testDim < dim; testDim++) {
       bool            positiveDirection = true;
@@ -661,8 +656,7 @@ BOOST_AUTO_TEST_CASE(Edges)
   }
 }
 
-BOOST_AUTO_TEST_CASE(testZeroVoxel)
-{
+BOOST_AUTO_TEST_CASE(testZeroVoxel) {
   int           dim = 2;
   mesh::Mesh    mesh("Mesh", dim, false);
   mesh::Vertex &v1 = mesh.createVertex(Eigen::Vector2d(2.0, 0.0));
@@ -685,8 +679,7 @@ BOOST_AUTO_TEST_CASE(testZeroVoxel)
   BOOST_TEST(numberContained == 1);
 }
 
-BOOST_AUTO_TEST_CASE(Triangles)
-{
+BOOST_AUTO_TEST_CASE(Triangles) {
   for (int testDim = 0; testDim < 3; testDim++) {
     bool positiveDirection = true;
     bool negativeDirection = false;
@@ -700,8 +693,7 @@ BOOST_AUTO_TEST_CASE(Triangles)
   }
 }
 
-BOOST_AUTO_TEST_CASE(CompletelyInsideTriangles)
-{
+BOOST_AUTO_TEST_CASE(CompletelyInsideTriangles) {
   int             dim              = 3;
   Eigen::Vector3d voxelCenter      = Eigen::Vector3d::Zero();
   Eigen::Vector3d voxelHalflengths = Eigen::Vector3d::Constant(1);
@@ -753,8 +745,7 @@ BOOST_AUTO_TEST_CASE(CompletelyInsideTriangles)
   BOOST_TEST(count == 3);
 }
 
-BOOST_AUTO_TEST_CASE(CompletelyOutsideTriangles)
-{
+BOOST_AUTO_TEST_CASE(CompletelyOutsideTriangles) {
   int             dim              = 3;
   Eigen::Vector3d voxelCenter      = Eigen::Vector3d::Zero();
   Eigen::Vector3d voxelHalflengths = Eigen::Vector3d::Constant(1.0);
@@ -806,8 +797,7 @@ BOOST_AUTO_TEST_CASE(CompletelyOutsideTriangles)
   BOOST_TEST(count == 0);
 }
 
-BOOST_AUTO_TEST_CASE(IntersectingTriangles)
-{
+BOOST_AUTO_TEST_CASE(IntersectingTriangles) {
   int             dim              = 3;
   Eigen::Vector3d voxelCenter      = Eigen::Vector3d::Zero();
   Eigen::Vector3d voxelHalflengths = Eigen::Vector3d::Constant(1.0);
@@ -919,8 +909,7 @@ BOOST_AUTO_TEST_CASE(IntersectingTriangles)
   BOOST_TEST(count == 7);
 }
 
-BOOST_AUTO_TEST_CASE(TouchingTriangles)
-{
+BOOST_AUTO_TEST_CASE(TouchingTriangles) {
   int             dim              = 3;
   Eigen::Vector3d voxelCenter      = Eigen::Vector3d::Zero();
   Eigen::Vector3d voxelHalflengths = Eigen::Vector3d::Constant(1.0);
@@ -1079,8 +1068,7 @@ BOOST_AUTO_TEST_CASE(TouchingTriangles)
   BOOST_TEST(count == 0);
 }
 
-BOOST_AUTO_TEST_CASE(QueryCube)
-{
+BOOST_AUTO_TEST_CASE(QueryCube) {
   using namespace mesh;
   int     dim         = 3;
   bool    flipNormals = false;

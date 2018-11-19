@@ -1,12 +1,10 @@
 #include "Parallel.hpp"
-#include <map>
 #include "assertion.hpp"
 #include "com/MPIDirectCommunication.hpp"
+#include <map>
 
-namespace precice
-{
-namespace utils
-{
+namespace precice {
+namespace utils {
 
 logging::Logger Parallel::_log("utils::Parallel");
 
@@ -14,14 +12,13 @@ Parallel::Communicator Parallel::_globalCommunicator = Parallel::getCommunicator
 
 Parallel::Communicator Parallel::_localCommunicator = MPI_COMM_NULL;
 
-bool Parallel::_isInitialized = false;
-bool Parallel::_isSplit = false;
+bool Parallel::_isInitialized           = false;
+bool Parallel::_isSplit                 = false;
 bool Parallel::_mpiInitializedByPrecice = false;
 
 std::vector<Parallel::AccessorGroup> Parallel::_accessorGroups;
 
-Parallel::Communicator Parallel::getCommunicatorWorld()
-{
+Parallel::Communicator Parallel::getCommunicatorWorld() {
 #ifndef PRECICE_NO_MPI
   return MPI_COMM_WORLD;
 #else
@@ -30,9 +27,8 @@ Parallel::Communicator Parallel::getCommunicatorWorld()
 }
 
 void Parallel::initializeMPI(
-    int *argc,
-    char ***argv)
-{
+    int *   argc,
+    char ***argv) {
 #ifndef PRECICE_NO_MPI
   TRACE();
   int isMPIInitialized;
@@ -46,8 +42,7 @@ void Parallel::initializeMPI(
 #endif // not PRECICE_NO_MPI
 }
 
-void Parallel::splitCommunicator(const std::string &groupName)
-{
+void Parallel::splitCommunicator(const std::string &groupName) {
 #ifndef PRECICE_NO_MPI
   TRACE(groupName);
 
@@ -56,8 +51,8 @@ void Parallel::splitCommunicator(const std::string &groupName)
     DEBUG("Exchange group information");
     //_accessorGroups.clear(); // Makes reinitialization possible
     std::map<std::string, int> groupMap; // map from names to group ID
-    MPI_Comm globalComm = getGlobalCommunicator();
-    int rank = -1;
+    MPI_Comm                   globalComm = getGlobalCommunicator();
+    int                        rank       = -1;
     MPI_Comm_rank(globalComm, &rank);
     int size = -1;
     MPI_Comm_size(globalComm, &size);
@@ -69,10 +64,10 @@ void Parallel::splitCommunicator(const std::string &groupName)
       if (rank == 0) {
         groupMap[groupName] = 0;
         AccessorGroup newGroup;
-        newGroup.id = 0;
-        newGroup.size = 1;
+        newGroup.id         = 0;
+        newGroup.size       = 1;
         newGroup.leaderRank = 0;
-        newGroup.name = groupName;
+        newGroup.name       = groupName;
         _accessorGroups.push_back(newGroup);
         for (int i = 1; i < size; i++) {
           std::string name;
@@ -80,10 +75,10 @@ void Parallel::splitCommunicator(const std::string &groupName)
           if (groupMap.find(name) == groupMap.end()) {
             groupMap[name] = _accessorGroups.size();
             AccessorGroup newGroup;
-            newGroup.id = _accessorGroups.size();
-            newGroup.size = 1;
+            newGroup.id         = _accessorGroups.size();
+            newGroup.size       = 1;
             newGroup.leaderRank = i;
-            newGroup.name = name;
+            newGroup.name       = name;
             _accessorGroups.push_back(newGroup);
           } else {
             _accessorGroups[groupMap[name]].size++;
@@ -146,8 +141,7 @@ void Parallel::splitCommunicator(const std::string &groupName)
   _isSplit = true;
 }
 
-void Parallel::finalizeMPI()
-{
+void Parallel::finalizeMPI() {
   TRACE();
 #ifndef PRECICE_NO_MPI
   if (_mpiInitializedByPrecice) {
@@ -158,14 +152,12 @@ void Parallel::finalizeMPI()
   _isInitialized = false;
 }
 
-void Parallel::clearGroups()
-{
+void Parallel::clearGroups() {
   _accessorGroups.clear();
   _isSplit = false;
 }
 
-int Parallel::getProcessRank()
-{
+int Parallel::getProcessRank() {
   // Do not use TRACE or DEBUG here!
   int processRank = 0;
 #ifndef PRECICE_NO_MPI
@@ -176,8 +168,7 @@ int Parallel::getProcessRank()
   return processRank;
 }
 
-int Parallel::getLocalProcessRank()
-{
+int Parallel::getLocalProcessRank() {
   int processRank = 0;
 #ifndef PRECICE_NO_MPI
   if (_isInitialized) {
@@ -187,8 +178,7 @@ int Parallel::getLocalProcessRank()
   return processRank;
 }
 
-int Parallel::getCommunicatorSize()
-{
+int Parallel::getCommunicatorSize() {
   TRACE();
   int communicatorSize = 1;
 #ifndef PRECICE_NO_MPI
@@ -199,8 +189,7 @@ int Parallel::getCommunicatorSize()
   return communicatorSize;
 }
 
-void Parallel::synchronizeProcesses()
-{
+void Parallel::synchronizeProcesses() {
 #ifndef PRECICE_NO_MPI
   TRACE();
   assertion(_isInitialized);
@@ -208,8 +197,7 @@ void Parallel::synchronizeProcesses()
 #endif // not PRECICE_NO_MPI
 }
 
-void Parallel::synchronizeLocalProcesses()
-{
+void Parallel::synchronizeLocalProcesses() {
 #ifndef PRECICE_NO_MPI
   TRACE();
   assertion(_isInitialized && _isSplit);
@@ -218,34 +206,30 @@ void Parallel::synchronizeLocalProcesses()
 }
 
 void Parallel::setGlobalCommunicator(
-    Parallel::Communicator defaultCommunicator)
-{
+    Parallel::Communicator defaultCommunicator) {
 #ifndef PRECICE_NO_MPI
   TRACE();
   if (_globalCommunicator != getCommunicatorWorld()) {
     MPI_Comm_free(&_globalCommunicator);
   }
   _globalCommunicator = defaultCommunicator;
-  _localCommunicator = _globalCommunicator;
+  _localCommunicator  = _globalCommunicator;
   _accessorGroups.clear();
 #endif // not PRECICE_NO_MPI
 }
 
-const Parallel::Communicator &Parallel::getGlobalCommunicator()
-{
+const Parallel::Communicator &Parallel::getGlobalCommunicator() {
   TRACE();
   return _globalCommunicator;
 }
 
-const Parallel::Communicator &Parallel::getLocalCommunicator()
-{
+const Parallel::Communicator &Parallel::getLocalCommunicator() {
   TRACE();
   assertion(_isSplit);
   return _localCommunicator;
 }
 
-Parallel::Communicator Parallel::getRestrictedCommunicator(const std::vector<int> &ranks)
-{
+Parallel::Communicator Parallel::getRestrictedCommunicator(const std::vector<int> &ranks) {
   TRACE();
   Communicator restrictedCommunicator = getCommunicatorWorld();
 #ifndef PRECICE_NO_MPI
@@ -291,20 +275,18 @@ Parallel::Communicator Parallel::getRestrictedCommunicator(const std::vector<int
   return restrictedCommunicator;
 }
 
-void Parallel::restrictGlobalCommunicator(const std::vector<int> &ranks)
-{
+void Parallel::restrictGlobalCommunicator(const std::vector<int> &ranks) {
   auto restrComm = getRestrictedCommunicator(ranks);
   if (std::find(ranks.begin(), ranks.end(), getProcessRank()) != ranks.end())
     setGlobalCommunicator(restrComm);
 }
 
-const std::vector<Parallel::AccessorGroup> &Parallel::getAccessorGroups()
-{
+const std::vector<Parallel::AccessorGroup> &Parallel::getAccessorGroups() {
   TRACE();
   assertion(_isInitialized);
   return _accessorGroups;
 }
-}
-} // precice, utils
+} // namespace utils
+} // namespace precice
 
 //#endif // not PRECICE_NO_MPI

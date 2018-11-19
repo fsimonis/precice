@@ -1,19 +1,15 @@
 #include "Request.hpp"
 
-namespace precice
-{
-namespace com
-{
+namespace precice {
+namespace com {
 
-void Request::wait(std::vector<PtrRequest> &requests)
-{
+void Request::wait(std::vector<PtrRequest> &requests) {
   for (auto request : requests) {
     request->wait();
   }
 }
 
-Request::~Request()
-{
+Request::~Request() {
 }
 } // namespace com
 } // namespace precice

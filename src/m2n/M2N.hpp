@@ -6,10 +6,8 @@
 #include "mesh/SharedPointer.hpp"
 #include <map>
 
-namespace precice
-{
-namespace m2n
-{
+namespace precice {
+namespace m2n {
 
 /**
  * @brief M2N communication class.
@@ -17,8 +15,7 @@ namespace m2n
  * each possibly with a different decomposition. In principle, this class is only a map from meshes to DistributedCommunications
  *
  */
-class M2N
-{
+class M2N {
 public:
   M2N(com::PtrCommunication masterCom, DistributedComFactory::SharedPointer distrFactory);
 

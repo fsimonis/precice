@@ -1,24 +1,19 @@
 #include "ValuePreconditioner.hpp"
 #include "utils/MasterSlave.hpp"
 
-namespace precice
-{
-namespace cplscheme
-{
-namespace impl
-{
+namespace precice {
+namespace cplscheme {
+namespace impl {
 
 ValuePreconditioner::ValuePreconditioner(
     int maxNonConstTimesteps)
     : Preconditioner(maxNonConstTimesteps),
-      _firstTimestep(true)
-{
+      _firstTimestep(true) {
 }
 
-void ValuePreconditioner::_update_(bool timestepComplete,
+void ValuePreconditioner::_update_(bool                   timestepComplete,
                                    const Eigen::VectorXd &oldValues,
-                                   const Eigen::VectorXd &res)
-{
+                                   const Eigen::VectorXd &res) {
   if (timestepComplete || _firstTimestep) {
 
     std::vector<double> norms(_subVectorSizes.size(), 0.0);
@@ -47,6 +42,6 @@ void ValuePreconditioner::_update_(bool timestepComplete,
     _firstTimestep = false;
   }
 }
-}
-}
-} // namespace precice, cplscheme
+} // namespace impl
+} // namespace cplscheme
+} // namespace precice

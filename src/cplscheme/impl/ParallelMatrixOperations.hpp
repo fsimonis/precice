@@ -9,15 +9,11 @@
 #include "utils/assertion.hpp"
 #include <Eigen/Core>
 
-namespace precice
-{
-namespace cplscheme
-{
-namespace impl
-{
+namespace precice {
+namespace cplscheme {
+namespace impl {
 
-class ParallelMatrixOperations
-{
+class ParallelMatrixOperations {
 public:
   /// Destructor, empty.
   virtual ~ParallelMatrixOperations(){};
@@ -27,15 +23,16 @@ public:
                   com::PtrCommunication rightComm,
                   bool                  needcyclicComm);
 
-  template <typename Derived1, typename Derived2>
+  template<typename Derived1, typename Derived2>
   void multiply(
       Eigen::PlainObjectBase<Derived1> &leftMatrix,
       Eigen::PlainObjectBase<Derived2> &rightMatrix,
       Eigen::PlainObjectBase<Derived2> &result,
       const std::vector<int> &          offsets,
-      int p, int q, int r,
-      bool dotProductComputation = true)
-  {
+      int                               p,
+      int                               q,
+      int                               r,
+      bool                              dotProductComputation = true) {
     TRACE();
     assertion(result.cols() == rightMatrix.cols(), result.cols(), rightMatrix.cols());
     assertion(leftMatrix.cols() == rightMatrix.rows(), leftMatrix.cols(), rightMatrix.rows());
@@ -84,13 +81,14 @@ public:
     * @param[in] r - second dimension, i.e., overall (global) number cols of result matrix
     *
     */
-  template <typename Derived1, typename Derived2, typename Derived3>
+  template<typename Derived1, typename Derived2, typename Derived3>
   void multiply(
       const Eigen::MatrixBase<Derived1> &leftMatrix,
       const Eigen::MatrixBase<Derived2> &rightMatrix,
       Eigen::PlainObjectBase<Derived3> & result,
-      int p, int q, int r)
-  {
+      int                                p,
+      int                                q,
+      int                                r) {
     TRACE();
     assertion(leftMatrix.rows() == p, leftMatrix.rows(), p);
     assertion(leftMatrix.cols() == rightMatrix.rows(), leftMatrix.cols(), rightMatrix.rows());
@@ -112,14 +110,15 @@ private:
   logging::Logger _log{"cplscheme::impl::ParallelMatrixOperations"};
 
   // @brief multiplies matrices based on a cyclic communication and block-wise matrix multiplication with a quadratic result matrix
-  template <typename Derived1, typename Derived2>
+  template<typename Derived1, typename Derived2>
   void _multiplyNN(
       Eigen::PlainObjectBase<Derived1> &leftMatrix,
       Eigen::PlainObjectBase<Derived2> &rightMatrix,
       Eigen::PlainObjectBase<Derived2> &result,
       const std::vector<int> &          offsets,
-      int p, int q, int r)
-  {
+      int                               p,
+      int                               q,
+      int                               r) {
     TRACE();
     /*
      * For multiplication W_til * Z = J
@@ -216,14 +215,15 @@ private:
   }
 
   // @brief multiplies matrices based on a dot-product computation with a rectangular result matrix
-  template <typename Derived1, typename Derived2>
+  template<typename Derived1, typename Derived2>
   void _multiplyNM_dotProduct(
       Eigen::PlainObjectBase<Derived1> &leftMatrix,
       Eigen::PlainObjectBase<Derived2> &rightMatrix,
       Eigen::PlainObjectBase<Derived2> &result,
       const std::vector<int> &          offsets,
-      int p, int q, int r)
-  {
+      int                               p,
+      int                               q,
+      int                               r) {
     TRACE();
     for (int i = 0; i < leftMatrix.rows(); i++) {
       int rank = 0;
@@ -253,14 +253,15 @@ private:
   }
 
   /// Multiplies matrices based on a SAXPY-like block-wise computation with a rectangular result matrix of dimension n x m
-  template <typename Derived1, typename Derived2>
+  template<typename Derived1, typename Derived2>
   void _multiplyNM_block(
       Eigen::PlainObjectBase<Derived1> &leftMatrix,
       Eigen::PlainObjectBase<Derived2> &rightMatrix,
       Eigen::PlainObjectBase<Derived2> &result,
       const std::vector<int> &          offsets,
-      int p, int q, int r)
-  {
+      int                               p,
+      int                               q,
+      int                               r) {
     TRACE();
 
     // ensure that both matrices are stored in the same order. Important for reduce function, that adds serialized data.
@@ -313,8 +314,8 @@ private:
 
   bool _needCycliclComm = true;
 };
-}
-}
-} // namespace precice, cplscheme, impl
+} // namespace impl
+} // namespace cplscheme
+} // namespace precice
 
 #endif

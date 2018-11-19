@@ -5,15 +5,12 @@
 namespace precice {
 namespace config {
 
-
-LogConfiguration::LogConfiguration
-(
-  xml::XMLTag& parent)
-{
+LogConfiguration::LogConfiguration(
+    xml::XMLTag &parent) {
   // We do default initialization here, so logging will be initialized
   // as soon as possible and also if there is no <log> tag.
   precice::logging::setupLogging();
-  
+
   using namespace xml;
   XMLTag tagLog(*this, "log", XMLTag::OCCUR_NOT_OR_ONCE);
   tagLog.setDocumentation("Configures logging");
@@ -22,11 +19,11 @@ LogConfiguration::LogConfiguration
   attrLogEnabled.setDocumentation("Enables logging");
   attrLogEnabled.setDefaultValue(true);
   tagLog.addAttribute(attrLogEnabled);
-  
-  XMLTag tagSink(*this, "sink", XMLTag::OCCUR_ARBITRARY);
+
+  XMLTag                    tagSink(*this, "sink", XMLTag::OCCUR_ARBITRARY);
   XMLAttribute<std::string> attrType("type");
   attrType.setDocumentation("Type of sink");
-  attrType.setValidator ( ValidatorEquals<std::string>("stream") || ValidatorEquals<std::string>("file") );
+  attrType.setValidator(ValidatorEquals<std::string>("stream") || ValidatorEquals<std::string>("file"));
   attrType.setDefaultValue(precice::logging::BackendConfiguration::default_type);
   tagSink.addAttribute(attrType);
 
@@ -44,22 +41,20 @@ LogConfiguration::LogConfiguration
   attrFilter.setDocumentation("Boost Log Filter String");
   attrFilter.setDefaultValue(precice::logging::BackendConfiguration::default_filter);
   tagSink.addAttribute(attrFilter);
-  
+
   XMLAttribute<bool> attrEnabled("enabled");
   attrEnabled.setDocumentation("Enables the sink");
   attrEnabled.setDefaultValue(true);
   tagSink.addAttribute(attrEnabled);
-  
+
   tagLog.addSubtag(tagSink);
   parent.addSubtag(tagLog);
 }
 
-void LogConfiguration::xmlTagCallback
-(
-  xml::XMLTag& tag )
-{
+void LogConfiguration::xmlTagCallback(
+    xml::XMLTag &tag) {
   TRACE(tag.getFullName());
-  
+
   if (tag.getName() == "sink" and tag.getBooleanAttributeValue("enabled")) {
     precice::logging::BackendConfiguration config;
     config.setOption("type", tag.getStringAttributeValue("type"));
@@ -71,13 +66,12 @@ void LogConfiguration::xmlTagCallback
   }
 }
 
-void LogConfiguration::xmlEndTagCallback
-(
-  xml::XMLTag& tag )
-{
+void LogConfiguration::xmlEndTagCallback(
+    xml::XMLTag &tag) {
   TRACE(tag.getFullName());
   if (tag.getName() == "log")
     precice::logging::setupLogging(_logconfig, tag.getBooleanAttributeValue("enabled"));
 }
 
-}} // namespace precice, config
+} // namespace config
+} // namespace precice

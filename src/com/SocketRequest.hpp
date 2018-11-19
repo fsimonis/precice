@@ -6,12 +6,9 @@
 #include <condition_variable>
 #include <mutex>
 
-namespace precice
-{
-namespace com
-{
-class SocketRequest : public Request
-{
+namespace precice {
+namespace com {
+class SocketRequest: public Request {
 public:
   SocketRequest();
 

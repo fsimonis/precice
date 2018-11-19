@@ -1,5 +1,4 @@
 #include "IQNILSPostProcessing.hpp"
-#include <Eigen/Core>
 #include "QRFactorization.hpp"
 #include "com/Communication.hpp"
 #include "cplscheme/CouplingData.hpp"
@@ -8,18 +7,15 @@
 #include "mesh/Mesh.hpp"
 #include "mesh/Vertex.hpp"
 #include "utils/EigenHelperFunctions.hpp"
-#include "utils/MasterSlave.hpp"
 #include "utils/Helpers.hpp"
-
+#include "utils/MasterSlave.hpp"
+#include <Eigen/Core>
 
 //#include "utils/NumericalCompare.hpp"
 
-namespace precice
-{
-namespace cplscheme
-{
-namespace impl
-{
+namespace precice {
+namespace cplscheme {
+namespace impl {
 
 // logging::Logger IQNILSPostProcessing::
 //       _log("cplscheme::impl::IQNILSPostProcessing");
@@ -33,13 +29,10 @@ IQNILSPostProcessing::IQNILSPostProcessing(
     double            singularityLimit,
     std::vector<int>  dataIDs,
     PtrPreconditioner preconditioner)
-    : BaseQNPostProcessing(initialRelaxation, forceInitialRelaxation, maxIterationsUsed, timestepsReused,
-                           filter, singularityLimit, dataIDs, preconditioner)
-{}
+    : BaseQNPostProcessing(initialRelaxation, forceInitialRelaxation, maxIterationsUsed, timestepsReused, filter, singularityLimit, dataIDs, preconditioner) {}
 
 void IQNILSPostProcessing::initialize(
-    DataMap &cplData)
-{
+    DataMap &cplData) {
   // do common QN post processing initialization
   BaseQNPostProcessing::initialize(cplData);
 
@@ -53,8 +46,7 @@ void IQNILSPostProcessing::initialize(
 }
 
 void IQNILSPostProcessing::updateDifferenceMatrices(
-  DataMap &cplData)
-{
+    DataMap &cplData) {
   // Compute residuals of secondary data
   for (int id : _secondaryDataIDs) {
     Eigen::VectorXd &secResiduals = _secondaryResiduals[id];
@@ -106,8 +98,7 @@ void IQNILSPostProcessing::updateDifferenceMatrices(
 }
 
 void IQNILSPostProcessing::computeUnderrelaxationSecondaryData(
-    DataMap &cplData)
-{
+    DataMap &cplData) {
   //Store x_tildes for secondary data
   for (int id : _secondaryDataIDs) {
     assertion(_secondaryOldXTildes[id].size() == cplData[id]->values->size(),
@@ -127,8 +118,7 @@ void IQNILSPostProcessing::computeUnderrelaxationSecondaryData(
   }
 }
 
-void IQNILSPostProcessing::computeQNUpdate(PostProcessing::DataMap &cplData, Eigen::VectorXd &xUpdate)
-{
+void IQNILSPostProcessing::computeQNUpdate(PostProcessing::DataMap &cplData, Eigen::VectorXd &xUpdate) {
   TRACE();
   DEBUG("   Compute Newton factors");
 
@@ -188,7 +178,7 @@ void IQNILSPostProcessing::computeQNUpdate(PostProcessing::DataMap &cplData, Eig
     // broadcast coefficients c to all slaves
     utils::MasterSlave::broadcast(c.data(), c.size());
   }
-  
+
   DEBUG("   Apply Newton factors");
   // compute x updates from W and coefficients c, i.e, xUpdate = c*W
   xUpdate = _matrixW * c;
@@ -232,8 +222,7 @@ void IQNILSPostProcessing::computeQNUpdate(PostProcessing::DataMap &cplData, Eig
 }
 
 void IQNILSPostProcessing::specializedIterationsConverged(
-    DataMap &cplData)
-{
+    DataMap &cplData) {
   if (_matrixCols.front() == 0) { // Did only one iteration
     _matrixCols.pop_front();
   }
@@ -263,8 +252,7 @@ void IQNILSPostProcessing::specializedIterationsConverged(
 }
 
 void IQNILSPostProcessing::removeMatrixColumn(
-    int columnIndex)
-{
+    int columnIndex) {
   assertion(_matrixV.cols() > 1);
   // remove column from secondary Data Matrix W
   for (int id : _secondaryDataIDs) {
@@ -273,6 +261,6 @@ void IQNILSPostProcessing::removeMatrixColumn(
 
   BaseQNPostProcessing::removeMatrixColumn(columnIndex);
 }
-}
-}
-} // namespace precice, cplscheme, impl
+} // namespace impl
+} // namespace cplscheme
+} // namespace precice

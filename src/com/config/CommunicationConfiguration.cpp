@@ -2,16 +2,13 @@
 #include "com/MPIDirectCommunication.hpp"
 #include "com/MPIPortsCommunication.hpp"
 #include "com/SocketCommunication.hpp"
-#include "xml/XMLAttribute.hpp"
 #include "utils/Helpers.hpp"
+#include "xml/XMLAttribute.hpp"
 
-namespace precice
-{
-namespace com
-{
+namespace precice {
+namespace com {
 PtrCommunication CommunicationConfiguration::createCommunication(
-    const xml::XMLTag &tag) const
-{
+    const xml::XMLTag &tag) const {
   com::PtrCommunication com;
   if (tag.getName() == "sockets") {
     std::string network = tag.getStringAttributeValue("network");
@@ -22,8 +19,7 @@ PtrCommunication CommunicationConfiguration::createCommunication(
 
     std::string dir = tag.getStringAttributeValue("exchange-directory");
     com             = std::make_shared<com::SocketCommunication>(port, false, network, dir);
-  }
-  else if (tag.getName() == "mpi") {
+  } else if (tag.getName() == "mpi") {
     std::string dir = tag.getStringAttributeValue("exchange-directory");
 #ifdef PRECICE_NO_MPI
     std::ostringstream error;
@@ -33,8 +29,7 @@ PtrCommunication CommunicationConfiguration::createCommunication(
 #else
     com = std::make_shared<com::MPIPortsCommunication>(dir);
 #endif
-  }
-  else if (tag.getName() == "mpi-single") {
+  } else if (tag.getName() == "mpi-single") {
 #ifdef PRECICE_NO_MPI
     std::ostringstream error;
     error << "Communication type \"mpi-single\" can only be used "

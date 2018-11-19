@@ -4,12 +4,9 @@
 
 // ----------------------------------------------------------- CLASS DEFINITION
 
-namespace precice
-{
-namespace cplscheme
-{
-namespace impl
-{
+namespace precice {
+namespace cplscheme {
+namespace impl {
 
 /**
  * @brief Multi vector quasi-Newton update scheme 
@@ -24,8 +21,7 @@ namespace impl
  * MVQN-related data. The data is called "secondary" henceforth and additional
  * old value and data matrices are needed for it.
  */
-class BroydenPostProcessing : public BaseQNPostProcessing
-{
+class BroydenPostProcessing: public BaseQNPostProcessing {
 public:
   /**
    * @brief Constructor.
@@ -82,6 +78,6 @@ private:
   virtual void computeUnderrelaxationSecondaryData(DataMap &cplData);
   //void computeNewtonFactorsQRDecomposition(DataMap& cplData, Eigen::VectorXd& update);
 };
-}
-}
-} // namespace precice, cplscheme, impl
+} // namespace impl
+} // namespace cplscheme
+} // namespace precice

@@ -6,8 +6,7 @@ BOOST_AUTO_TEST_SUITE(CplSchemeTests)
 using namespace precice;
 using namespace cplscheme;
 
-BOOST_AUTO_TEST_CASE(AbsoluteConvergenceMeasureTest)
-{
+BOOST_AUTO_TEST_CASE(AbsoluteConvergenceMeasureTest) {
   using Eigen::Vector3d;
   // Create convergence measure for Vector data
   double                           convergenceLimit = 9.0;

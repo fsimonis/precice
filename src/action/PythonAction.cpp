@@ -1,15 +1,13 @@
 #ifndef PRECICE_NO_PYTHON
-#include <Python.h>
-#include <numpy/arrayobject.h>
 #include "PythonAction.hpp"
+#include "mesh/Data.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/Vertex.hpp"
-#include "mesh/Data.hpp"
+#include <Python.h>
+#include <numpy/arrayobject.h>
 
-namespace precice
-{
-namespace action
-{
+namespace precice {
+namespace action {
 
 PythonAction::PythonAction(
     Timing               timing,
@@ -20,8 +18,7 @@ PythonAction::PythonAction(
     int                  sourceDataID)
     : Action(timing, mesh),
       _modulePath(modulePath),
-      _moduleName(moduleName)
-{
+      _moduleName(moduleName) {
   if (targetDataID != -1) {
     _targetData = getMesh()->data(targetDataID);
     _numberArguments++;
@@ -32,8 +29,7 @@ PythonAction::PythonAction(
   }
 }
 
-PythonAction::~PythonAction()
-{
+PythonAction::~PythonAction() {
   if (_module != nullptr) {
     assertion(_moduleNameObject != nullptr);
     assertion(_module != nullptr);
@@ -46,8 +42,7 @@ PythonAction::~PythonAction()
 void PythonAction::performAction(double time,
                                  double dt,
                                  double computedPartFullDt,
-                                 double fullDt)
-{
+                                 double fullDt) {
   TRACE(time, dt, computedPartFullDt, fullDt);
 
   if (not _isInitialized)
@@ -128,8 +123,7 @@ void PythonAction::performAction(double time,
   Py_DECREF(dataArgs);
 }
 
-void PythonAction::initialize()
-{
+void PythonAction::initialize() {
   assertion(not _isInitialized);
   // Initialize Python
   Py_Initialize();
@@ -174,8 +168,7 @@ void PythonAction::initialize()
   }
 }
 
-int PythonAction::makeNumPyArraysAvailable()
-{
+int PythonAction::makeNumPyArraysAvailable() {
   static bool importedAlready = false;
   if (importedAlready)
     return 0;

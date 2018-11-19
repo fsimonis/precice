@@ -1,36 +1,30 @@
 #include "FindClosestVertex.hpp"
-#include "mesh/Vertex.hpp"
 #include "mesh/Mesh.hpp"
+#include "mesh/Vertex.hpp"
 
 namespace precice {
 namespace query {
 
-FindClosestVertex:: FindClosestVertex
-(
-  const Eigen::VectorXd& searchPoint )
-:
-  _searchPoint (searchPoint)
-{}
+FindClosestVertex::FindClosestVertex(
+    const Eigen::VectorXd &searchPoint)
+    : _searchPoint(searchPoint) {}
 
-const Eigen::VectorXd& FindClosestVertex:: getSearchPoint() const
-{
+const Eigen::VectorXd &FindClosestVertex::getSearchPoint() const {
   return _searchPoint;
 }
 
-bool FindClosestVertex:: hasFound() const
-{
+bool FindClosestVertex::hasFound() const {
   return _closestVertex != nullptr;
 }
 
-double FindClosestVertex:: getEuclidianDistance()
-{
-   return _shortestDistance;
+double FindClosestVertex::getEuclidianDistance() {
+  return _shortestDistance;
 }
 
-mesh::Vertex& FindClosestVertex:: getClosestVertex()
-{
-  assertion ( _closestVertex != nullptr );
+mesh::Vertex &FindClosestVertex::getClosestVertex() {
+  assertion(_closestVertex != nullptr);
   return *_closestVertex;
 }
 
-}} // namespace precice, query
+} // namespace query
+} // namespace precice

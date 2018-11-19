@@ -1,20 +1,16 @@
 #include "CommunicateBoundingBox.hpp"
 #include "Communication.hpp"
 
-namespace precice
-{
-namespace com
-{
+namespace precice {
+namespace com {
 CommunicateBoundingBox::CommunicateBoundingBox(
     com::PtrCommunication communication)
-    : _communication(communication)
-{
+    : _communication(communication) {
 }
 
 void CommunicateBoundingBox::sendBoundingBox(
     const mesh::Mesh::BoundingBox &bb,
-    int                            rankReceiver)
-{
+    int                            rankReceiver) {
   TRACE(rankReceiver);
 
   for (const auto &d : bb) {
@@ -25,8 +21,7 @@ void CommunicateBoundingBox::sendBoundingBox(
 
 void CommunicateBoundingBox::receiveBoundingBox(
     mesh::Mesh::BoundingBox &bb,
-    int                      rankSender)
-{
+    int                      rankSender) {
   TRACE(rankSender);
 
   for (auto &d : bb) {
@@ -37,8 +32,7 @@ void CommunicateBoundingBox::receiveBoundingBox(
 
 void CommunicateBoundingBox::sendBoundingBoxMap(
     mesh::Mesh::BoundingBoxMap &bbm,
-    int                         rankReceiver)
-{
+    int                         rankReceiver) {
   TRACE(rankReceiver);
 
   for (const auto &bb : bbm) {
@@ -48,8 +42,7 @@ void CommunicateBoundingBox::sendBoundingBoxMap(
 
 void CommunicateBoundingBox::receiveBoundingBoxMap(
     mesh::Mesh::BoundingBoxMap &bbm,
-    int                         rankSender)
-{
+    int                         rankSender) {
   TRACE(rankSender);
 
   for (auto &bb : bbm) {
@@ -58,8 +51,7 @@ void CommunicateBoundingBox::receiveBoundingBoxMap(
 }
 
 void CommunicateBoundingBox::broadcastSendBoundingBoxMap(
-    mesh::Mesh::BoundingBoxMap &bbm)
-{
+    mesh::Mesh::BoundingBoxMap &bbm) {
 
   for (const auto &rank : bbm) {
     for (const auto &dimension : rank.second) {
@@ -70,8 +62,7 @@ void CommunicateBoundingBox::broadcastSendBoundingBoxMap(
 }
 
 void CommunicateBoundingBox::broadcastReceiveBoundingBoxMap(
-    mesh::Mesh::BoundingBoxMap &bbm)
-{
+    mesh::Mesh::BoundingBoxMap &bbm) {
   for (auto &rank : bbm) {
     for (auto &dimension : rank.second) {
       _communication->broadcast(dimension.first, 0);

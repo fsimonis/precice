@@ -1,8 +1,5 @@
 #pragma once
 
-#include <string>
-#include <tuple>
-#include <vector>
 #include "cplscheme/Constants.hpp"
 #include "cplscheme/CouplingScheme.hpp"
 #include "cplscheme/MultiCouplingScheme.hpp"
@@ -14,37 +11,32 @@
 #include "precice/config/SharedPointer.hpp"
 #include "precice/impl/MeshContext.hpp"
 #include "xml/XMLTag.hpp"
+#include <string>
+#include <tuple>
+#include <vector>
 
-namespace precice
-{
-namespace cplscheme
-{
+namespace precice {
+namespace cplscheme {
 class CompositionalCouplingScheme;
 class BaseCouplingScheme;
-}
-}
+} // namespace cplscheme
+} // namespace precice
 
 // Forward declaration to friend the boost test struct
-namespace CplSchemeTests
-{
-namespace ParallelImplicitCouplingSchemeTests
-{
+namespace CplSchemeTests {
+namespace ParallelImplicitCouplingSchemeTests {
 struct testParseConfigurationWithRelaxation;
 }
-namespace SerialImplicitCouplingSchemeTests
-{
+namespace SerialImplicitCouplingSchemeTests {
 struct testParseConfigurationWithRelaxation;
 }
-}
+} // namespace CplSchemeTests
 
 // ----------------------------------------------------------- CLASS DEFINITION
-namespace precice
-{
-namespace cplscheme
-{
+namespace precice {
+namespace cplscheme {
 /// Configuration for coupling schemes.
-class CouplingSchemeConfiguration : public xml::XMLTag::Listener
-{
+class CouplingSchemeConfiguration: public xml::XMLTag::Listener {
 public:
   /**
    * @brief Constructor.
@@ -80,7 +72,6 @@ public:
   void addCouplingScheme(PtrCouplingScheme cplScheme, const std::string &participantName);
 
 private:
-
   mutable logging::Logger _log{"cplscheme::CouplingSchemeConfiguration"};
 
   const std::string TAG;
@@ -130,18 +121,18 @@ private:
     std::string                   name;
     std::vector<std::string>      participants;
     std::string                   controller;
-    bool                          setController = false;
-    double                        maxTime = CouplingScheme::UNDEFINED_TIME;
-    int                           maxTimesteps = CouplingScheme::UNDEFINED_TIMESTEPS;
+    bool                          setController  = false;
+    double                        maxTime        = CouplingScheme::UNDEFINED_TIME;
+    int                           maxTimesteps   = CouplingScheme::UNDEFINED_TIMESTEPS;
     double                        timestepLength = CouplingScheme::UNDEFINED_TIMESTEP_LENGTH;
-    int                           validDigits = 16;
-    constants::TimesteppingMethod dtMethod = constants::FIXED_DT;
+    int                           validDigits    = 16;
+    constants::TimesteppingMethod dtMethod       = constants::FIXED_DT;
     /// Tuples of exchange data, mesh, and participant name.
     typedef std::tuple<mesh::PtrData, mesh::PtrMesh, std::string, std::string, bool> Exchange;
     std::vector<Exchange>                                                            exchanges;
     /// Tuples of data ID, mesh ID, and convergence measure.
     std::vector<std::tuple<int, bool, std::string, int, impl::PtrConvergenceMeasure>> convMeasures;
-    int                                                                               maxIterations = -1;
+    int                                                                               maxIterations      = -1;
     int                                                                               extrapolationOrder = 0;
 
   } _config;
@@ -256,9 +247,8 @@ private:
 
   bool checkIfDataIsCoarse(int id) const;
 
-  friend struct CplSchemeTests::ParallelImplicitCouplingSchemeTests::testParseConfigurationWithRelaxation;  // For whitebox tests
-  friend struct CplSchemeTests::SerialImplicitCouplingSchemeTests::testParseConfigurationWithRelaxation;  // For whitebox tests
-
+  friend struct CplSchemeTests::ParallelImplicitCouplingSchemeTests::testParseConfigurationWithRelaxation; // For whitebox tests
+  friend struct CplSchemeTests::SerialImplicitCouplingSchemeTests::testParseConfigurationWithRelaxation;   // For whitebox tests
 };
-}
-} // namespace precice, cplscheme
+} // namespace cplscheme
+} // namespace precice

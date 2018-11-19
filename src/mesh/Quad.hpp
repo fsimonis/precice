@@ -1,20 +1,17 @@
 #pragma once
 
-#include <iostream>
-#include <algorithm>
 #include "boost/noncopyable.hpp"
 #include "mesh/Edge.hpp"
 #include "mesh/PropertyContainer.hpp"
 #include "mesh/RangeAccessor.hpp"
+#include <algorithm>
+#include <iostream>
 
-namespace precice
-{
-namespace mesh
-{
+namespace precice {
+namespace mesh {
 
 /// Quadrilateral (or Quadrangle) geometric primitive.
-class Quad : public PropertyContainer, private boost::noncopyable
-{
+class Quad: public PropertyContainer, private boost::noncopyable {
 public:
   /// Type of the read-only const random-access iterator over Vertex coords
   /**
@@ -92,7 +89,7 @@ public:
   ///@}
 
   /// Sets the outer normal of the quad.
-  template <typename VECTOR_T>
+  template<typename VECTOR_T>
   void setNormal(const VECTOR_T &normal);
 
   /// Returns a among quads globally unique ID.
@@ -117,10 +114,10 @@ public:
    * Two Quads are equal if their normal vector is equal AND
    * if the four edges are equal, whereas the order of edges is NOT important.
    */
-  bool operator==(const Quad& other) const;
+  bool operator==(const Quad &other) const;
 
   /// Not equal, implemented in terms of equal.
-  bool operator!=(const Quad& other) const;
+  bool operator!=(const Quad &other) const;
 
 private:
   /// Edges defining the quad.
@@ -138,71 +135,59 @@ private:
 
 // --------------------------------------------------------- HEADER DEFINITIONS
 
-inline Vertex &Quad::vertex(int i)
-{
+inline Vertex &Quad::vertex(int i) {
   assertion((i >= 0) && (i < 4), i);
   return edge(i).vertex(_vertexMap[i]);
 }
 
-inline const Vertex &Quad::vertex(int i) const
-{
+inline const Vertex &Quad::vertex(int i) const {
   assertion((i >= 0) && (i < 4), i);
   return edge(i).vertex(_vertexMap[i]);
 }
 
-inline Quad::iterator Quad::begin()
-{
+inline Quad::iterator Quad::begin() {
   return {this, 0};
 }
 
-inline Quad::iterator Quad::end()
-{
+inline Quad::iterator Quad::end() {
   return {this, 4};
 }
 
-inline Quad::const_iterator Quad::begin() const
-{
+inline Quad::const_iterator Quad::begin() const {
   return {this, 0};
 }
 
-inline Quad::const_iterator Quad::end() const
-{
+inline Quad::const_iterator Quad::end() const {
   return {this, 4};
 }
 
-inline Quad::const_iterator Quad::cbegin() const
-{
-    return begin();
+inline Quad::const_iterator Quad::cbegin() const {
+  return begin();
 }
 
-inline Quad::const_iterator Quad::cend() const
-{
-    return end();
+inline Quad::const_iterator Quad::cend() const {
+  return end();
 }
 
-inline Edge &Quad::edge(int i)
-{
+inline Edge &Quad::edge(int i) {
   return *_edges[i];
 }
 
-inline const Edge &Quad::edge(int i) const
-{
+inline const Edge &Quad::edge(int i) const {
   return *_edges[i];
 }
 
-template <typename VECTOR_T>
-void Quad::setNormal(const VECTOR_T &normal)
-{
+template<typename VECTOR_T>
+void Quad::setNormal(const VECTOR_T &normal) {
   assertion(normal.size() == getDimensions(), normal.size(), getDimensions());
   _normal = normal;
 }
 
-inline int Quad::getID() const
-{
+inline int Quad::getID() const {
   return _id;
 }
 
-std::ostream& operator<<(std::ostream& os, const Quad& q);
+std::ostream &operator<<(std::ostream &os, const Quad &q);
 
 } // namespace mesh
 } // namespace precice

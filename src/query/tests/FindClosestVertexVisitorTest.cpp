@@ -8,8 +8,7 @@ using namespace precice::query;
 
 BOOST_AUTO_TEST_SUITE(QueryTests)
 
-BOOST_AUTO_TEST_CASE(FindClosestVertexVisitor)
-{
+BOOST_AUTO_TEST_CASE(FindClosestVertexVisitor) {
   mesh::Mesh mesh("Mesh", 2, false);
   mesh.createVertex(Eigen::Vector2d(0.0, 0.0));
   mesh.createVertex(Eigen::Vector2d(0.0, 5.0));

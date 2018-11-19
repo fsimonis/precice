@@ -1,19 +1,16 @@
 #include "Configuration.hpp"
 #include "xml/XMLAttribute.hpp"
 
-
 namespace precice {
 
 extern bool syncMode;
 
 namespace config {
 
-Configuration:: Configuration()
-:
-  _tag(*this, "precice-configuration", xml::XMLTag::OCCUR_ONCE),
-  _logConfig(_tag),
-  _solverInterfaceConfig(_tag)
-{
+Configuration::Configuration()
+    : _tag(*this, "precice-configuration", xml::XMLTag::OCCUR_ONCE),
+      _logConfig(_tag),
+      _solverInterfaceConfig(_tag) {
   _tag.setDocumentation("Main tag containing preCICE configuration.");
   _tag.addNamespace("data");
   _tag.addNamespace("communication");
@@ -25,37 +22,32 @@ Configuration:: Configuration()
   _tag.addNamespace("post-processing");
 
   xml::XMLAttribute<bool> attrSyncMode("sync-mode");
-  std::string doc = "sync-mode enabled additional inter- and intra-participant synchronizations";
+  std::string             doc = "sync-mode enabled additional inter- and intra-participant synchronizations";
   attrSyncMode.setDefaultValue(false);
   attrSyncMode.setDocumentation(doc);
   _tag.addAttribute(attrSyncMode);
-
 }
 
-xml::XMLTag& Configuration:: getXMLTag()
-{
+xml::XMLTag &Configuration::getXMLTag() {
   return _tag;
 }
 
-void Configuration::xmlTagCallback(xml::XMLTag& tag)
-{
+void Configuration::xmlTagCallback(xml::XMLTag &tag) {
   TRACE(tag.getName());
   if (tag.getName() == "precice-configuration") {
     precice::syncMode = tag.getBooleanAttributeValue("sync-mode");
   }
 }
 
-void Configuration:: xmlEndTagCallback
-(
-  xml::XMLTag& tag )
-{
+void Configuration::xmlEndTagCallback(
+    xml::XMLTag &tag) {
   TRACE(tag.getName());
 }
 
-const SolverInterfaceConfiguration&
-Configuration:: getSolverInterfaceConfiguration() const
-{
+const SolverInterfaceConfiguration &
+Configuration::getSolverInterfaceConfiguration() const {
   return _solverInterfaceConfig;
 }
 
-}} // namespace precice, config
+} // namespace config
+} // namespace precice

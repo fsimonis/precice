@@ -4,25 +4,19 @@
 #include "utils/EigenHelperFunctions.hpp"
 #include "utils/MasterSlave.hpp"
 
-
-namespace precice
-{
-namespace cplscheme
-{
-namespace impl
-{
+namespace precice {
+namespace cplscheme {
+namespace impl {
 
 SVDFactorization::SVDFactorization(
     double            eps,
     PtrPreconditioner preconditioner)
     : _preconditioner(preconditioner),
-      _truncationEps(eps)
-{}
+      _truncationEps(eps) {}
 
 void SVDFactorization::initialize(
     PtrParMatrixOps parOps,
-    int             globalRows)
-{
+    int             globalRows) {
   _parMatrixOps = parOps;
   _globalRows   = globalRows;
   _initialized  = true;
@@ -62,8 +56,7 @@ void SVDFactorization::revertPreconditioner()
 }
 */
 
-void SVDFactorization::reset()
-{
+void SVDFactorization::reset() {
   _psi.resize(0, 0);
   _phi.resize(0, 0);
   _sigma.resize(0);
@@ -76,8 +69,7 @@ void SVDFactorization::reset()
 void SVDFactorization::computeQRdecomposition(
     Matrix const &A,
     Matrix &      Q,
-    Matrix &      R)
-{
+    Matrix &      R) {
   TRACE();
 
   // if nothing is linear dependent, the dimensions stay like this
@@ -230,28 +222,23 @@ void SVDFactorization::computeQRdecomposition(
   R.conservativeResize(rowsR, colsR);
 }
 
-SVDFactorization::Matrix &SVDFactorization::matrixPhi()
-{
+SVDFactorization::Matrix &SVDFactorization::matrixPhi() {
   return _phi;
 }
 
-SVDFactorization::Matrix &SVDFactorization::matrixPsi()
-{
+SVDFactorization::Matrix &SVDFactorization::matrixPsi() {
   return _psi;
 }
 
-SVDFactorization::Vector &SVDFactorization::singularValues()
-{
+SVDFactorization::Vector &SVDFactorization::singularValues() {
   return _sigma;
 }
 
-void SVDFactorization::setPrecondApplied(bool b)
-{
+void SVDFactorization::setPrecondApplied(bool b) {
   _preconditionerApplied = b;
 }
 
-void SVDFactorization::setApplyFilterQR(bool b, double eps)
-{
+void SVDFactorization::setApplyFilterQR(bool b, double eps) {
   _applyFilterQR = b;
   _epsQR2        = eps;
 }
@@ -263,44 +250,37 @@ bool SVDFactorization::isPrecondApplied()
 }
 */
 
-bool SVDFactorization::isSVDinitialized()
-{
+bool SVDFactorization::isSVDinitialized() {
   return _initialSVD;
 }
 
-void SVDFactorization::setThreshold(double eps)
-{
+void SVDFactorization::setThreshold(double eps) {
   _truncationEps = eps;
 }
 
-double SVDFactorization::getThreshold()
-{
+double SVDFactorization::getThreshold() {
   return _truncationEps;
 }
 
-int SVDFactorization::getWaste()
-{
+int SVDFactorization::getWaste() {
   int r  = _waste;
   _waste = 0;
   return r;
 }
 
-int SVDFactorization::cols()
-{
+int SVDFactorization::cols() {
   return _cols;
 }
 
-int SVDFactorization::rows()
-{
+int SVDFactorization::rows() {
   return _rows;
 }
 
-int SVDFactorization::rank()
-{
+int SVDFactorization::rank() {
   return _cols;
 }
-}
-}
-} // namespace precice, cplscheme, impl
+} // namespace impl
+} // namespace cplscheme
+} // namespace precice
 
 #endif // PRECICE_NO_MPI

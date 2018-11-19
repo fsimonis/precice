@@ -17,8 +17,7 @@ using namespace partition;
 BOOST_AUTO_TEST_SUITE(PartitionTests)
 BOOST_AUTO_TEST_SUITE(ProvidedPartitionTests)
 
-void setupParallelEnvironment(m2n::PtrM2N m2n)
-{
+void setupParallelEnvironment(m2n::PtrM2N m2n) {
   assertion(utils::Parallel::getCommunicatorSize() == 4);
 
   com::PtrCommunication masterSlaveCom = com::PtrCommunication(new com::MPIDirectCommunication());
@@ -52,8 +51,8 @@ void setupParallelEnvironment(m2n::PtrM2N m2n)
     utils::MasterSlave::_masterMode = false;
   }
 
-  if(utils::Parallel::getProcessRank() == 1){//Master
-    masterSlaveCom->acceptConnection ( "SolidMaster", "SolidSlaves", utils::Parallel::getProcessRank());
+  if (utils::Parallel::getProcessRank() == 1) { //Master
+    masterSlaveCom->acceptConnection("SolidMaster", "SolidSlaves", utils::Parallel::getProcessRank());
     masterSlaveCom->setRankOffset(1);
   } else if (utils::Parallel::getProcessRank() == 2) { //Slave1
     masterSlaveCom->requestConnection("SolidMaster", "SolidSlaves", 0, 2);
@@ -62,8 +61,7 @@ void setupParallelEnvironment(m2n::PtrM2N m2n)
   }
 }
 
-void tearDownParallelEnvironment()
-{
+void tearDownParallelEnvironment() {
   utils::MasterSlave::_communication = nullptr;
   utils::MasterSlave::reset();
   utils::Parallel::synchronizeProcesses();
@@ -73,8 +71,7 @@ void tearDownParallelEnvironment()
   utils::Parallel::setGlobalCommunicator(utils::Parallel::getCommunicatorWorld());
 }
 
-BOOST_AUTO_TEST_CASE(TestGatherAndCommunicate2D, *testing::OnSize(4))
-{
+BOOST_AUTO_TEST_CASE(TestGatherAndCommunicate2D, *testing::OnSize(4)) {
   com::PtrCommunication participantCom =
       com::PtrCommunication(new com::MPIDirectCommunication());
   m2n::DistributedComFactory::SharedPointer distrFactory = m2n::DistributedComFactory::SharedPointer(
@@ -151,8 +148,7 @@ BOOST_AUTO_TEST_CASE(TestGatherAndCommunicate2D, *testing::OnSize(4))
   tearDownParallelEnvironment();
 }
 
-BOOST_AUTO_TEST_CASE(TestGatherAndCommunicate3D, *testing::OnSize(4))
-{
+BOOST_AUTO_TEST_CASE(TestGatherAndCommunicate3D, *testing::OnSize(4)) {
   com::PtrCommunication                     participantCom = com::PtrCommunication(new com::MPIDirectCommunication());
   m2n::DistributedComFactory::SharedPointer distrFactory   = m2n::DistributedComFactory::SharedPointer(
       new m2n::GatherScatterComFactory(participantCom));
@@ -262,8 +258,7 @@ BOOST_AUTO_TEST_CASE(TestGatherAndCommunicate3D, *testing::OnSize(4))
 }
 
 BOOST_AUTO_TEST_CASE(TestOnlyDistribution2D,
-                     *testing::OnSize(4) * boost::unit_test::fixture<testing::MasterComFixture>())
-{
+                     *testing::OnSize(4) * boost::unit_test::fixture<testing::MasterComFixture>()) {
   // Create mesh object
   std::string   meshName("MyMesh");
   int           dim         = 2;

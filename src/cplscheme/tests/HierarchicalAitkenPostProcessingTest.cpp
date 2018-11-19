@@ -1,4 +1,3 @@
-#include <Eigen/Core>
 #include "../CouplingData.hpp"
 #include "../impl/HierarchicalAitkenPostProcessing.hpp"
 #include "../impl/PostProcessing.hpp"
@@ -6,14 +5,14 @@
 #include "mesh/SharedPointer.hpp"
 #include "testing/Testing.hpp"
 #include "utils/EigenHelperFunctions.hpp"
+#include <Eigen/Core>
 
 BOOST_AUTO_TEST_SUITE(CplSchemeTests)
 
 using namespace precice;
 using namespace cplscheme;
 
-BOOST_AUTO_TEST_CASE(HierarchicalAitkenPostProcessingTest)
-{
+BOOST_AUTO_TEST_CASE(HierarchicalAitkenPostProcessingTest) {
   impl::PostProcessing::DataMap dataMap;
   int                           dataID = 0;
   std::vector<int>              dataIDs;

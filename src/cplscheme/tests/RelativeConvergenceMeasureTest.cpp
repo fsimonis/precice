@@ -3,8 +3,7 @@
 
 BOOST_AUTO_TEST_SUITE(CplSchemeTests)
 
-BOOST_AUTO_TEST_CASE(RelativeConvergenceMeasureTest)
-{
+BOOST_AUTO_TEST_CASE(RelativeConvergenceMeasureTest) {
   using Eigen::Vector3d;
   double                                               convergenceLimit = 0.1; // 10%
   precice::cplscheme::impl::RelativeConvergenceMeasure measure(convergenceLimit);

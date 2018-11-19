@@ -1,14 +1,11 @@
 #pragma once
 
-#include <vector>
 #include "com/SharedPointer.hpp"
+#include <vector>
 
-namespace precice
-{
-namespace com
-{
-class Request
-{
+namespace precice {
+namespace com {
+class Request {
 
 public:
   static void wait(std::vector<PtrRequest> &requests);

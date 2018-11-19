@@ -3,48 +3,40 @@
 #include "Validator.hpp"
 #include "logging/Logger.hpp"
 
-namespace precice
-{
-namespace xml
-{
+namespace precice {
+namespace xml {
 
-template <typename VALUE_T>
+template<typename VALUE_T>
 class ValidatorEquals;
 
-template <typename VALUE_T>
-class ValidatorEquals : public Validator<VALUE_T>
-{
+template<typename VALUE_T>
+class ValidatorEquals: public Validator<VALUE_T> {
 public:
   ValidatorEquals(VALUE_T valueToEqual)
       : Validator<VALUE_T>(),
-        _valueToEqual(valueToEqual)
-  {
+        _valueToEqual(valueToEqual) {
   }
 
   virtual ~ValidatorEquals() {}
 
-  virtual bool validateValue(const VALUE_T &value)
-  {
+  virtual bool validateValue(const VALUE_T &value) {
     TRACE(value);
     return value == _valueToEqual;
   }
 
-  virtual Validator<VALUE_T> &clone() const
-  {
+  virtual Validator<VALUE_T> &clone() const {
     ValidatorEquals<VALUE_T> *validator =
         new ValidatorEquals<VALUE_T>(_valueToEqual);
     return *validator;
   }
 
-  virtual std::string getErrorMessage() const
-  {
+  virtual std::string getErrorMessage() const {
     std::ostringstream stream;
     stream << _valueToEqual;
     return std::string("value must be \"" + stream.str() + "\"");
   }
 
-  virtual std::string getDocumentation() const
-  {
+  virtual std::string getDocumentation() const {
     std::ostringstream stream;
     stream << "'" << _valueToEqual << "'";
     return stream.str();
@@ -60,5 +52,5 @@ private:
   VALUE_T _valueToEqual;
 };
 
-}
-} // namespace precice, xml
+} // namespace xml
+} // namespace precice

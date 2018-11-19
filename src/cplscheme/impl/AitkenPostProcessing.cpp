@@ -1,6 +1,4 @@
 #include "AitkenPostProcessing.hpp"
-#include <Eigen/Core>
-#include <limits>
 #include "../CouplingData.hpp"
 #include "math/math.hpp"
 #include "mesh/Data.hpp"
@@ -9,27 +7,24 @@
 #include "utils/EigenHelperFunctions.hpp"
 #include "utils/Helpers.hpp"
 #include "utils/MasterSlave.hpp"
+#include <Eigen/Core>
+#include <limits>
 
-namespace precice
-{
-namespace cplscheme
-{
-namespace impl
-{
+namespace precice {
+namespace cplscheme {
+namespace impl {
 
-AitkenPostProcessing::AitkenPostProcessing(double initialRelaxation,
+AitkenPostProcessing::AitkenPostProcessing(double           initialRelaxation,
                                            std::vector<int> dataIDs)
-  :_initialRelaxation(initialRelaxation),
-   _dataIDs(dataIDs),
-   _aitkenFactor(initialRelaxation)
-{
+    : _initialRelaxation(initialRelaxation),
+      _dataIDs(dataIDs),
+      _aitkenFactor(initialRelaxation) {
   CHECK((_initialRelaxation > 0.0) && (_initialRelaxation <= 1.0),
         "Initial relaxation factor for aitken post processing has to "
-        << "be larger than zero and smaller or equal than one!");
+            << "be larger than zero and smaller or equal than one!");
 }
 
-void AitkenPostProcessing::initialize(DataMap &cplData)
-{
+void AitkenPostProcessing::initialize(DataMap &cplData) {
   CHECK(utils::contained(*_dataIDs.begin(), cplData),
         "Data with ID " << *_dataIDs.begin() << " is not contained in data given at initialization!");
   size_t entries = 0;
@@ -57,8 +52,7 @@ void AitkenPostProcessing::initialize(DataMap &cplData)
 }
 
 void AitkenPostProcessing::performPostProcessing(
-    DataMap &cplData)
-{
+    DataMap &cplData) {
   TRACE();
 
   // Compute aitken relaxation factor
@@ -111,8 +105,7 @@ void AitkenPostProcessing::performPostProcessing(
 }
 
 void AitkenPostProcessing::iterationsConverged(
-    DataMap &cplData)
-{
+    DataMap &cplData) {
   _iterationCounter = 0;
   _residuals        = Eigen::VectorXd::Constant(_residuals.size(), std::numeric_limits<double>::max());
 }
@@ -123,10 +116,10 @@ void AitkenPostProcessing::iterationsConverged(
  * @brief: Returns the design specification corresponding to the given coupling data.
  *         This information is needed for convergence measurements in the coupling scheme.
  *  ---------------------------------------------------------------------------------------------
- */ /// @todo: change to call by ref when Eigen is used.
+ */
+/// @todo: change to call by ref when Eigen is used.
 std::map<int, Eigen::VectorXd> AitkenPostProcessing::getDesignSpecification(
-    DataMap &cplData)
-{
+    DataMap &cplData) {
   std::map<int, Eigen::VectorXd> designSpecifications;
   int                            off = 0;
   for (int id : _dataIDs) {
@@ -143,11 +136,10 @@ std::map<int, Eigen::VectorXd> AitkenPostProcessing::getDesignSpecification(
 }
 
 void AitkenPostProcessing::setDesignSpecification(
-    Eigen::VectorXd &q)
-{
+    Eigen::VectorXd &q) {
   _designSpecification = q;
   ERROR("design specification for Aitken relaxation is not supported yet.");
 }
-}
-}
-} // namespace precice, cplscheme, impl
+} // namespace impl
+} // namespace cplscheme
+} // namespace precice

@@ -1,10 +1,10 @@
 #ifndef PRECICE_NO_MPI
 #include <mpi.h>
 #endif
-#include <Eigen/Core>
 #include "cplscheme/impl/BaseQNPostProcessing.hpp"
 #include "cplscheme/impl/QRFactorization.hpp"
 #include "testing/Testing.hpp"
+#include <Eigen/Core>
 
 BOOST_AUTO_TEST_SUITE(CplSchemeTests)
 
@@ -14,8 +14,7 @@ using namespace cplscheme;
 void testQRequalsA(
     Eigen::MatrixXd &Q,
     Eigen::MatrixXd &R,
-    Eigen::MatrixXd &A)
-{
+    Eigen::MatrixXd &A) {
   Eigen::MatrixXd A_prime = Q * R;
 
   for (int i = 0; i < A.rows(); i++) {
@@ -25,8 +24,7 @@ void testQRequalsA(
   }
 }
 
-void testQTQequalsIdentity(Eigen::MatrixXd &Q)
-{
+void testQTQequalsIdentity(Eigen::MatrixXd &Q) {
   Eigen::MatrixXd QTQ = Q.transpose() * Q;
 
   // test if Q^TQ equals identity
@@ -41,8 +39,7 @@ void testQTQequalsIdentity(Eigen::MatrixXd &Q)
   }
 }
 
-BOOST_AUTO_TEST_CASE(testQRFactorization)
-{
+BOOST_AUTO_TEST_CASE(testQRFactorization) {
   int             m = 6, n = 8;
   int             filter = impl::BaseQNPostProcessing::QR1FILTER;
   Eigen::MatrixXd A(n, m);

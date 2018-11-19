@@ -3,10 +3,8 @@
 #include "Request.hpp"
 #include "logging/Logger.hpp"
 
-namespace precice
-{
-namespace com
-{
+namespace precice {
+namespace com {
 /**
  * @brief Interface for all interprocess communication classes.
  *
@@ -41,18 +39,15 @@ namespace com
  * sized appropriatly. Asynchronous receive methods also expect the vector
  * be sized correctly.
  */
-class Communication
-{
+class Communication {
 
 public:
   /// Destructor, empty.
-  virtual ~Communication()
-  {
+  virtual ~Communication() {
   }
 
   /// Returns true, if a connection to a remote participant has been setup.
-  virtual bool isConnected()
-  {
+  virtual bool isConnected() {
     return _isConnected;
   }
 
@@ -95,11 +90,11 @@ public:
    * @param[in] acceptorRank Rank of accepting server, usually the rank of the current process.
    * @param[in] requesterCommunicatorSize Size of the requester (N)
    */
-   virtual void acceptConnectionAsServer(std::string const &acceptorName,
-                                         std::string const &requesterName,
-                                         int                acceptorRank,
-                                         int                requesterCommunicatorSize) = 0;
-  
+  virtual void acceptConnectionAsServer(std::string const &acceptorName,
+                                        std::string const &requesterName,
+                                        int                acceptorRank,
+                                        int                requesterCommunicatorSize) = 0;
+
   /**
    * @brief Connects to another communicator, which has to call acceptConnection().
    *
@@ -132,11 +127,11 @@ public:
    * @param[in] acceptorRanks Set of ranks that accept a connection
    * @param[in] requesterRank Rank that requests the connection, usually the caller's rank
    */
-   virtual void requestConnectionAsClient(std::string   const &acceptorName,
-                                          std::string   const &requesterName,
-                                          std::set<int> const &acceptorRanks,
-                                          int                  requesterRank) = 0;
-  
+  virtual void requestConnectionAsClient(std::string const &  acceptorName,
+                                         std::string const &  requesterName,
+                                         std::set<int> const &acceptorRanks,
+                                         int                  requesterRank) = 0;
+
   /**
    * @brief Disconnects from communication space, i.e. participant.
    *
@@ -187,11 +182,11 @@ public:
   virtual void broadcast(bool &itemToReceive, int rankBroadcaster);
 
   virtual void broadcast(std::vector<int> const &v);
-  virtual void broadcast(std::vector<int>& v, int rankBroadcaster);
+  virtual void broadcast(std::vector<int> &v, int rankBroadcaster);
 
   virtual void broadcast(std::vector<double> const &v);
-  virtual void broadcast(std::vector<double>& v, int rankBroadcaster);
-  
+  virtual void broadcast(std::vector<double> &v, int rankBroadcaster);
+
   /// Sends a std::string to process with given rank.
   virtual void send(std::string const &itemToSend, int rankReceiver) = 0;
 
@@ -207,7 +202,7 @@ public:
   /// Asynchronously sends an array of double values.
   virtual PtrRequest aSend(const double *itemsToSend, int size, int rankReceiver) = 0;
 
-  virtual PtrRequest aSend(std::vector<double> const & itemsToSend, int rankReceiver) = 0;
+  virtual PtrRequest aSend(std::vector<double> const &itemsToSend, int rankReceiver) = 0;
 
   /// Sends a double to process with given rank.
   virtual void send(double itemToSend, int rankReceiver) = 0;
@@ -245,7 +240,7 @@ public:
   /*
    * @attention All asynchronous receives methods require the vector to be appropriately sized
    */
-  virtual PtrRequest aReceive(std::vector<double> & itemsToReceive, int rankSender) = 0;
+  virtual PtrRequest aReceive(std::vector<double> &itemsToReceive, int rankSender) = 0;
 
   /// Receives a double from process with given rank.
   virtual void receive(double &itemToReceive, int rankSender) = 0;
@@ -265,7 +260,6 @@ public:
   /// Asynchronously receives a bool from process with given rank.
   virtual PtrRequest aReceive(bool &itemToReceive, int rankSender) = 0;
 
-  
   virtual void send(std::vector<int> const &v, int rankReceiver) = 0;
   /// Receives an std::vector of ints. The vector will be resized accordingly.
   virtual void receive(std::vector<int> &v, int rankSender) = 0;
@@ -274,10 +268,8 @@ public:
   /// Receives an std::vector of doubles. The vector will be resized accordingly.
   virtual void receive(std::vector<double> &v, int rankSender) = 0;
 
-
   /// Set rank offset.
-  void setRankOffset(int rankOffset)
-  {
+  void setRankOffset(int rankOffset) {
     _rankOffset = rankOffset;
   }
 
@@ -289,7 +281,6 @@ protected:
 
 private:
   logging::Logger _log{"com::Communication"};
-  
 };
 } // namespace com
 } // namespace precice

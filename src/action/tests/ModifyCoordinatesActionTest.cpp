@@ -10,8 +10,7 @@ using namespace precice;
 BOOST_AUTO_TEST_SUITE(ActionTests)
 BOOST_AUTO_TEST_SUITE(ModifyCoordinates)
 
-BOOST_AUTO_TEST_CASE(AddToCoordinates)
-{
+BOOST_AUTO_TEST_CASE(AddToCoordinates) {
   using namespace mesh;
   PtrMesh mesh(new Mesh("Mesh", 2, false));
   PtrData data   = mesh->createData("test-data", 2);
@@ -50,8 +49,7 @@ BOOST_AUTO_TEST_CASE(AddToCoordinates)
   BOOST_TEST(testing::equals(edge.getNormal(), normalizedNormal));
 }
 
-BOOST_AUTO_TEST_CASE(SubtractFromCoordinates)
-{
+BOOST_AUTO_TEST_CASE(SubtractFromCoordinates) {
   using namespace mesh;
   // Create geometryContext by faking a geometry but not using it to create
   // the mesh. The mesh is created by hand, such that references to the vertices

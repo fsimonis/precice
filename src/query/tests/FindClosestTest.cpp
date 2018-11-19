@@ -1,4 +1,3 @@
-#include <vector>
 #include "io/ExportVTK.hpp"
 #include "mesh/Edge.hpp"
 #include "mesh/Mesh.hpp"
@@ -8,6 +7,7 @@
 #include "query/ExportVTKNeighbors.hpp"
 #include "query/FindClosest.hpp"
 #include "testing/Testing.hpp"
+#include <vector>
 
 using namespace precice;
 using namespace precice::query;
@@ -15,8 +15,7 @@ using namespace precice::query;
 BOOST_AUTO_TEST_SUITE(QueryTests)
 BOOST_AUTO_TEST_SUITE(FindClosestTests)
 
-BOOST_AUTO_TEST_CASE(FindClosestDistanceToVertices)
-{
+BOOST_AUTO_TEST_CASE(FindClosestDistanceToVertices) {
   for (int dim = 2; dim <= 3; dim++) {
     mesh::Mesh mesh("RootMesh", dim, false);
     mesh.createVertex(Eigen::VectorXd::Zero(dim));
@@ -38,8 +37,7 @@ BOOST_AUTO_TEST_CASE(FindClosestDistanceToVertices)
   }
 }
 
-BOOST_AUTO_TEST_CASE(SignOfShortestDistance)
-{
+BOOST_AUTO_TEST_CASE(SignOfShortestDistance) {
   for (int dim = 2; dim <= 3; dim++) {
     mesh::Mesh      mesh("Mesh", dim, false);
     mesh::Vertex &  vertex = mesh.createVertex(Eigen::VectorXd::Zero(dim));
@@ -64,8 +62,7 @@ BOOST_AUTO_TEST_CASE(SignOfShortestDistance)
   }
 }
 
-BOOST_AUTO_TEST_CASE(IndependenceOfSignOfShortestDistance)
-{
+BOOST_AUTO_TEST_CASE(IndependenceOfSignOfShortestDistance) {
   for (int dim = 2; dim <= 3; dim++) {
     mesh::Mesh    mesh("Mesh", dim, false);
     mesh::Vertex &vertex = mesh.createVertex(Eigen::VectorXd::Constant(dim, 1));
@@ -96,8 +93,7 @@ BOOST_AUTO_TEST_CASE(IndependenceOfSignOfShortestDistance)
   }
 }
 
-BOOST_AUTO_TEST_CASE(FindClosestDistanceToEdges)
-{
+BOOST_AUTO_TEST_CASE(FindClosestDistanceToEdges) {
   for (int dim = 2; dim <= 3; dim++) {
     // Create mesh consisting of two vertices and an edge
     mesh::Mesh      mesh("Mesh", dim, false);
@@ -148,8 +144,7 @@ BOOST_AUTO_TEST_CASE(FindClosestDistanceToEdges)
   }
 }
 
-BOOST_AUTO_TEST_CASE(FindClosestDistanceToEdges3D)
-{
+BOOST_AUTO_TEST_CASE(FindClosestDistanceToEdges3D) {
   int dim = 3;
   // Cremeshetry consisting of two vertices and an edge
   mesh::Mesh      mesh("Mesh", dim, false);
@@ -203,8 +198,7 @@ BOOST_AUTO_TEST_CASE(FindClosestDistanceToEdges3D)
   }
 }
 
-BOOST_AUTO_TEST_CASE(FindClosestDistanceToTriangles)
-{
+BOOST_AUTO_TEST_CASE(FindClosestDistanceToTriangles) {
   // Create mesh to query
   mesh::Mesh    mesh("Mesh", 3, true);
   mesh::Vertex &v0 = mesh.createVertex(Eigen::Vector3d(0.0, 0.0, 0.0));
@@ -258,8 +252,7 @@ BOOST_AUTO_TEST_CASE(FindClosestDistanceToTriangles)
   BOOST_TEST(std::abs(findVisitors[11]->getClosest().distance) == expect.norm());
 }
 
-BOOST_AUTO_TEST_CASE(FindClosestDistanceToTrianglesAndVertices)
-{
+BOOST_AUTO_TEST_CASE(FindClosestDistanceToTrianglesAndVertices) {
   int           dim = 2;
   mesh::Mesh    mesh("Mesh", dim, false);
   mesh::Vertex &vertex1 = mesh.createVertex(Eigen::Vector2d(0.0, 0.0));
@@ -297,8 +290,7 @@ BOOST_AUTO_TEST_CASE(FindClosestDistanceToTrianglesAndVertices)
   BOOST_TEST(distance == -1.0);
 }
 
-BOOST_AUTO_TEST_CASE(MultipleMeshIDs)
-{
+BOOST_AUTO_TEST_CASE(MultipleMeshIDs) {
   int                         dim = 2;
   mesh::Mesh                  mesh("Mesh", dim, true);
   query::ExportVTKNeighbors   exportNeighbors;
@@ -357,8 +349,7 @@ BOOST_AUTO_TEST_CASE(MultipleMeshIDs)
   BOOST_TEST(faceGeoIDs[1] == idFace);
 }
 
-BOOST_AUTO_TEST_CASE(WeigthsOfVertices)
-{
+BOOST_AUTO_TEST_CASE(WeigthsOfVertices) {
   int dim = 2;
 
   // Create mesh

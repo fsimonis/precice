@@ -1,58 +1,55 @@
 #pragma once
 
 #include "MappingContext.hpp"
-#include "partition/SharedPointer.hpp"
-#include "mesh/SharedPointer.hpp"
+#include "SharedPointer.hpp"
 #include "com/Communication.hpp"
 #include "mapping/Mapping.hpp"
-#include "SharedPointer.hpp"
+#include "mesh/SharedPointer.hpp"
 #include "partition/ReceivedPartition.hpp"
+#include "partition/SharedPointer.hpp"
 #include <vector>
 
 namespace precice {
 namespace impl {
 
 /// Stores a mesh and related objects and data.
-struct MeshContext
-{
-  MeshContext ( int dimensions )
-   :
-    localOffset ( Eigen::VectorXd::Zero(dimensions) )
-  {}
-  
-   /// Mesh holding the geometry data structure.
-   mesh::PtrMesh mesh;
+struct MeshContext {
+  MeshContext(int dimensions)
+      : localOffset(Eigen::VectorXd::Zero(dimensions)) {}
 
-   /// Data IDs of properties the geometry does possess.
-   std::vector<int> associatedData;
+  /// Mesh holding the geometry data structure.
+  mesh::PtrMesh mesh;
 
-   /// Determines which mesh type has to be provided by the accessor.
-   mapping::Mapping::MeshRequirement meshRequirement = mapping::Mapping::UNDEFINED;
+  /// Data IDs of properties the geometry does possess.
+  std::vector<int> associatedData;
 
-   /// Name of participant that creats the mesh.
-   std::string receiveMeshFrom;
+  /// Determines which mesh type has to be provided by the accessor.
+  mapping::Mapping::MeshRequirement meshRequirement = mapping::Mapping::UNDEFINED;
 
-   /// bounding box to speed up decomposition of received mesh is increased by this safety factor
-   double safetyFactor = -1;
+  /// Name of participant that creats the mesh.
+  std::string receiveMeshFrom;
 
-   /// True, if accessor does create the mesh.
-   bool provideMesh = false;
+  /// bounding box to speed up decomposition of received mesh is increased by this safety factor
+  double safetyFactor = -1;
 
-   /// type of geometric filter
-   partition::ReceivedPartition::GeometricFilter geoFilter = partition::ReceivedPartition::GeometricFilter::UNDEFINED;
+  /// True, if accessor does create the mesh.
+  bool provideMesh = false;
 
-   /// Offset only applied to meshes local to the accessor.
-   Eigen::VectorXd localOffset;
+  /// type of geometric filter
+  partition::ReceivedPartition::GeometricFilter geoFilter = partition::ReceivedPartition::GeometricFilter::UNDEFINED;
 
-   /// Partition creating the parallel decomposition of the mesh
-   partition::PtrPartition partition;
+  /// Offset only applied to meshes local to the accessor.
+  Eigen::VectorXd localOffset;
 
-   /// Mapping used when mapping data from the mesh. Can be empty.
-   MappingContext fromMappingContext;
+  /// Partition creating the parallel decomposition of the mesh
+  partition::PtrPartition partition;
 
-   /// Mapping used when mapping data to the mesh. Can be empty.
-   MappingContext toMappingContext;
-   
+  /// Mapping used when mapping data from the mesh. Can be empty.
+  MappingContext fromMappingContext;
+
+  /// Mapping used when mapping data to the mesh. Can be empty.
+  MappingContext toMappingContext;
 };
 
-}} // namespace precice, impl
+} // namespace impl
+} // namespace precice

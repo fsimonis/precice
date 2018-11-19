@@ -1,30 +1,26 @@
 #include "ComputeCurvatureAction.hpp"
-#include <Eigen/Dense>
 #include "mesh/Edge.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/Triangle.hpp"
 #include "mesh/Vertex.hpp"
+#include <Eigen/Dense>
 
-namespace precice
-{
-namespace action
-{
+namespace precice {
+namespace action {
 
 ComputeCurvatureAction::ComputeCurvatureAction(
     Timing               timing,
     int                  dataID,
     const mesh::PtrMesh &mesh)
     : Action(timing, mesh),
-      _data(mesh->data(dataID))
-{
+      _data(mesh->data(dataID)) {
 }
 
 void ComputeCurvatureAction::performAction(
     double time,
     double dt,
     double computedPartFullDt,
-    double fullDt)
-{
+    double fullDt) {
   TRACE();
   auto &dataValues = _data->values();
 

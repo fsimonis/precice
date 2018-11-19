@@ -7,8 +7,7 @@ BOOST_AUTO_TEST_SUITE(IOTests)
 using namespace precice;
 using namespace precice::io;
 
-BOOST_AUTO_TEST_CASE(TXTWriterReaderTest, * testing::OnMaster())
-{
+BOOST_AUTO_TEST_CASE(TXTWriterReaderTest, *testing::OnMaster()) {
   {
     Eigen::Matrix<double, 1, 2> output(1, 2);
     TXTWriter                   txtWriter("io-TXTWriterReaderTest-matrix-1by2.log");

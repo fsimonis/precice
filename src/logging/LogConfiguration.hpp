@@ -7,18 +7,17 @@ namespace precice {
 namespace logging {
 
 /// Holds the configuration for one logging backend (sink) and takes care of default values.
-struct BackendConfiguration
-{
+struct BackendConfiguration {
   static const std::string default_type;
   static const std::string default_output;
   static const std::string default_filter;
   static const std::string default_formatter;
-    
-  std::string type = default_type;
-  std::string output = default_output;
-  std::string filter = default_filter;
-  std::string format = default_formatter;
-  bool enabled = true;
+
+  std::string type    = default_type;
+  std::string output  = default_output;
+  std::string filter  = default_filter;
+  std::string format  = default_formatter;
+  bool        enabled = true;
 
   /// Sets on option, overwrites default values.
   void setOption(std::string key, std::string value);
@@ -28,7 +27,7 @@ struct BackendConfiguration
 using LoggingConfiguration = std::vector<BackendConfiguration>;
 
 /// Configures the logging from a log file
-void setupLogging(std::string const & logConfigFile = "log.conf");
+void setupLogging(std::string const &logConfigFile = "log.conf");
 
 /// Configures the logging from a LoggingConfiguration
 void setupLogging(LoggingConfiguration configs, bool enabled = true);
@@ -36,4 +35,5 @@ void setupLogging(LoggingConfiguration configs, bool enabled = true);
 /// Sets the current MPI rank as a logging attribute
 void setMPIRank(int const rank);
 
-}} // namespace precice, logging
+} // namespace logging
+} // namespace precice

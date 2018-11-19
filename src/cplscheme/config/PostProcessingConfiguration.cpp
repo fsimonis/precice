@@ -20,10 +20,8 @@
 #include "xml/XMLAttribute.hpp"
 #include "xml/XMLTag.hpp"
 
-namespace precice
-{
-namespace cplscheme
-{
+namespace precice {
+namespace cplscheme {
 
 PostProcessingConfiguration::PostProcessingConfiguration(
     const mesh::PtrMeshConfiguration &meshConfig)
@@ -74,13 +72,11 @@ PostProcessingConfiguration::PostProcessingConfiguration(
       _neededMeshes(),
       _preconditioner(),
       _config(),
-      _isAddManifoldMappingTagAllowed(true)
-{
+      _isAddManifoldMappingTagAllowed(true) {
   assertion(meshConfig.get() != nullptr);
 }
 
-void PostProcessingConfiguration::connectTags(xml::XMLTag &parent)
-{
+void PostProcessingConfiguration::connectTags(xml::XMLTag &parent) {
   using namespace xml;
 
   // static int recursionCounter = 0;
@@ -141,19 +137,16 @@ void PostProcessingConfiguration::connectTags(xml::XMLTag &parent)
   }
 }
 
-impl::PtrPostProcessing PostProcessingConfiguration::getPostProcessing()
-{
+impl::PtrPostProcessing PostProcessingConfiguration::getPostProcessing() {
   return _postProcessing;
 }
 
-PtrPostProcessingConfiguration PostProcessingConfiguration::getCoarseModelOptimizationConfig()
-{
+PtrPostProcessingConfiguration PostProcessingConfiguration::getCoarseModelOptimizationConfig() {
   return _coarseModelOptimizationConfig;
 }
 
 void PostProcessingConfiguration::xmlTagCallback(
-    xml::XMLTag &callingTag)
-{
+    xml::XMLTag &callingTag) {
   TRACE(callingTag.getFullName());
 
   if (callingTag.getNamespace() == TAG) {
@@ -248,8 +241,7 @@ void PostProcessingConfiguration::xmlTagCallback(
 }
 
 void PostProcessingConfiguration::xmlEndTagCallback(
-    xml::XMLTag &callingTag)
-{
+    xml::XMLTag &callingTag) {
   TRACE(callingTag.getName());
   if (callingTag.getNamespace() == TAG) {
 
@@ -357,16 +349,14 @@ void PostProcessingConfiguration::xmlEndTagCallback(
   }
 }
 
-void PostProcessingConfiguration::clear()
-{
+void PostProcessingConfiguration::clear() {
   _config         = ConfigurationData();
   _postProcessing = impl::PtrPostProcessing();
   _neededMeshes.clear();
 }
 
 void PostProcessingConfiguration::addTypeSpecificSubtags(
-    xml::XMLTag &tag)
-{
+    xml::XMLTag &tag) {
   using namespace xml;
   if (tag.getName() == VALUE_CONSTANT) {
     XMLTag               tagRelax(*this, TAG_RELAX, XMLTag::OCCUR_ONCE);
@@ -687,5 +677,5 @@ void PostProcessingConfiguration::addTypeSpecificSubtags(
           << tag.getName() << "\" is unknown!");
   }
 }
-}
-} // namespace precice, cplscheme
+} // namespace cplscheme
+} // namespace precice

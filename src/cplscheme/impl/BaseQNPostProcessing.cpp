@@ -1,21 +1,18 @@
 #include "BaseQNPostProcessing.hpp"
-#include <sstream>
 #include "QRFactorization.hpp"
 #include "com/Communication.hpp"
 #include "cplscheme/CouplingData.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/Vertex.hpp"
 #include "utils/EigenHelperFunctions.hpp"
-#include "utils/MasterSlave.hpp"
-#include "utils/Helpers.hpp"
 #include "utils/EventTimings.hpp"
+#include "utils/Helpers.hpp"
+#include "utils/MasterSlave.hpp"
+#include <sstream>
 
-namespace precice
-{
-namespace cplscheme
-{
-namespace impl
-{
+namespace precice {
+namespace cplscheme {
+namespace impl {
 
 /* ----------------------------------------------------------------------------
  *     Constructor
@@ -30,7 +27,7 @@ BaseQNPostProcessing::BaseQNPostProcessing(
     double            singularityLimit,
     std::vector<int>  dataIDs,
     PtrPreconditioner preconditioner)
-  :   _preconditioner(preconditioner),
+    : _preconditioner(preconditioner),
       _initialRelaxation(initialRelaxation),
       _maxIterationsUsed(maxIterationsUsed),
       _timestepsReused(timestepsReused),
@@ -39,8 +36,7 @@ BaseQNPostProcessing::BaseQNPostProcessing(
       _qrV(filter),
       _filter(filter),
       _singularityLimit(singularityLimit),
-      _infostringstream(std::ostringstream::ate)
-{
+      _infostringstream(std::ostringstream::ate) {
   CHECK((_initialRelaxation > 0.0) && (_initialRelaxation <= 1.0),
         "Initial relaxation factor for QN post-processing has to "
             << "be larger than zero and smaller or equal than one!");
@@ -57,8 +53,7 @@ BaseQNPostProcessing::BaseQNPostProcessing(
  *  ---------------------------------------------------------------------------------------------
  */
 void BaseQNPostProcessing::initialize(
-    DataMap &cplData)
-{
+    DataMap &cplData) {
   TRACE(cplData.size());
 
   /*
@@ -181,8 +176,7 @@ void BaseQNPostProcessing::initialize(
  *  ---------------------------------------------------------------------------------------------
  */
 void BaseQNPostProcessing::setDesignSpecification(
-    Eigen::VectorXd &q)
-{
+    Eigen::VectorXd &q) {
   TRACE();
   assertion(q.size() == _residuals.size(), q.size(), _residuals.size());
   _designSpecification = q;
@@ -196,8 +190,7 @@ void BaseQNPostProcessing::setDesignSpecification(
  *  ---------------------------------------------------------------------------------------------
  */
 std::map<int, Eigen::VectorXd> BaseQNPostProcessing::getDesignSpecification(
-    DataMap &cplData)
-{
+    DataMap &cplData) {
   TRACE();
   std::map<int, Eigen::VectorXd> designSpecifications;
   int                            off = 0;
@@ -222,10 +215,9 @@ std::map<int, Eigen::VectorXd> BaseQNPostProcessing::getDesignSpecification(
  *  ---------------------------------------------------------------------------------------------
  */
 void BaseQNPostProcessing::updateDifferenceMatrices(
-    DataMap &cplData)
-{
+    DataMap &cplData) {
   TRACE();
-  
+
   // Compute current residual: vertex-data - oldData
   _residuals = _values;
   _residuals -= _oldValues;
@@ -296,10 +288,9 @@ void BaseQNPostProcessing::updateDifferenceMatrices(
  *  ---------------------------------------------------------------------------------------------
  */
 void BaseQNPostProcessing::performPostProcessing(
-    DataMap &cplData)
-{
+    DataMap &cplData) {
   TRACE(_dataIDs.size(), cplData.size());
-  
+
   utils::Event e("cpl.computeQuasiNewtonUpdate");
 
   assertion(_oldResiduals.size() == _oldXTilde.size(), _oldResiduals.size(), _oldXTilde.size());
@@ -460,10 +451,9 @@ void BaseQNPostProcessing::performPostProcessing(
   _firstIteration = false;
 }
 
-void BaseQNPostProcessing::applyFilter()
-{
+void BaseQNPostProcessing::applyFilter() {
   TRACE(_filter);
-  
+
   if (_filter == PostProcessing::NOFILTER) {
     // do nothing
   } else {
@@ -482,8 +472,7 @@ void BaseQNPostProcessing::applyFilter()
 }
 
 void BaseQNPostProcessing::concatenateCouplingData(
-    DataMap &cplData)
-{
+    DataMap &cplData) {
   TRACE();
 
   int offset = 0;
@@ -500,8 +489,7 @@ void BaseQNPostProcessing::concatenateCouplingData(
 }
 
 void BaseQNPostProcessing::splitCouplingData(
-    DataMap &cplData)
-{
+    DataMap &cplData) {
   TRACE();
 
   int offset = 0;
@@ -527,10 +515,9 @@ void BaseQNPostProcessing::splitCouplingData(
  *  ---------------------------------------------------------------------------------------------
  */
 void BaseQNPostProcessing::iterationsConverged(
-    DataMap &cplData)
-{
+    DataMap &cplData) {
   TRACE();
-  
+
   if (utils::MasterSlave::_masterMode || (not utils::MasterSlave::_masterMode && not utils::MasterSlave::_slaveMode))
     _infostringstream << "# time step " << tSteps << " converged #\n iterations: " << its
                       << "\n used cols: " << getLSSystemCols() << "\n del cols: " << _nbDelCols << std::endl;
@@ -616,8 +603,7 @@ void BaseQNPostProcessing::iterationsConverged(
  *  ---------------------------------------------------------------------------------------------
  */
 void BaseQNPostProcessing::removeMatrixColumn(
-    int columnIndex)
-{
+    int columnIndex) {
   TRACE(columnIndex, _matrixV.cols());
 
   // debugging information, can be removed
@@ -645,22 +631,18 @@ void BaseQNPostProcessing::removeMatrixColumn(
 }
 
 void BaseQNPostProcessing::exportState(
-    io::TXTWriter &writer)
-{
+    io::TXTWriter &writer) {
 }
 
 void BaseQNPostProcessing::importState(
-    io::TXTReader &reader)
-{
+    io::TXTReader &reader) {
 }
 
-int BaseQNPostProcessing::getDeletedColumns()
-{
+int BaseQNPostProcessing::getDeletedColumns() {
   return _nbDelCols;
 }
 
-int BaseQNPostProcessing::getLSSystemCols()
-{
+int BaseQNPostProcessing::getLSSystemCols() {
   int cols = 0;
   for (int col : _matrixCols) {
     cols += col;
@@ -673,8 +655,7 @@ int BaseQNPostProcessing::getLSSystemCols()
   return cols;
 }
 
-int BaseQNPostProcessing::getLSSystemRows()
-{
+int BaseQNPostProcessing::getLSSystemRows() {
   if (utils::MasterSlave::_masterMode || utils::MasterSlave::_slaveMode) {
     return _dimOffsets.back();
   }
@@ -682,8 +663,8 @@ int BaseQNPostProcessing::getLSSystemRows()
 }
 
 void BaseQNPostProcessing::writeInfo(
-    std::string s, bool allProcs)
-{
+    std::string s,
+    bool        allProcs) {
   if (not utils::MasterSlave::_masterMode && not utils::MasterSlave::_slaveMode) {
     // serial post processing mode, server mode
     _infostringstream << s;
@@ -699,6 +680,6 @@ void BaseQNPostProcessing::writeInfo(
   }
   _infostringstream << std::flush;
 }
-}
-}
-} // namespace precice, cplscheme, impl
+} // namespace impl
+} // namespace cplscheme
+} // namespace precice

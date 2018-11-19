@@ -3,17 +3,14 @@
 #include "logging/Logger.hpp"
 #include "xml/XMLTag.hpp"
 
-namespace precice
-{
-namespace com
-{
+namespace precice {
+namespace com {
 
 /**
  * @brief Configuration for communication channels between server and clients or master and slaves.
  * The communication between two solvers is configured in m2n::M2NConfiguration
  */
-class CommunicationConfiguration
-{
+class CommunicationConfiguration {
 public:
   virtual ~CommunicationConfiguration() {}
 

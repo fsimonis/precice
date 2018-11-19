@@ -13,24 +13,21 @@
 
 using precice::utils::Event;
 
-namespace precice
-{
-namespace partition
-{
+namespace precice {
+namespace partition {
 
 ReceivedPartition::ReceivedPartition(
-    mesh::PtrMesh mesh, GeometricFilter geometricFilter, double safetyFactor)
+    mesh::PtrMesh   mesh,
+    GeometricFilter geometricFilter,
+    double          safetyFactor)
     : Partition(mesh),
       _geometricFilter(geometricFilter),
-      _bb(mesh->getDimensions(), std::make_pair(std::numeric_limits<double>::max(),
-                                                std::numeric_limits<double>::lowest())),
+      _bb(mesh->getDimensions(), std::make_pair(std::numeric_limits<double>::max(), std::numeric_limits<double>::lowest())),
       _dimensions(mesh->getDimensions()),
-      _safetyFactor(safetyFactor)
-{
+      _safetyFactor(safetyFactor) {
 }
 
-void ReceivedPartition::communicate()
-{
+void ReceivedPartition::communicate() {
   TRACE();
   INFO("Receive global mesh " << _mesh->getName());
   Event e("partition.receiveGlobalMesh." + _mesh->getName());
@@ -40,8 +37,7 @@ void ReceivedPartition::communicate()
   }
 }
 
-void ReceivedPartition::compute()
-{
+void ReceivedPartition::compute() {
   TRACE(_geometricFilter);
 
   // handle coupling mode first (i.e. serial participant)
@@ -58,13 +54,11 @@ void ReceivedPartition::compute()
   if (not utils::MasterSlave::_slaveMode) {
     CHECK(_fromMapping.use_count() > 0 || _toMapping.use_count() > 0,
           "The received mesh " << _mesh->getName()
-          << " needs a mapping, either from it, to it, or both. Maybe you don't want to receive this mesh at all?")
+                               << " needs a mapping, either from it, to it, or both. Maybe you don't want to receive this mesh at all?")
   }
 
-
-  // To understand the following steps, it is recommended to look at BU's thesis, especially Figure 69 on page 89 
+  // To understand the following steps, it is recommended to look at BU's thesis, especially Figure 69 on page 89
   // for RBF-based filtering. https://mediatum.ub.tum.de/doc/1320661/document.pdf
-
 
   // (0) set global number of vertices before filtering
   if (utils::MasterSlave::_masterMode) {
@@ -88,11 +82,11 @@ void ReceivedPartition::compute()
         // this rank has vertices at the coupling interface
         // then, also the filtered mesh should still have vertices
         std::string msg = "The re-partitioning completely filtered out the mesh " + _mesh->getName() +
-          " received on this rank at the coupling interface. "
-          "Most probably, the coupling interfaces of your coupled participants do not match geometry-wise. "
-          "Please check your geometry setup again. Small overlaps or gaps are no problem. "
-          "If your geometry setup is correct and if you have very different mesh resolutions on both sides, increasing the safety-factor "
-          "of the decomposition strategy might be necessary.";
+                          " received on this rank at the coupling interface. "
+                          "Most probably, the coupling interfaces of your coupled participants do not match geometry-wise. "
+                          "Please check your geometry setup again. Small overlaps or gaps are no problem. "
+                          "If your geometry setup is correct and if you have very different mesh resolutions on both sides, increasing the safety-factor "
+                          "of the decomposition strategy might be necessary.";
         CHECK(_mesh->vertices().size() > 0, msg);
       }
 
@@ -104,7 +98,7 @@ void ReceivedPartition::compute()
         com::CommunicateMesh(utils::MasterSlave::_communication).receiveBoundingBox(_bb, rankSlave);
 
         DEBUG("From slave " << rankSlave << ", bounding mesh: " << _bb[0].first
-              << ", " << _bb[0].second << " and " << _bb[1].first << ", " << _bb[1].second);
+                            << ", " << _bb[0].second << " and " << _bb[1].first << ", " << _bb[1].second);
         mesh::Mesh slaveMesh("SlaveMesh", _dimensions, _mesh->isFlipNormals());
         filterMesh(slaveMesh, true);
         com::CommunicateMesh(utils::MasterSlave::_communication).sendMesh(slaveMesh, rankSlave);
@@ -124,10 +118,10 @@ void ReceivedPartition::compute()
         // this rank has vertices at the coupling interface
         // then, also the filtered mesh should still have vertices
         std::string msg = "The re-partitioning completely filtered out the mesh " + _mesh->getName() + " received on this rank at the coupling interface. "
-          "Most probably, the coupling interfaces of your coupled participants do not match geometry-wise. "
-          "Please check your geometry setup again. Small overlaps or gaps are no problem. "
-          "If your geometry setup is correct and if you have very different mesh resolutions on both sides, increasing the safety-factor "
-          "of the decomposition strategy might be necessary.";
+                                                                                                       "Most probably, the coupling interfaces of your coupled participants do not match geometry-wise. "
+                                                                                                       "Please check your geometry setup again. Small overlaps or gaps are no problem. "
+                                                                                                       "If your geometry setup is correct and if you have very different mesh resolutions on both sides, increasing the safety-factor "
+                                                                                                       "of the decomposition strategy might be necessary.";
         CHECK(_mesh->vertices().size() > 0, msg);
       }
     }
@@ -159,10 +153,10 @@ void ReceivedPartition::compute()
         // this rank has vertices at the coupling interface
         // then, also the filtered mesh should still have vertices
         std::string msg = "The re-partitioning completely filtered out the mesh " + _mesh->getName() + " received on this rank at the coupling interface. "
-          "Most probably, the coupling interfaces of your coupled participants do not match geometry-wise. "
-          "Please check your geometry setup again. Small overlaps or gaps are no problem. "
-          "If your geometry setup is correct and if you have very different mesh resolutions on both sides, increasing the safety-factor "
-          "of the decomposition strategy might be necessary.";
+                                                                                                       "Most probably, the coupling interfaces of your coupled participants do not match geometry-wise. "
+                                                                                                       "Please check your geometry setup again. Small overlaps or gaps are no problem. "
+                                                                                                       "If your geometry setup is correct and if you have very different mesh resolutions on both sides, increasing the safety-factor "
+                                                                                                       "of the decomposition strategy might be necessary.";
         CHECK(filteredMesh.vertices().size() > 0, msg);
       }
 
@@ -197,7 +191,7 @@ void ReceivedPartition::compute()
 
   // (5) Filter mesh according to tag
   INFO("Filter mesh " << _mesh->getName() << " by mappings");
-  Event e5("partition.filterMeshMappings" + _mesh->getName());
+  Event      e5("partition.filterMeshMappings" + _mesh->getName());
   mesh::Mesh filteredMesh("FilteredMesh", _dimensions, _mesh->isFlipNormals());
   filterMesh(filteredMesh, false);
   DEBUG("Mapping filter, filtered from " << _mesh->vertices().size() << " vertices to " << filteredMesh.vertices().size() << " vertices.");
@@ -247,14 +241,13 @@ void ReceivedPartition::compute()
   computeVertexOffsets();
 }
 
-void ReceivedPartition::filterMesh(mesh::Mesh &filteredMesh, const bool filterByBB)
-{
+void ReceivedPartition::filterMesh(mesh::Mesh &filteredMesh, const bool filterByBB) {
   TRACE(filterByBB);
 
   DEBUG("Bounding mesh. #vertices: " << _mesh->vertices().size()
-        << ", #edges: " << _mesh->edges().size()
-        << ", #triangles: " << _mesh->triangles().size()
-        << ", rank: " << utils::MasterSlave::_rank);
+                                     << ", #edges: " << _mesh->edges().size()
+                                     << ", #triangles: " << _mesh->triangles().size()
+                                     << ", rank: " << utils::MasterSlave::_rank);
 
   std::map<int, mesh::Vertex *> vertexMap;
   std::map<int, mesh::Edge *>   edgeMap;
@@ -299,13 +292,12 @@ void ReceivedPartition::filterMesh(mesh::Mesh &filteredMesh, const bool filterBy
   }
 
   DEBUG("Filtered mesh. #vertices: " << filteredMesh.vertices().size()
-        << ", #edges: " << filteredMesh.edges().size()
-        << ", #triangles: " << filteredMesh.triangles().size()
-        << ", rank: " << utils::MasterSlave::_rank);
+                                     << ", #edges: " << filteredMesh.edges().size()
+                                     << ", #triangles: " << filteredMesh.triangles().size()
+                                     << ", rank: " << utils::MasterSlave::_rank);
 }
 
-void ReceivedPartition::prepareBoundingBox()
-{
+void ReceivedPartition::prepareBoundingBox() {
   TRACE(_safetyFactor);
 
   _bb.resize(_dimensions,
@@ -315,15 +307,15 @@ void ReceivedPartition::prepareBoundingBox()
   if (_fromMapping.use_count() > 0) {
     auto other_bb = _fromMapping->getOutputMesh()->getBoundingBox();
     for (int d = 0; d < _dimensions; d++) {
-      _bb[d].first = std::min(_bb[d].first, other_bb[d].first);
+      _bb[d].first  = std::min(_bb[d].first, other_bb[d].first);
       _bb[d].second = std::max(_bb[d].second, other_bb[d].second);
     }
   }
   if (_toMapping.use_count() > 0) {
     auto other_bb = _toMapping->getInputMesh()->getBoundingBox();
-      for (int d = 0; d < _dimensions; d++) {
-        _bb[d].first = std::min(_bb[d].first, other_bb[d].first);
-        _bb[d].second = std::max(_bb[d].second, other_bb[d].second);
+    for (int d = 0; d < _dimensions; d++) {
+      _bb[d].first  = std::min(_bb[d].first, other_bb[d].first);
+      _bb[d].second = std::max(_bb[d].second, other_bb[d].second);
     }
   }
 
@@ -342,8 +334,7 @@ void ReceivedPartition::prepareBoundingBox()
   }
 }
 
-bool ReceivedPartition::isVertexInBB(const mesh::Vertex &vertex)
-{
+bool ReceivedPartition::isVertexInBB(const mesh::Vertex &vertex) {
   for (int d = 0; d < _dimensions; d++) {
     if (vertex.getCoords()[d] < _bb[d].first or vertex.getCoords()[d] > _bb[d].second) {
       return false;
@@ -352,8 +343,7 @@ bool ReceivedPartition::isVertexInBB(const mesh::Vertex &vertex)
   return true;
 }
 
-void ReceivedPartition::createOwnerInformation()
-{
+void ReceivedPartition::createOwnerInformation() {
   TRACE();
 
   if (utils::MasterSlave::_slaveMode) {
@@ -441,7 +431,7 @@ void ReceivedPartition::createOwnerInformation()
     for (int rank = 0; rank < utils::MasterSlave::_size; rank++) {
       int counter = 0;
       for (size_t i = 0; i < slaveOwnerVecs[rank].size(); i++) {
-         // Vertex has no owner yet and rank could be owner
+        // Vertex has no owner yet and rank could be owner
         if (globalOwnerVec[slaveGlobalIDs[rank][i]] == 0 && slaveTags[rank][i] == 1) {
           slaveOwnerVecs[rank][i]                 = 1; // Now rank is owner
           globalOwnerVec[slaveGlobalIDs[rank][i]] = 1; // Vertex now has owner
@@ -475,15 +465,14 @@ void ReceivedPartition::createOwnerInformation()
     for (size_t i = 0; i < globalOwnerVec.size(); i++) {
       if (globalOwnerVec[i] == 0) {
         WARN("The Vertex with global index " << i << " of mesh: " << _mesh->getName()
-             << " was completely filtered out, since it has no influence on any mapping.");
+                                             << " was completely filtered out, since it has no influence on any mapping.");
       }
     }
 #endif
   }
 }
 
-void ReceivedPartition::setOwnerInformation(const std::vector<int> &ownerVec)
-{
+void ReceivedPartition::setOwnerInformation(const std::vector<int> &ownerVec) {
   size_t i = 0;
   for (mesh::Vertex &vertex : _mesh->vertices()) {
     assertion(i < ownerVec.size());

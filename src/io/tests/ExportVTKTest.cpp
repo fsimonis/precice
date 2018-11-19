@@ -7,12 +7,11 @@
 
 BOOST_AUTO_TEST_SUITE(IOTests)
 
-BOOST_AUTO_TEST_SUITE(VTKExport, * precice::testing::OnMaster())
+BOOST_AUTO_TEST_SUITE(VTKExport, *precice::testing::OnMaster())
 
 using namespace precice;
 
-BOOST_AUTO_TEST_CASE(ExportPolygonalMesh)
-{
+BOOST_AUTO_TEST_CASE(ExportPolygonalMesh) {
   int             dim           = 2;
   bool            invertNormals = false;
   mesh::Mesh      mesh("MyMesh", dim, invertNormals);
@@ -35,8 +34,7 @@ BOOST_AUTO_TEST_CASE(ExportPolygonalMesh)
   exportVTK.doExport(filename, location, mesh);
 }
 
-BOOST_AUTO_TEST_CASE(ExportTriangulatedMesh)
-{
+BOOST_AUTO_TEST_CASE(ExportTriangulatedMesh) {
   int             dim           = 3;
   bool            invertNormals = false;
   mesh::Mesh      mesh("MyMesh", dim, invertNormals);
@@ -59,8 +57,7 @@ BOOST_AUTO_TEST_CASE(ExportTriangulatedMesh)
   exportVTK.doExport(filename, location, mesh);
 }
 
-BOOST_AUTO_TEST_CASE(ExportQuadMesh)
-{
+BOOST_AUTO_TEST_CASE(ExportQuadMesh) {
   using namespace mesh;
   int  dim           = 3;
   bool invertNormals = false;

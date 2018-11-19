@@ -1,19 +1,15 @@
 #pragma once
 
-#include <Eigen/Core>
-#include <vector>
 #include "PostProcessing.hpp"
 #include "logging/Logger.hpp"
+#include <Eigen/Core>
+#include <vector>
 
-namespace precice
-{
-namespace cplscheme
-{
-namespace impl
-{
+namespace precice {
+namespace cplscheme {
+namespace impl {
 
-class HierarchicalAitkenPostProcessing : public PostProcessing
-{
+class HierarchicalAitkenPostProcessing: public PostProcessing {
 public:
   HierarchicalAitkenPostProcessing(
       double           initialRelaxation,
@@ -21,8 +17,7 @@ public:
 
   virtual ~HierarchicalAitkenPostProcessing(){};
 
-  virtual std::vector<int> getDataIDs() const
-  {
+  virtual std::vector<int> getDataIDs() const {
     return _dataIDs;
   }
 
@@ -57,6 +52,6 @@ private:
       double nominator,
       double denominator);
 };
-}
-}
-} // namespace precice, cplscheme, impl
+} // namespace impl
+} // namespace cplscheme
+} // namespace precice

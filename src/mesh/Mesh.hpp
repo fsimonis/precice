@@ -1,28 +1,27 @@
 #pragma once
 
+#include "mesh/Data.hpp"
 #include "mesh/Group.hpp"
 #include "mesh/SharedPointer.hpp"
-#include "mesh/Data.hpp"
 #include "mesh/Vertex.hpp"
-#include "utils/PointerVector.hpp"
 #include "utils/ManageUniqueIDs.hpp"
+#include "utils/PointerVector.hpp"
 #include <boost/noncopyable.hpp>
-#include <map>
-#include <list>
-#include <vector>
 #include <boost/signals2.hpp>
+#include <list>
+#include <map>
+#include <vector>
 
 namespace precice {
-  namespace mesh {
-    class PropertyContainer;
-  }
+namespace mesh {
+class PropertyContainer;
 }
+} // namespace precice
 
 // ----------------------------------------------------------- CLASS DEFINITION
 
 namespace precice {
 namespace mesh {
-
 
 /**
  * @brief Container and creator for meshes.
@@ -36,11 +35,8 @@ namespace mesh {
  *
  * Usage example: precice::mesh::tests::MeshTest::testDemonstration()
  */
-class Mesh : public PropertyContainer, private boost::noncopyable
-{
+class Mesh: public PropertyContainer, private boost::noncopyable {
 public:
-
-
   typedef utils::ptr_vector<Vertex>              VertexContainer;
   typedef utils::ptr_vector<Edge>                EdgeContainer;
   typedef utils::ptr_vector<Triangle>            TriangleContainer;
@@ -48,7 +44,7 @@ public:
   typedef std::vector<PtrData>                   DataContainer;
   typedef utils::ptr_vector<PropertyContainer>   PropertyContainerContainer;
   typedef std::vector<std::pair<double, double>> BoundingBox;
-  typedef std::map<int,BoundingBox>              BoundingBoxMap;
+  typedef std::map<int, BoundingBox>             BoundingBoxMap;
 
   /// A mapping from rank to used (not necessarily owned) vertex IDs
   using VertexDistribution = std::map<int, std::vector<int>>;
@@ -73,52 +69,51 @@ public:
    * @param[in] dimensions Dimensionalty of the mesh.
    * @param[in] flipNormals Inverts the standard direction of normals.
    */
-  Mesh (
-    const std::string& name,
-    int                dimensions,
-    bool               flipNormals );
+  Mesh(
+      const std::string &name,
+      int                dimensions,
+      bool               flipNormals);
 
   /// Destructor, deletes created objects.
   virtual ~Mesh();
 
   /// Returns group object with all Triangle, Edge, Vertex objects.
-  const Group& content() const;
+  const Group &content() const;
 
   /// Returns modifieable container holding all vertices.
-  VertexContainer& vertices();
+  VertexContainer &vertices();
 
   /// Returns const container holding all vertices.
-  const VertexContainer& vertices() const;
+  const VertexContainer &vertices() const;
 
   /// Returns modifiable container holding all edges.
-  EdgeContainer& edges();
+  EdgeContainer &edges();
 
   /// Returns const container holding all edges.
-  const EdgeContainer& edges() const;
+  const EdgeContainer &edges() const;
 
   /// Returns modifiable container holding all triangles.
-  TriangleContainer& triangles();
+  TriangleContainer &triangles();
 
   /// Returns const container holding all triangles.
-  const TriangleContainer& triangles() const;
+  const TriangleContainer &triangles() const;
 
   /// Returns modifiable container holding all quads.
-  QuadContainer& quads();
+  QuadContainer &quads();
 
   /// Returns const container holding all quads.
-  const QuadContainer& quads() const;
+  const QuadContainer &quads() const;
 
-  PropertyContainerContainer& propertyContainers();
+  PropertyContainerContainer &propertyContainers();
 
-  const PropertyContainerContainer& propertyContainers() const;
+  const PropertyContainerContainer &propertyContainers() const;
 
   int getDimensions() const;
 
   template<typename VECTOR_T>
-  Vertex& createVertex ( const VECTOR_T& coords )
-  {
+  Vertex &createVertex(const VECTOR_T &coords) {
     assertion(coords.size() == _dimensions, coords.size(), _dimensions);
-    Vertex* newVertex = new Vertex(coords, _manageVertexIDs.getFreeID());
+    Vertex *newVertex = new Vertex(coords, _manageVertexIDs.getFreeID());
     newVertex->addParent(*this);
     _content.add(newVertex);
     return *newVertex;
@@ -130,9 +125,9 @@ public:
    * @param[in] vertexOne Reference to first Vertex defining the Edge.
    * @param[in] vertexTwo Reference to second Vertex defining the Edge.
    */
-  Edge& createEdge (
-    Vertex& vertexOne,
-    Vertex& vertexTwo );
+  Edge &createEdge(
+      Vertex &vertexOne,
+      Vertex &vertexTwo);
 
   /**
    * @brief Creates and initializes a Triangle object.
@@ -141,10 +136,10 @@ public:
    * @param[in] edgeTwo Reference to second edge defining the Triangle.
    * @param[in] edgeThree Reference to third edge defining the Triangle.
    */
-  Triangle& createTriangle (
-    Edge& edgeOne,
-    Edge& edgeTwo,
-    Edge& edgeThree );
+  Triangle &createTriangle(
+      Edge &edgeOne,
+      Edge &edgeTwo,
+      Edge &edgeThree);
 
   /**
    * @brief Creates and initializes a Quad object.
@@ -154,11 +149,11 @@ public:
    * @param[in] edgeThree Reference to third edge defining the Quad.
    * @param[in] edgeFour Reference to fourth edge defining the Quad.
    */
-  Quad& createQuad (
-    Edge& edgeOne,
-    Edge& edgeTwo,
-    Edge& edgeThree,
-    Edge& edgeFour);
+  Quad &createQuad(
+      Edge &edgeOne,
+      Edge &edgeTwo,
+      Edge &edgeThree,
+      Edge &edgeFour);
 
   /**
    * @brief Creates and initializes a PropertyContainer object.
@@ -168,24 +163,24 @@ public:
    * Vertices and Edges lying at the intersection of regions with different
    * geometry IDs.
    */
-  PropertyContainer& createPropertyContainer();
+  PropertyContainer &createPropertyContainer();
 
-  PtrData& createData (
-    const std::string& name,
-    int                dimension );
+  PtrData &createData(
+      const std::string &name,
+      int                dimension);
 
-  const DataContainer& data() const;
+  const DataContainer &data() const;
 
-  const PtrData& data ( int dataID ) const;
+  const PtrData &data(int dataID) const;
 
-  PropertyContainer& getPropertyContainer (const std::string & subIDName);
+  PropertyContainer &getPropertyContainer(const std::string &subIDName);
 
   /// Returns the name of the mesh, as set in the config file.
-  const std::string& getName() const;
+  const std::string &getName() const;
 
   bool isFlipNormals() const;
 
-  void setFlipNormals ( bool flipNormals );
+  void setFlipNormals(bool flipNormals);
 
   /**
    * @brief Associates a new geometry ID to the mesh.
@@ -195,13 +190,13 @@ public:
    *
    * @return Newly created property container holding the new ID.
    */
-  PropertyContainer& setSubID ( const std::string& subIDNamePostfix );
+  PropertyContainer &setSubID(const std::string &subIDNamePostfix);
 
   /// Returns all used geometry IDs paired with their names
-  const std::map<std::string,int>& getNameIDPairs();
+  const std::map<std::string, int> &getNameIDPairs();
 
   /// Returns the geometry ID corresponding to the given name.
-  int getID ( const std::string& name ) const;
+  int getID(const std::string &name) const;
 
   /// Returns the base ID of the mesh.
   int getID() const;
@@ -232,33 +227,28 @@ public:
   void clear();
 
   /// Returns a mapping from rank to used (not necessarily owned) vertex IDs
-  VertexDistribution & getVertexDistribution()
-  {
+  VertexDistribution &getVertexDistribution() {
     return _vertexDistribution;
   }
 
-  std::vector<int>& getVertexOffsets()
-  {
+  std::vector<int> &getVertexOffsets() {
     return _vertexOffsets;
   }
 
   /// Only used for tests
-  void setVertexOffsets(std::vector<int> & vertexOffsets)
-  {
+  void setVertexOffsets(std::vector<int> &vertexOffsets) {
     _vertexOffsets = vertexOffsets;
   }
 
-  int getGlobalNumberOfVertices()
-  {
+  int getGlobalNumberOfVertices() {
     return _globalNumberOfVertices;
   }
 
-  void setGlobalNumberOfVertices(int num)
-  {
+  void setGlobalNumberOfVertices(int num) {
     _globalNumberOfVertices = num;
   }
 
-  void addMesh(Mesh& deltaMesh);
+  void addMesh(Mesh &deltaMesh);
 
   /**
    * @brief Returns the bounding box of the mesh.
@@ -275,13 +265,12 @@ public:
    * cog =  (max - min) / 2 + min
    */
   const std::vector<double> getCOG() const;
-  
-  bool operator==(const Mesh& other) const;
-  
-  bool operator!=(const Mesh& other) const;
+
+  bool operator==(const Mesh &other) const;
+
+  bool operator!=(const Mesh &other) const;
 
 private:
-
   mutable logging::Logger _log{"mesh::Mesh"};
 
   /// Provides unique IDs for all geometry objects
@@ -297,7 +286,7 @@ private:
   bool _flipNormals;
 
   /// Holds all mesh names and the corresponding IDs belonging to the mesh.
-  std::map<std::string,int> _nameIDPairs;
+  std::map<std::string, int> _nameIDPairs;
 
   /// Holds vertices, edges, and triangles.
   Group _content;
@@ -330,7 +319,6 @@ private:
    */
   std::vector<int> _vertexOffsets;
 
-
   /**
    * @brief Number of unique vertices for complete distributed mesh.
    *
@@ -339,9 +327,9 @@ private:
   int _globalNumberOfVertices = -1;
 
   BoundingBox _boundingBox;
-
 };
 
-std::ostream& operator<<(std::ostream& os, const Mesh& q);
+std::ostream &operator<<(std::ostream &os, const Mesh &q);
 
-}} // namespace precice, mesh
+} // namespace mesh
+} // namespace precice

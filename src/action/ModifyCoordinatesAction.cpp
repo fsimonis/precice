@@ -3,10 +3,8 @@
 #include "mesh/Mesh.hpp"
 #include "mesh/Vertex.hpp"
 
-namespace precice
-{
-namespace action
-{
+namespace precice {
+namespace action {
 
 ModifyCoordinatesAction::ModifyCoordinatesAction(
     Timing               timing,
@@ -15,16 +13,14 @@ ModifyCoordinatesAction::ModifyCoordinatesAction(
     Mode                 mode)
     : Action(timing, mesh),
       _data(mesh->data(dataID)),
-      _mode(mode)
-{
+      _mode(mode) {
 }
 
 void ModifyCoordinatesAction::performAction(
     double time,
     double dt,
     double computedPartFullDt,
-    double fullDt)
-{
+    double fullDt) {
   TRACE();
   auto &          values = _data->values();
   int             dim    = getMesh()->getDimensions();

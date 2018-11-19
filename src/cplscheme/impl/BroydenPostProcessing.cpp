@@ -1,13 +1,10 @@
 #include "BroydenPostProcessing.hpp"
-#include <Eigen/Core>
 #include "cplscheme/CouplingData.hpp"
+#include <Eigen/Core>
 
-namespace precice
-{
-namespace cplscheme
-{
-namespace impl
-{
+namespace precice {
+namespace cplscheme {
+namespace impl {
 
 // logging::Logger BroydenPostProcessing::
 //      _log("cplscheme::impl::BroydenPostProcessing");
@@ -21,14 +18,11 @@ BroydenPostProcessing::BroydenPostProcessing(
     double            singularityLimit,
     std::vector<int>  dataIDs,
     PtrPreconditioner preconditioner)
-    : BaseQNPostProcessing(initialRelaxation, forceInitialRelaxation, maxIterationsUsed, timestepsReused,
-                           filter, singularityLimit, dataIDs, preconditioner),
-      _maxColumns(maxIterationsUsed)
-{}
+    : BaseQNPostProcessing(initialRelaxation, forceInitialRelaxation, maxIterationsUsed, timestepsReused, filter, singularityLimit, dataIDs, preconditioner),
+      _maxColumns(maxIterationsUsed) {}
 
 void BroydenPostProcessing::initialize(
-    DataMap &cplData)
-{
+    DataMap &cplData) {
   // do common QN post processing initialization
   BaseQNPostProcessing::initialize(cplData);
 
@@ -39,8 +33,7 @@ void BroydenPostProcessing::initialize(
 }
 
 void BroydenPostProcessing::computeUnderrelaxationSecondaryData(
-    DataMap &cplData)
-{
+    DataMap &cplData) {
   // Perform underrelaxation with initial relaxation factor for secondary data
   for (int id : _secondaryDataIDs) {
     PtrCouplingData  data   = cplData[id];
@@ -54,8 +47,7 @@ void BroydenPostProcessing::computeUnderrelaxationSecondaryData(
 }
 
 void BroydenPostProcessing::updateDifferenceMatrices(
-    DataMap &cplData)
-{
+    DataMap &cplData) {
   if (_firstIteration && _firstTimeStep) {
   } else {
     if (not _firstIteration) {
@@ -67,8 +59,7 @@ void BroydenPostProcessing::updateDifferenceMatrices(
   BaseQNPostProcessing::updateDifferenceMatrices(cplData);
 }
 
-void BroydenPostProcessing::computeQNUpdate(PostProcessing::DataMap &cplData, Eigen::VectorXd &xUpdate)
-{
+void BroydenPostProcessing::computeQNUpdate(PostProcessing::DataMap &cplData, Eigen::VectorXd &xUpdate) {
   TRACE();
 
   DEBUG("currentColumns=" << _currentColumns);
@@ -114,12 +105,11 @@ void BroydenPostProcessing::computeQNUpdate(PostProcessing::DataMap &cplData, Ei
 }
 
 void BroydenPostProcessing::specializedIterationsConverged(
-    DataMap &cplData)
-{
+    DataMap &cplData) {
   _currentColumns = 0;
   // store old Jacobian
   _oldInvJacobian = _invJacobian;
 }
-}
-}
-} // namespace precice, cplscheme, impl
+} // namespace impl
+} // namespace cplscheme
+} // namespace precice

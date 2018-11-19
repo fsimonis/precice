@@ -32,8 +32,7 @@ BOOST_AUTO_TEST_SUITE(IOTests)
 using namespace precice;
 
 struct SetupMasterSlaveFixture {
-  SetupMasterSlaveFixture()
-  {
+  SetupMasterSlaveFixture() {
     assertion(utils::Parallel::getCommunicatorSize() == 4);
 
     auto masterSlaveCom                = std::make_shared<com::MPIDirectCommunication>();
@@ -71,8 +70,7 @@ struct SetupMasterSlaveFixture {
     utils::MasterSlave::_size = 4;
   }
 
-  ~SetupMasterSlaveFixture()
-  {
+  ~SetupMasterSlaveFixture() {
     utils::Parallel::synchronizeProcesses();
     utils::MasterSlave::_slaveMode  = false;
     utils::MasterSlave::_masterMode = false;
@@ -83,11 +81,9 @@ struct SetupMasterSlaveFixture {
   }
 };
 
-BOOST_FIXTURE_TEST_SUITE(VTKXMLExport, SetupMasterSlaveFixture,
-                         *testing::OnSize(4))
+BOOST_FIXTURE_TEST_SUITE(VTKXMLExport, SetupMasterSlaveFixture, *testing::OnSize(4))
 
-BOOST_AUTO_TEST_CASE(ExportPolygonalMesh)
-{
+BOOST_AUTO_TEST_CASE(ExportPolygonalMesh) {
   int        dim           = 2;
   bool       invertNormals = false;
   mesh::Mesh mesh("MyMesh", dim, invertNormals);
@@ -131,8 +127,7 @@ BOOST_AUTO_TEST_CASE(ExportPolygonalMesh)
   exportVTKXML.doExport(filename, location, mesh);
 }
 
-BOOST_AUTO_TEST_CASE(ExportTriangulatedMesh)
-{
+BOOST_AUTO_TEST_CASE(ExportTriangulatedMesh) {
   int        dim           = 3;
   bool       invertNormals = false;
   mesh::Mesh mesh("MyMesh", dim, invertNormals);
@@ -179,8 +174,7 @@ BOOST_AUTO_TEST_CASE(ExportTriangulatedMesh)
   exportVTKXML.doExport(filename, location, mesh);
 }
 
-BOOST_AUTO_TEST_CASE(ExportQuadMesh)
-{
+BOOST_AUTO_TEST_CASE(ExportQuadMesh) {
   using namespace mesh;
   int  dim           = 3;
   bool invertNormals = false;

@@ -8,29 +8,25 @@
 
 #ifndef PRECICE_NO_MPI
 
-#include <Eigen/Dense>
-#include <fstream>
 #include "ParallelMatrixOperations.hpp"
 #include "Preconditioner.hpp"
 #include "QRFactorization.hpp"
 #include "SharedPointer.hpp"
 #include "logging/Logger.hpp"
+#include <Eigen/Dense>
+#include <fstream>
 
 // ------- CLASS DEFINITION
 
-namespace precice
-{
-namespace cplscheme
-{
-namespace impl
-{
+namespace precice {
+namespace cplscheme {
+namespace impl {
 
 /**
  * @brief Class that provides functionality to maintain a SVD decomposition of a matrix
  * via succesive rank-1 updates and truncation with respect to the truncation threshold eps.
  */
-class SVDFactorization
-{
+class SVDFactorization {
 public:
   // Eigen
   typedef Eigen::MatrixXd Matrix;
@@ -53,11 +49,10 @@ public:
     *  and overrides the internal SVD representation. After the update, the SVD is
     *  truncated according to the threshold _truncationEps
     */
-  template <typename Derived1, typename Derived2>
+  template<typename Derived1, typename Derived2>
   void update(
       const Eigen::MatrixBase<Derived1> &A,
-      const Eigen::MatrixBase<Derived2> &B)
-  {
+      const Eigen::MatrixBase<Derived2> &B) {
     TRACE();
     assertion(_initialized);
     /** updates the truncated svd factorization of the Jacobian with a rank-1 modification
@@ -297,8 +292,8 @@ private:
   std::fstream *_infostream;
   bool          _fstream_set = false;
 };
-}
-}
-} // namespace precice, cplscheme, impl
+} // namespace impl
+} // namespace cplscheme
+} // namespace precice
 
 #endif /* PRECICE_NO_MPI */

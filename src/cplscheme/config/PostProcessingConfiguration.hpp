@@ -8,13 +8,10 @@
 #include "precice/config/SharedPointer.hpp"
 #include "xml/XMLTag.hpp"
 
-namespace precice
-{
-namespace cplscheme
-{
+namespace precice {
+namespace cplscheme {
 
-class PostProcessingConfiguration : public xml::XMLTag::Listener
-{
+class PostProcessingConfiguration: public xml::XMLTag::Listener {
 public:
   PostProcessingConfiguration(const mesh::PtrMeshConfiguration &meshConfig);
 
@@ -38,13 +35,11 @@ public:
   /// Connect tags.
   void connectTags(xml::XMLTag &tag);
 
-  std::vector<std::string> &getNeededMeshes()
-  {
+  std::vector<std::string> &getNeededMeshes() {
     return _neededMeshes;
   }
 
-  void setIsAddManifoldMappingTagAllowed(bool b)
-  {
+  void setIsAddManifoldMappingTagAllowed(bool b) {
     _isAddManifoldMappingTagAllowed = b;
   }
 
@@ -113,19 +108,19 @@ private:
     std::vector<int>      dataIDs;
     std::map<int, double> scalings;
     std::string           type;
-    double                relaxationFactor = 0;
-    bool                  forceInitialRelaxation = false;
-    int                   maxIterationsUsed = 0;
-    int                   timestepsReused = 0;
-    int                   filter = impl::PostProcessing::NOFILTER;
-    int                   imvjRestartType = 0;
-    int                   imvjChunkSize = 0;
+    double                relaxationFactor          = 0;
+    bool                  forceInitialRelaxation    = false;
+    int                   maxIterationsUsed         = 0;
+    int                   timestepsReused           = 0;
+    int                   filter                    = impl::PostProcessing::NOFILTER;
+    int                   imvjRestartType           = 0;
+    int                   imvjChunkSize             = 0;
     int                   imvjRSLS_reustedTimesteps = 0;
-    int                   precond_nbNonConstTSteps = -1;
-    double                singularityLimit= 0;
-    double                imvjRSSVD_truncationEps = 0;
-    bool                  estimateJacobian = false;
-    bool                  alwaysBuildJacobian = false;
+    int                   precond_nbNonConstTSteps  = -1;
+    double                singularityLimit          = 0;
+    double                imvjRSSVD_truncationEps   = 0;
+    bool                  estimateJacobian          = false;
+    bool                  alwaysBuildJacobian       = false;
     std::string           preconditionerType;
   } _config;
 
@@ -133,5 +128,5 @@ private:
 
   void addTypeSpecificSubtags(xml::XMLTag &tag);
 };
-}
-} // namespace precice, cplscheme
+} // namespace cplscheme
+} // namespace precice

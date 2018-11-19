@@ -2,12 +2,9 @@
 
 #include "BaseQNPostProcessing.hpp"
 
-namespace precice
-{
-namespace cplscheme
-{
-namespace impl
-{
+namespace precice {
+namespace cplscheme {
+namespace impl {
 
 /**
  * @brief Interface quasi-Newton with interface least-squares approximation.
@@ -22,8 +19,7 @@ namespace impl
  * IQN-related data. The data is called "secondary" henceforth and additional
  * old value and data matrices are needed for it.
  */
-class IQNILSPostProcessing : public BaseQNPostProcessing
-{
+class IQNILSPostProcessing: public BaseQNPostProcessing {
 public:
   IQNILSPostProcessing(
       double            initialRelaxation,
@@ -70,6 +66,6 @@ private:
   /// Removes one iteration from V,W matrices and adapts _matrixCols.
   virtual void removeMatrixColumn(int columnIndex);
 };
-}
-}
-} // namespace precice, cplscheme, impl
+} // namespace impl
+} // namespace cplscheme
+} // namespace precice

@@ -1,16 +1,13 @@
 #pragma once
 
-#include <Eigen/Core>
-#include <fstream>
 #include "logging/Logger.hpp"
 #include "mesh/SharedPointer.hpp"
+#include <Eigen/Core>
+#include <fstream>
 
-namespace precice
-{
-namespace cplscheme
-{
-namespace impl
-{
+namespace precice {
+namespace cplscheme {
+namespace impl {
 
 /**
  * @brief Class that provides functionality for a dynamic QR-decomposition, that can be updated 
@@ -20,8 +17,7 @@ namespace impl
  * The Interface provides fnctions such as insertColumn, deleteColumn at arbitrary position an push or pull 
  * column at front or back, resp. 
  */
-class QRFactorization
-{
+class QRFactorization {
 public:
   /**
    * @brief Constructor.
@@ -222,6 +218,6 @@ private:
 
   int _globalRows;
 };
-}
-}
-} // namespace precice, cplscheme, impl
+} // namespace impl
+} // namespace cplscheme
+} // namespace precice

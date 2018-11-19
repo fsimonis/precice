@@ -1,22 +1,18 @@
 #pragma once
 
-#include <Eigen/Core>
-#include <deque>
 #include "PostProcessing.hpp"
 #include "Preconditioner.hpp"
 #include "SharedPointer.hpp"
 #include "logging/Logger.hpp"
+#include <Eigen/Core>
+#include <deque>
 
-namespace precice
-{
-namespace cplscheme
-{
-namespace impl
-{
+namespace precice {
+namespace cplscheme {
+namespace impl {
 
 /// Base Class for quasi-Newton post processing schemes
-class MMPostProcessing : public PostProcessing
-{
+class MMPostProcessing: public PostProcessing {
 public:
   MMPostProcessing(
       impl::PtrPostProcessing coarseModelOptimization,
@@ -29,19 +25,16 @@ public:
       std::vector<int>        coarseDataIDs,
       PtrPreconditioner       preconditioner);
 
-  virtual ~MMPostProcessing()
-  {
+  virtual ~MMPostProcessing() {
   }
 
   /// Returns all MM involved fine model data IDs.
-  virtual std::vector<int> getDataIDs() const
-  {
+  virtual std::vector<int> getDataIDs() const {
     return _fineDataIDs;
   }
 
   /// Returns all MM involved coarse model data IDs.
-  std::vector<int> getCoarseDataIDs() const
-  {
+  std::vector<int> getCoarseDataIDs() const {
     return _coarseDataIDs;
   }
 
@@ -76,15 +69,15 @@ public:
    *        Information needed to measure the convergence.
    *        In case of manifold mapping it also returns the design specification
    *        for the surrogate model which is updated in every iteration.
-   */ /// @todo: change to call by ref when Eigen is used.
+   */
+  /// @todo: change to call by ref when Eigen is used.
   virtual std::map<int, Eigen::VectorXd> getDesignSpecification(DataMap &cplData);
 
   /**
    * @brief Sets whether the solver has to evaluate the coarse or the fine model representation
    * steers the coupling scheme and the post processing.
    */
-  virtual void setCoarseModelOptimizationActive(bool *coarseOptActive)
-  {
+  virtual void setCoarseModelOptimizationActive(bool *coarseOptActive) {
     _isCoarseModelOptimizationActive = coarseOptActive;
   }
 
@@ -102,8 +95,7 @@ public:
   virtual int getDeletedColumns();
 
   /// Indicates whether the given post processing is based on a multi-level approach
-  virtual bool isMultilevelBasedApproach()
-  {
+  virtual bool isMultilevelBasedApproach() {
     return true;
   }
 
@@ -274,6 +266,6 @@ private:
   /// Indicates whether the design specification has been set and is active or not
   bool isSet(Eigen::VectorXd &designSpec);
 };
-}
-}
-} // namespace precice, cplscheme, impl
+} // namespace impl
+} // namespace cplscheme
+} // namespace precice

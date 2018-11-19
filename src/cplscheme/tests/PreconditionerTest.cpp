@@ -4,8 +4,8 @@
 #include "cplscheme/impl/ResidualSumPreconditioner.hpp"
 #include "cplscheme/impl/SharedPointer.hpp"
 #include "cplscheme/impl/ValuePreconditioner.hpp"
-#include "testing/Testing.hpp"
 #include "testing/Fixtures.hpp"
+#include "testing/Testing.hpp"
 
 BOOST_AUTO_TEST_SUITE(CplSchemeTests)
 
@@ -21,8 +21,7 @@ struct ResPreconditionerFixture {
   Eigen::VectorXd _compareDataValue;
   Eigen::VectorXd _compareDataConstant;
 
-  ResPreconditionerFixture()
-  {
+  ResPreconditionerFixture() {
     _data.resize(8);
     _data << 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0;
 
@@ -79,15 +78,13 @@ struct ResPreconditionerFixture {
         6.99999999999999883585e+05,
         7.99999999999999650754e+05;
   }
-  ~ResPreconditionerFixture()
-  {
+  ~ResPreconditionerFixture() {
   }
 };
 
 BOOST_FIXTURE_TEST_SUITE(ResPreconditionerTests, ResPreconditionerFixture)
 
-BOOST_AUTO_TEST_CASE(testResPreconditioner)
-{
+BOOST_AUTO_TEST_CASE(testResPreconditioner) {
   std::vector<size_t> svs;
   svs.push_back(2);
   svs.push_back(4);
@@ -116,8 +113,7 @@ BOOST_AUTO_TEST_CASE(testResPreconditioner)
   BOOST_TEST(testing::equals(_data, backup));
 }
 
-BOOST_AUTO_TEST_CASE(testResSumPreconditioner)
-{
+BOOST_AUTO_TEST_CASE(testResSumPreconditioner) {
   std::vector<size_t> svs;
   svs.push_back(2);
   svs.push_back(4);
@@ -148,8 +144,7 @@ BOOST_AUTO_TEST_CASE(testResSumPreconditioner)
   BOOST_TEST(testing::equals(_data, backup));
 }
 
-BOOST_AUTO_TEST_CASE(testValuePreconditioner)
-{
+BOOST_AUTO_TEST_CASE(testValuePreconditioner) {
   std::vector<size_t> svs;
   svs.push_back(2);
   svs.push_back(4);
@@ -183,8 +178,7 @@ BOOST_AUTO_TEST_CASE(testValuePreconditioner)
   precond.newQRfulfilled();
 }
 
-BOOST_AUTO_TEST_CASE(testConstPreconditioner)
-{
+BOOST_AUTO_TEST_CASE(testConstPreconditioner) {
   std::vector<size_t> svs;
   svs.push_back(2);
   svs.push_back(4);
@@ -217,8 +211,7 @@ BOOST_AUTO_TEST_CASE(testConstPreconditioner)
   BOOST_TEST(testing::equals(_data, backup));
 }
 
-BOOST_AUTO_TEST_CASE(testMultilpleMeshes)
-{
+BOOST_AUTO_TEST_CASE(testMultilpleMeshes) {
   std::vector<size_t> svs;
   svs.push_back(3);
   svs.push_back(5);
@@ -248,8 +241,7 @@ BOOST_AUTO_TEST_CASE(testMultilpleMeshes)
 
 #ifndef PRECICE_NO_MPI
 BOOST_AUTO_TEST_CASE(testParallelMatrixScaling,
-                     *testing::OnSize(4) * boost::unit_test::fixture<testing::MasterComFixture>())
-{
+                     *testing::OnSize(4) * boost::unit_test::fixture<testing::MasterComFixture>()) {
   //setup data
   int localN = -1;
   if (utils::Parallel::getProcessRank() == 0) {
