@@ -1068,6 +1068,11 @@ void SolverInterfaceImpl:: mapWriteDataFrom
                    << "\", there is no mapping defined");
     return;
   }
+  if (mappingContext.timing != mapping::MappingConfiguration::ON_DEMAND){
+    ERROR("Explicit mapping is only allowed if the timing of the mapping from mesh \""
+            << context.mesh->getName() << "\" is on-demand!");
+    return;
+  }
   if (not mappingContext.mapping->hasComputedMapping()){
     DEBUG("Compute mapping from mesh \"" << context.mesh->getName() << "\"");
     mappingContext.mapping->computeMapping();
@@ -1102,6 +1107,11 @@ void SolverInterfaceImpl:: mapReadDataTo
   if (mappingContext.mapping.use_count() == 0){
     ERROR("From mesh \"" << context.mesh->getName()
                    << "\", there is no mapping defined!");
+    return;
+  }
+  if (mappingContext.timing != mapping::MappingConfiguration::ON_DEMAND){
+    ERROR("Explicit mapping is only allowed if the timing of the mapping to mesh \""
+            << context.mesh->getName() << "\" is on-demand!");
     return;
   }
   if (not mappingContext.mapping->hasComputedMapping()){
