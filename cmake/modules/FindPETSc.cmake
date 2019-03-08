@@ -50,17 +50,23 @@
 
 cmake_policy(VERSION 3.9)
 
-# Find pkg-config and backup the PKG_CONFIG_PATH
 find_package(PkgConfig QUIET)
-set(PETSc_PKG_BACKUP "$ENV{PKG_CONFIG_PATH}")
 
-# First search explicitly set directories
-if(PETSc_DIR OR PETSc_ROOT OR "$ENV{PETSc_ROOT}")
-  # 1) Try to find a cmake config
+function(find_petsc_in_prefix)
+  cmake_parse_arguments(PARSE_ARGV 0 FP "" "" "PREFIX")
+  if(NOT FP_PREFIX)
+    message(FATAL_ERROR "Argument PREFIX missing!")
+  endif()
+
+  ## Intro
+  # Backup the PKG_CONFIG_PATH
+  set(PETSc_PKG_BACKUP "$ENV{PKG_CONFIG_PATH}")
+
+  ## 1) Try to find a cmake config
   set(CMAKE_FIND_ROOT_PATH "${PETSc_DIR};${PETSc_ROOT};$ENV{PETSc_ROOT}")
   find_package(PETSc CONFIG ONLY_CMAKE_FIND_ROOT_PATH)
 
-  # 2) Try to find a package-config file
+  ## 2) Try to find a package-config file
   if(NOT PETSc_FOUND)
     # Look for a package config file
     find_path(PETSc_PC_DIR NAMES PETSc.pc DOC "The path to the PETSc.pc file." ONLY_CMAKE_FIND_ROOT_PATH)
@@ -68,8 +74,47 @@ if(PETSc_DIR OR PETSc_ROOT OR "$ENV{PETSc_ROOT}")
       # Use pkgconfig in that directory
       set(ENV{PKG_CONFIG_PATH} "${PETSc_PC_DIR}")
       PKG_CHECK_MODULES(PC_PETSc QUIET petsc)
+
+      set(PETSc_FOUND "${PC_PETSc_FOUND}")
+      find_library(
+        PETSc_LIBRARY
+
+        NAMES petsc ${PC_PETSc_LIBRARIES}
+
+        PATH
+        "${FP_PREFIX}"
+        "${PC_PETSc_LIBRARY_DIRS}"
+
+        PATH_SUFFIXES
+        )
+      find_path(
+        PETSc_INCLUDE_DIR
+
+        NAMES petsc.h petsc.hpp
+
+        PATH
+        "${FP_PREFIX}"
+        "${PC_PETSc_LIBRARY_DIRS}"
+        )
+      set(PETSc_VERSION_STRING "${PC_PETSc_VERSION}")
     endif()
   endif()
+
+  ## Outro
+  # Restore the PKG_CONFIG_PATH
+  set(ENV{PKG_CONFIG_PATH} "${PETSc_PKG_BACKUP}")
+endfunction(find_petsc_in_prefix)
+
+
+
+
+# First search explicitly set directories
+if(PETSc_DIR OR PETSc_ROOT OR "$ENV{PETSc_ROOT}")
+  find_petsc_in_prefix(PREFIX
+    ${PETSc_DIR}
+    ${PETSc_ROOT}
+    "$ENV{PETSc_ROOT}"
+    )
 endif()
 
 # Second check the traditional way of pointing to a petsc install using the ENV PETSC_DIR and PETSC_ARCH
@@ -87,24 +132,94 @@ if(NOT PETSc_FOUND)
     set(PETSc_PATH "$ENV{PETSC_DIR}/${PETSC_ARCH}")
     file(TO_CMAKE_PATH "${PETSc_PATH}" PETSc_PATH)
 
-    # 1) Try to find a cmake config
-    set(CMAKE_FIND_ROOT_PATH "${PETSc_PATH}")
-    find_package(PETSc CONFIG ONLY_CMAKE_FIND_ROOT_PATH)
-
-    # 2) Try to find a package-config file
-    if(NOTE PETSc_FOUND)
-      find_path(PETSc_PC_DIR NAMES PETSc.pc DOC "The path to the PETSc.pc file." ONLY_CMAKE_FIND_ROOT_PATH)
-      if(PETSc_PC_DIR)
-        # Use pkgconfig in that directory
-        set(ENV{PKG_CONFIG_PATH} "${PETSc_PC_DIR}")
-        PKG_CHECK_MODULES(PC_PETSc QUIET petsc)
-
-        # do
-      endif()
-    endif()
+    find_petsc_in_prefix(PREFIX ${PETSc_PATH})
   endif()
 endif(NOT PETSc_FOUND)
 
+# Third try a system wide search
+if(NOT PETSc_FOUND)
+  ## 1) Try to find a cmake config
+  find_package(PETSc CONFIG)
+
+  ## 2) Try to find a package-config file
+  if(NOT PETSc_FOUND)
+    PKG_CHECK_MODULES(PC_PETSc QUIET petsc)
+
+    file(GLOB PETSc_DEBIAN_DIRS "/usr/lib/petscdir/*")
+    find_library(
+      PETSc_LIBRARY
+
+      NAMES petsc ${PC_PETSc_LIBRARIES}
+
+      HINTS
+      ENV PETSC_DIR
+      ${PC_PETSc_LIBRARY_DIRS}
+      ${PETSc_DEBIAN_DIRS}
+
+      PATH_SUFFIXES
+      "$ENV{PETSC_ARCH}"
+      "${CMAKE_LIBRARY_ARCHITECTURE}"
+      )
+    find_path(
+      PETSc_INCLUDE_DIR
+
+      NAMES petsc.h petsc.hpp
+
+      HINTS
+      ${PC_PETSc_INCLUDE_DIRS}
+      ENV PETSC_DIR
+      ${PETSc_DEBIAN_DIRS}
+
+      PATH_SUFFIXES
+      "$ENV{PETSC_ARCH}"
+      "$ENV{PETSC_ARCH}/include"
+      "${CMAKE_LIBRARY_ARCHITECTURE}"
+      "${CMAKE_LIBRARY_ARCHITECTURE}/include"
+      )
+      set(PETSc_VERSION_STRING "${PC_PETSc_VERSION}")
+  endif(NOT PETSc_FOUND)
+endif(NOT PETSc_FOUND)
+
+# Finally, check if PETSc was found
+include(FindPackageHandleStandardArgs.cmake)
+FIND_PACKAGE_HANDLE_STANDARD_ARGS(PETSc
+  REQUIRED_VARS PETSc_LIBRARY PETSc_INCLUDE_DIR
+  VERSION_VAR PETSc_VERSION_STRING
+  )
+
+# Set alias variables
+set(PETSc_LIBRARIES ${PETSc_LIBRARY})
+set(PETSc_INCLUDE_DIRS ${PETSc_INCLUDE_DIR})
+mark_as_advanced( PETSc_LIBRARIES PETSc_INCLUDE_DIRS)
+
+# Set version variables
+if(PETSc_VERSION_STRING)
+  set(PETSc_VERSIONS "")
+  set(PETSc_VERSION_MAJOR "" PARENT_SCOPE)
+  set(PETSc_VERSION_MINOR "" PARENT_SCOPE)
+  set(PETSc_VERSION_PATCH "" PARENT_SCOPE)
+  string(REGEX MATCHALL "[0-9]+" PETSC_VERSIONS ${PETSC_VERSION_STRING})
+  list(GET PETSc_VERSIONS 0 PETSc_VERSION_MAJOR)
+  list(GET PETSc_VERSIONS 1 PETSc_VERSION_MINOR)
+  list(GET PETSc_VERSIONS 1 PETSc_VERSION_PATCH)
+  mark_as_advanced(
+    PETSc_VERSION_MAJOR
+    PETSc_VERSION_MINOR
+    PETSc_VERSION_PATCH
+    )
+endif(PETSc_VERSION_STRING)
+
+
+# Create an IMPORTED target for PETSc
+if(PETSc_FOUND AND NOT TARGET PETSc::PETSc)
+  add_library(PETSc::PETSc UNKNOWN IMPORTED)
+  set_target_properties(PETSc::PETSc
+    PROPERTIES
+    INTERFACE_INCLUDE_DIRECTORIES "${PETSc_INCLUDE_DIRS}"
+    IMPORTED_LOCATION "${PETSc_LIBRARY}"
+    VERSION "${PETSc_VERSION_STRING}"
+    )
+endif()
 
 
 
@@ -112,7 +227,3 @@ endif(NOT PETSc_FOUND)
 
 
 
-
-
-# Restore the PKG_CONFIG_PATH
-set(ENV{PKG_CONFIG_PATH} "${PETSc_PKG_BACKUP}")
