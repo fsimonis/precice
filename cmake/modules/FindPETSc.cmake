@@ -53,10 +53,12 @@ cmake_policy(VERSION 3.9)
 find_package(PkgConfig QUIET)
 
 function(find_petsc_in_prefix)
+  message(STATUS "BOOTING")
   cmake_parse_arguments(PARSE_ARGV 0 FP "" "" "PREFIX")
   if(NOT FP_PREFIX)
     message(FATAL_ERROR "Argument PREFIX missing!")
   endif()
+  message(STATUS "Searching in PREFIX ${FP_PREFIX}")
 
   ## Intro
   # Backup the PKG_CONFIG_PATH
@@ -106,9 +108,14 @@ function(find_petsc_in_prefix)
 endfunction(find_petsc_in_prefix)
 
 
-
+# Predefine Vars
+set(PETSc_FOUND "")
+set(PETSc_LIBRARY "")
+set(PETSc_INCLUDE_DIR "")
+set(PETSc_VERSION_STRING "")
 
 # First search explicitly set directories
+message(STATUS "[1] Search explicit directories")
 if(PETSc_DIR OR PETSc_ROOT OR "$ENV{PETSc_ROOT}")
   find_petsc_in_prefix(PREFIX
     ${PETSc_DIR}
@@ -118,15 +125,21 @@ if(PETSc_DIR OR PETSc_ROOT OR "$ENV{PETSc_ROOT}")
 endif()
 
 # Second check the traditional way of pointing to a petsc install using the ENV PETSC_DIR and PETSC_ARCH
+message(STATUS "[2] Search PETSC_DIR/PETSC_ARCH directory")
 if(NOT PETSc_FOUND)
   # Prepare the search by checking wether PETSC_ARCH was set.
   # If not, use the target architecture unless this is disabled with PETSc_NO_HOST_ARCH.
   set(PETSC_ARCH "$ENV{PETSC_ARCH}")
-  if(PETSC_ARCH AND NOT PETSc_NO_HOST_ARCH)
+  if(NOT PETSC_ARCH AND NOT PETSc_NO_HOST_ARCH AND CMAKE_LIBRARY_ARCHITECTURE)
+    message(STATUS "PETSC_ARCH empty, using target architecture instead")
     set(PETSC_ARCH "${CMAKE_LIBRARY_ARCHITECTURE}")
   endif()
 
+  message(STATUS "PETSC_DIR  $ENV{PETSC_DIR}")
+  message(STATUS "PETSC_ARCH ${PETSC_ARCH}")
+
   # Perform the actual search
+  message("before")
   if($ENV{PETSC_DIR} AND PETSC_ARCH)
     # Assemble the prefix of the specific PETSc install
     set(PETSc_PATH "$ENV{PETSC_DIR}/${PETSC_ARCH}")
@@ -134,9 +147,11 @@ if(NOT PETSc_FOUND)
 
     find_petsc_in_prefix(PREFIX ${PETSc_PATH})
   endif()
+  message("after")
 endif(NOT PETSc_FOUND)
 
 # Third try a system wide search
+message(STATUS "[3] Search in entire system")
 if(NOT PETSc_FOUND)
   ## 1) Try to find a cmake config
   find_package(PETSc CONFIG)
@@ -180,8 +195,14 @@ if(NOT PETSc_FOUND)
   endif(NOT PETSc_FOUND)
 endif(NOT PETSc_FOUND)
 
+
+message("PETSc_FOUND         :${PETSc_FOUND}")
+message("PETSc_LIBRARY       :${PETSc_LIBRARY}")
+message("PETSc_INCLUDE_DIR   :${PETSc_INCLUDE_DIR}")
+message("PETSc_VERSION_STRING:${PETSc_VERSION_STRING}")
+
 # Finally, check if PETSc was found
-include(FindPackageHandleStandardArgs.cmake)
+include(FindPackageHandleStandardArgs)
 FIND_PACKAGE_HANDLE_STANDARD_ARGS(PETSc
   REQUIRED_VARS PETSc_LIBRARY PETSc_INCLUDE_DIR
   VERSION_VAR PETSc_VERSION_STRING
