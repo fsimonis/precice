@@ -1,9 +1,7 @@
 #pragma once
 
-#include <boost/math/constants/constants.hpp>
-
 namespace precice { namespace math {
 
-constexpr double PI = boost::math::constants::pi<double>();
+constexpr double PI = 3.141592653589793238462643383279502884e+00;
 
 }}
