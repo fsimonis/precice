@@ -1,0 +1,2 @@
+# precice
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/b58628ba44734d45aac331eb26346169)](https://app.codacy.com/app/fsimonis/precice?utm_source=github.com&utm_medium=referral&utm_content=fsimonis/precice&utm_campaign=Badge_Grade_Dashboard)
