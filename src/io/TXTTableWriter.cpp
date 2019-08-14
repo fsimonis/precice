@@ -131,5 +131,12 @@ void TXTTableWriter::close()
   _outputStream.close();
 }
 
+/// Resets the table information.
+void TXTTableWriter::reset()
+{
+    _data.clear();
+    _writeIterator = _data.end();
+}
+
 } // namespace io
 } // namespace precice
