@@ -19,7 +19,9 @@ HierarchicalAitkenAcceleration::HierarchicalAitkenAcceleration(
 {
   PRECICE_CHECK((_initialRelaxation > 0.0) && (_initialRelaxation <= 1.0),
         "Initial relaxation factor for aitken acceleration has to "
-        << "be larger than zero and smaller or equal than one!");
+        "be larger than zero and smaller or equal than one!");
+  PRECICE_CHECK(!dataIDs.empty(),
+          "DataIDs is not allowed to be empty!");
 }
 
 void HierarchicalAitkenAcceleration::initialize(DataMap &cplData)
@@ -27,14 +29,15 @@ void HierarchicalAitkenAcceleration::initialize(DataMap &cplData)
   PRECICE_TRACE();
   PRECICE_CHECK(utils::contained(*_dataIDs.begin(), cplData),
         "Data with ID " << *_dataIDs.begin() << " is not contained in data given at initialization!");
+  _iterationCounter = 0;
   size_t entries = cplData[*_dataIDs.begin()]->values->size(); // Add zero boundaries
   PRECICE_ASSERT((entries - 1) % 2 == 0);                           // entries has to be an odd number
-  double          initializer = std::numeric_limits<double>::max();
-  Eigen::VectorXd toAppend    = Eigen::VectorXd::Constant(entries, initializer);
-  utils::append(_residual, toAppend);
+
+  _residual = Eigen::VectorXd::Constant(entries, std::numeric_limits<double>::max());
 
   size_t entriesCurrentLevel = 1;
   size_t totalEntries        = 2;               // Boundary entries
+  _aitkenFactors.clear();
   _aitkenFactors.push_back(_initialRelaxation); // Boundary entries
   while (totalEntries < entries) {
     _aitkenFactors.push_back(_initialRelaxation);
@@ -42,12 +45,12 @@ void HierarchicalAitkenAcceleration::initialize(DataMap &cplData)
     entriesCurrentLevel *= 2;
   }
   PRECICE_ASSERT(totalEntries == entries);
-  //  INFO ( "HierarchicalAitkenAcceleration: level count = " << _aitkenFactors.size() );
+  PRECICE_DEBUG("HierarchicalAitkenAcceleration: level count = " << _aitkenFactors.size());
 
   // Append column for old values if not done by coupling scheme yet
   for (DataMap::value_type &pair : cplData) {
     int cols = pair.second->oldValues.cols();
-    if (cols < 1) {
+    if (cols == 0) {
       utils::append(pair.second->oldValues, (Eigen::VectorXd) Eigen::VectorXd::Zero(pair.second->values->size()));
     }
   }
