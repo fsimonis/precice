@@ -24,12 +24,12 @@ void TXTTableWriter::addData(
     const std::string &name,
     DataType           type)
 {
+  PRECICE_ASSERT(_outputStream);
   Data data;
   data.name = name;
   data.type = type;
   PRECICE_ASSERT(not utils::contained(data, _data), data.name, data.type);
   _data.push_back(data);
-  PRECICE_ASSERT(_outputStream.is_open());
   if ((type == INT) || (type == DOUBLE)) {
     _outputStream << name << "  ";
   } else if (type == VECTOR2D) {
@@ -49,6 +49,7 @@ void TXTTableWriter::writeData(
     const std::string &name,
     int                value)
 {
+  PRECICE_ASSERT(_outputStream);
   PRECICE_ASSERT(not _data.empty());
   if (_writeIterator == _data.end()) {
     _writeIterator = _data.begin();
@@ -67,6 +68,7 @@ void TXTTableWriter::writeData(
     const std::string &name,
     double             value)
 {
+  PRECICE_ASSERT(_outputStream);
   PRECICE_ASSERT(not _data.empty());
   if (_writeIterator == _data.end()) {
     _writeIterator = _data.begin();
@@ -85,6 +87,7 @@ void TXTTableWriter::writeData(
     const std::string &    name,
     const Eigen::Vector2d &value)
 {
+  PRECICE_ASSERT(_outputStream);
   PRECICE_ASSERT(not _data.empty());
   if (_writeIterator == _data.end()) {
     _writeIterator = _data.begin();
@@ -105,6 +108,7 @@ void TXTTableWriter::writeData(
     const std::string &    name,
     const Eigen::Vector3d &value)
 {
+  PRECICE_ASSERT(_outputStream);
   PRECICE_ASSERT(not _data.empty());
   if (_writeIterator == _data.end()) {
     _writeIterator = _data.begin();
