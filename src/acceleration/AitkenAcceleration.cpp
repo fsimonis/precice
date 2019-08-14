@@ -38,15 +38,13 @@ void AitkenAcceleration::initialize(DataMap &cplData)
     entries += cplData[_dataIDs.at(1)]->values->size();
   }
 
-  double          initializer = std::numeric_limits<double>::max();
-  Eigen::VectorXd toAppend    = Eigen::VectorXd::Constant(entries, initializer);
-  utils::append(_residuals, toAppend);
+  _residuals = Eigen::VectorXd::Constant(entries, std::numeric_limits<double>::max());
   _designSpecification = Eigen::VectorXd::Zero(entries);
 
   // Append column for old values if not done by coupling scheme yet
   for (DataMap::value_type &pair : cplData) {
     int cols = pair.second->oldValues.cols();
-    if (cols < 1) {
+    if (cols == 0) {
       PRECICE_ASSERT(pair.second->values->size() > 0, pair.first);
       utils::append(pair.second->oldValues,
                     (Eigen::VectorXd) Eigen::VectorXd::Zero(pair.second->values->size()));
