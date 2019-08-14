@@ -24,21 +24,20 @@ AitkenAcceleration::AitkenAcceleration(double initialRelaxation,
 {
   PRECICE_CHECK((_initialRelaxation > 0.0) && (_initialRelaxation <= 1.0),
         "Initial relaxation factor for aitken acceleration has to "
-        << "be larger than zero and smaller or equal than one!");
+        "be larger than zero and smaller or equal than one!");
+  PRECICE_CHECK((_dataIDs.size() == 1) || (_dataIDs.size() == 2),
+          "The aitken acceleration is only supported for up to 2 data members.");
 }
 
 void AitkenAcceleration::initialize(DataMap &cplData)
 {
   PRECICE_CHECK(utils::contained(*_dataIDs.begin(), cplData),
         "Data with ID " << *_dataIDs.begin() << " is not contained in data given at initialization!");
-  size_t entries = 0;
-  if (_dataIDs.size() == 1) {
-    entries = cplData[_dataIDs.at(0)]->values->size();
-  } else {
-    PRECICE_ASSERT(_dataIDs.size() == 2);
-    entries = cplData[_dataIDs.at(0)]->values->size() +
-              cplData[_dataIDs.at(1)]->values->size();
+  size_t entries = cplData[_dataIDs.at(0)]->values->size();
+  if (_dataIDs.size() == 2) {
+    entries += cplData[_dataIDs.at(1)]->values->size();
   }
+
   double          initializer = std::numeric_limits<double>::max();
   Eigen::VectorXd toAppend    = Eigen::VectorXd::Constant(entries, initializer);
   utils::append(_residuals, toAppend);
