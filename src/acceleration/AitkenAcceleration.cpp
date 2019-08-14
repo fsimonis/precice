@@ -38,6 +38,7 @@ void AitkenAcceleration::initialize(DataMap &cplData)
     entries += cplData[_dataIDs.at(1)]->values->size();
   }
 
+  _aitkenFactor = initialRelaxation;
   _residuals = Eigen::VectorXd::Constant(entries, std::numeric_limits<double>::max());
   _designSpecification = Eigen::VectorXd::Zero(entries);
 
