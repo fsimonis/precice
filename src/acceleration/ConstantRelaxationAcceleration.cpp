@@ -7,6 +7,8 @@
 #include "utils/EigenHelperFunctions.hpp"
 #include "utils/Helpers.hpp"
 
+#include <numeric>
+
 namespace precice
 {
 namespace acceleration
@@ -30,10 +32,9 @@ void ConstantRelaxationAcceleration::initialize(DataMap &cplData)
                         << " is not contained in data given at initialization!");
 
   // Append column for old values if not done by coupling scheme yet
-  int entries = 0;
-  for (auto &elem : _dataIDs) {
-    entries += cplData[elem]->values->size();
-  }
+  int entries = std::accumulate(_dataIDs.begin(), _dataIDs.end(), 0,
+          [&cplData](int partial, int id) { return cplData[id]->values->size(); }
+          );
   _designSpecification = Eigen::VectorXd::Zero(entries);
 
   for (DataMap::value_type &pair : cplData) {
