@@ -4,17 +4,16 @@ on: [push, pull_request]
 
 jobs:
   build:
-    runs-on:ubuntu-latest
-
+    runs-on: ubuntu-latest
     steps:
-      -name: Install dependencies
-       run: apt-get update && apt-get install -y build-essential cmake libeigen3-dev libxml2-dev petsc-dev libboost-all-dev python-dev python-numpy
-      -uses: actions/checkout@v1
-      -name: Build directory
-       run: mkdir -p build && cd build
-      -name: Configure
-       run: cmake -DBUILD_SHARED_LIBS=ON ..
-      -name: Compile
-       run: make -j $(nproc)
-      -name: Test
-       run: make test
+      - name: Install dependencies
+        run: apt-get update && apt-get install -y build-essential cmake libeigen3-dev libxml2-dev petsc-dev libboost-all-dev python-dev python-numpy
+      - uses: actions/checkout@v1
+      - name: Build directory
+        run: mkdir -p build && cd build
+      - name: Configure
+        run: cmake -DBUILD_SHARED_LIBS=ON ..
+      - name: Compile
+        run: make -j $(nproc)
+      - name: Test
+        run: make test
