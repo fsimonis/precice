@@ -10,9 +10,9 @@ jobs:
         MPI: [ON, OFF]
         PETSC: [ON, OFF]
         CXX: [g++, clang++]
-      exclude:
-        - MPI: OFF
-          PETSC: ON
+        exclude:
+          - MPI: OFF
+            PETSC: ON
     steps:
       - name: Install dependencies
         run: sudo apt-get update && sudo apt-get install -y build-essential cmake libeigen3-dev libxml2-dev petsc-dev libboost-all-dev python-dev python-numpy
