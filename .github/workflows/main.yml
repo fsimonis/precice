@@ -8,8 +8,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        MPI: [ON, OFF]
-        PETSC: [ON, OFF]
+        MPI: [MPI, NoMPI]
+        PETSC: [PETSC, NoPETSC]
         CXX: [g++, clang++]
         exclude:
           - MPI: OFF
@@ -24,7 +24,7 @@ jobs:
         working-directory: build
         env:
           CXX: ${{ matrix.CXX }}
-        run: cmake -DBUILD_SHARED_LIBS=ON -DMPI=${{ matrix.MPI }} -DPETSC=${{ matrix.PETSC }} ..
+        run: cmake -DBUILD_SHARED_LIBS=ON -DMPI=${{ matrix.MPI == "MPI" }} -DPETSC=${{ matrix.PETSC == "PETSC" }} ..
       - name: Compile
         working-directory: build
         run: make -j $(nproc)
