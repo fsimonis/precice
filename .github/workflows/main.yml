@@ -18,5 +18,7 @@ jobs:
         working-directory: build
         run: make -j $(nproc)
       - name: Test
+        env:
+          CTEST_OUTPUT_ON_FAILURE: 1
         working-directory: build
         run: make test
