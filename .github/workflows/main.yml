@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 jobs:
   build:
-    name: format("{0} {1} {2}", matrix.CXX, matrix.MPI, matrix.PETSC)
+    name: format('{0} {1} {2}', matrix.CXX, matrix.MPI, matrix.PETSC)
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -25,7 +25,7 @@ jobs:
         working-directory: build
         env:
           CXX: ${{ matrix.CXX }}
-        run: cmake -DBUILD_SHARED_LIBS=ON -DMPI=${{ matrix.MPI == "MPI" }} -DPETSC=${{ matrix.PETSC == "PETSC" }} ..
+        run: cmake -DBUILD_SHARED_LIBS=ON -DMPI=${{ matrix.MPI == 'MPI' }} -DPETSC=${{ matrix.PETSC == 'PETSC' }} ..
       - name: Compile
         working-directory: build
         run: make -j $(nproc)
