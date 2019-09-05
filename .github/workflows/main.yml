@@ -9,11 +9,12 @@ jobs:
       - name: Install dependencies
         run: sudo apt-get update && sudo apt-get install -y build-essential cmake libeigen3-dev libxml2-dev petsc-dev libboost-all-dev python-dev python-numpy
       - uses: actions/checkout@v1
-      - name: Build directory
-        run: mkdir -p build && cd build
       - name: Configure
+        working-directory: build
         run: cmake -DBUILD_SHARED_LIBS=ON ..
       - name: Compile
+        working-directory: build
         run: make -j $(nproc)
       - name: Test
+        working-directory: build
         run: make test
