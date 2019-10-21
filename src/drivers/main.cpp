@@ -75,12 +75,14 @@ int main ( int argc, char** argv )
   }
   else if (runHelp){
     PRECICE_ASSERT(not runServer);
-    precice::config::Configuration config;
+    precice::config::ConfigurationContext context;
+    precice::config::Configuration config{context};
     std::cout << config.getXMLTag().printDocumentation(0) << "\n\n";
   }
   else if (runDtd) {
 	PRECICE_ASSERT(not runServer);
-    precice::config::Configuration config;
+    precice::config::ConfigurationContext context;
+    precice::config::Configuration config{context};
     std::cout << config.getXMLTag().printDTD(true) << "\n\n";
   }
   else {
