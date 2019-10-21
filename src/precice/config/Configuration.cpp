@@ -8,11 +8,12 @@ extern bool syncMode;
 
 namespace config {
 
-Configuration:: Configuration()
+Configuration:: Configuration(const ConfigurationContext& context)
 :
+  ConfigurationListener(context),
   _tag(*this, "precice-configuration", xml::XMLTag::OCCUR_ONCE),
-  _logConfig(_tag),
-  _solverInterfaceConfig(_tag)
+  _logConfig(_tag, context),
+  _solverInterfaceConfig(_tag, context)
 {
   _tag.setDocumentation("Main tag containing preCICE configuration.");
   _tag.addNamespace("data");

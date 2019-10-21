@@ -24,9 +24,11 @@ namespace config {
 ParticipantConfiguration:: ParticipantConfiguration
 (
   xml::XMLTag&                      parent,
+  const ConfigurationContext&       context,
   const mesh::PtrMeshConfiguration& meshConfiguration)
 :
-  _meshConfig(meshConfiguration)
+  ConfigurationListener(context),
+  _meshConfig(meshConfiguration, context)
 {
   PRECICE_ASSERT(_meshConfig);
   using namespace xml;

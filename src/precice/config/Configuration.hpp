@@ -2,7 +2,7 @@
 
 #include "precice/config/SolverInterfaceConfiguration.hpp"
 #include "logging/config/LogConfiguration.hpp"
-#include "xml/XMLTag.hpp"
+#include "precice/config/ConfigurationListener.hpp"
 #include "logging/Logger.hpp"
 
 namespace precice {
@@ -14,11 +14,11 @@ namespace config {
  * The configuration process is triggered by fetching the root tag with method
  * getXMLTag() and calling its parse() method.
  */
-class Configuration : public xml::XMLTag::Listener
+class Configuration : public ConfigurationListener
 {
 public:
 
-  Configuration();
+  Configuration(const ConfigurationContext& context);
 
   /**
    * @brief Destructor, empty.
@@ -59,7 +59,6 @@ private:
   LogConfiguration _logConfig;
 
   SolverInterfaceConfiguration _solverInterfaceConfig;
-
 };
 
 }} // namespace precice, config

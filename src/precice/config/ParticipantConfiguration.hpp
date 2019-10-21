@@ -5,7 +5,7 @@
 #include "mapping/SharedPointer.hpp"
 #include "io/SharedPointer.hpp"
 #include "logging/Logger.hpp"
-#include "xml/XMLTag.hpp"
+#include "precice/config/ConfigurationListener.hpp"
 #include <string>
 
 namespace precice {
@@ -14,12 +14,13 @@ namespace config {
 /**
  * @brief Performs XML configuration of a participant.
  */
-class ParticipantConfiguration : public xml::XMLTag::Listener
+class ParticipantConfiguration : public ConfigurationListener
 {
 public:
 
   ParticipantConfiguration (
     xml::XMLTag&                      parent,
+    const ConfigurationContext&       context,
     const mesh::PtrMeshConfiguration& meshConfiguration);
 
   void setDimensions ( int dimensions );

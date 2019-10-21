@@ -9,7 +9,7 @@
 #include "m2n/M2N.hpp"
 #include "m2n/config/M2NConfiguration.hpp"
 #include "logging/Logger.hpp"
-#include "xml/XMLTag.hpp"
+#include "precice/config/ConfigurationListener.hpp"
 #include <string>
 #include "boost/smart_ptr.hpp"
 
@@ -19,11 +19,11 @@ namespace config {
 /**
  * @brief Configures class SolverInterfaceImpl from XML.
  */
-class SolverInterfaceConfiguration : public xml::XMLTag::Listener
+class SolverInterfaceConfiguration : public ConfigurationListener
 {
 public:
 
-  SolverInterfaceConfiguration(xml::XMLTag& parent);
+  SolverInterfaceConfiguration(xml::XMLTag& parent, const ConfigurationContext& context);
 
   /**
    * @brief Destructor.
@@ -106,7 +106,7 @@ private:
 
   // @brief Index (in _participants) of solver accessing the interface.
   //int _indexAccessor;
-
+  
   mesh::PtrDataConfiguration _dataConfiguration;
 
   mesh::PtrMeshConfiguration _meshConfiguration;

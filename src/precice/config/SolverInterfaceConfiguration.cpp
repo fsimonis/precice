@@ -12,7 +12,8 @@
 namespace precice {
 namespace config {
 
-SolverInterfaceConfiguration:: SolverInterfaceConfiguration(xml::XMLTag& parent )
+SolverInterfaceConfiguration:: SolverInterfaceConfiguration(xml::XMLTag& parent, const ConfigurationContext& context)
+    : ConfigurationListener(context)
 {
   using namespace xml;
   XMLTag tag(*this, "solver-interface", XMLTag::OCCUR_ONCE);
@@ -23,15 +24,15 @@ SolverInterfaceConfiguration:: SolverInterfaceConfiguration(xml::XMLTag& parent 
   tag.addAttribute(attrDimensions);
 
   _dataConfiguration = mesh::PtrDataConfiguration (
-      new mesh::DataConfiguration(tag) );
+      new mesh::DataConfiguration(tag, _context) );
   _meshConfiguration = mesh::PtrMeshConfiguration (
-      new mesh::MeshConfiguration(tag, _dataConfiguration) );
+      new mesh::MeshConfiguration(tag, _context, _dataConfiguration) );
   _m2nConfiguration = m2n::M2NConfiguration::SharedPointer (
-      new m2n::M2NConfiguration(tag) );
+      new m2n::M2NConfiguration(tag, _context) );
   _participantConfiguration = config::PtrParticipantConfiguration (
-    new ParticipantConfiguration(tag, _meshConfiguration) );
+    new ParticipantConfiguration(tag, _context, _meshConfiguration) );
   _couplingSchemeConfiguration = cplscheme::PtrCouplingSchemeConfiguration (
-    new cplscheme::CouplingSchemeConfiguration(tag, _meshConfiguration,
+    new cplscheme::CouplingSchemeConfiguration(tag, _context, _meshConfiguration,
     _m2nConfiguration) );
 
   parent.addSubtag(tag);
