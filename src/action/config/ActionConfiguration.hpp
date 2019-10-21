@@ -2,7 +2,7 @@
 
 #include "action/Action.hpp"
 #include "action/SharedPointer.hpp"
-#include "xml/XMLTag.hpp"
+#include "precice/config/ConfigurationListener.hpp"
 #include "logging/Logger.hpp"
 #include "mesh/SharedPointer.hpp"
 #include <string>
@@ -14,13 +14,14 @@ namespace action {
 /**
  * @brief Configures an Action subclass object.
  */
-class ActionConfiguration : public xml::XMLTag::Listener
+class ActionConfiguration : public config::ConfigurationListener
 {
 public:
 
   ActionConfiguration (
-    xml::XMLTag&                    parent,
-    const mesh::PtrMeshConfiguration& meshConfig );
+    xml::XMLTag&                        parent,
+    const config::ConfigurationContext& context,
+    const mesh::PtrMeshConfiguration&   meshConfig );
 
   /**
    * @brief Callback function required for use of automatic configuration.

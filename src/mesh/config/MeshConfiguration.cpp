@@ -11,8 +11,9 @@ namespace mesh {
 MeshConfiguration:: MeshConfiguration
 (
   xml::XMLTag&       parent,
+  const config::ConfigurationContext& context,
   PtrDataConfiguration config )
-:
+: config::ConfigurationListener(context),
   TAG("mesh"),
   ATTR_NAME("name"),
   ATTR_FLIP_NORMALS("flip-normals"),

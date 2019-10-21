@@ -14,9 +14,11 @@ namespace action {
 
 ActionConfiguration:: ActionConfiguration
 (
-  xml::XMLTag&                    parent,
-  const mesh::PtrMeshConfiguration& meshConfig )
+  xml::XMLTag&                        parent,
+  const config::ConfigurationContext& context,
+  const mesh::PtrMeshConfiguration&   meshConfig )
 :
+  ConfigurationListener(context),
   NAME_DIVIDE_BY_AREA ( "divide-by-area" ),
   NAME_MULTIPLY_BY_AREA ( "multiply-by-area" ),
   NAME_SCALE_BY_COMPUTED_DT_RATIO ( "scale-by-computed-dt-ratio" ),

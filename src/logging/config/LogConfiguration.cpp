@@ -4,9 +4,8 @@ namespace precice {
 namespace config {
 
 
-LogConfiguration::LogConfiguration
-(
-  xml::XMLTag& parent)
+LogConfiguration::LogConfiguration( xml::XMLTag& parent, const config::ConfigurationContext& context)
+    : ConfigurationListener(context)
 {
   // We do default initialization here, so logging will be initialized
   // as soon as possible and also if there is no <log> tag.

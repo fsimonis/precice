@@ -2,7 +2,7 @@
 
 #include "mesh/SharedPointer.hpp"
 #include "logging/Logger.hpp"
-#include "xml/XMLTag.hpp"
+#include "precice/config/ConfigurationListener.hpp"
 #include <vector>
 #include <list>
 #include <map>
@@ -19,13 +19,14 @@ namespace precice {
 namespace precice {
 namespace mesh {
 
-class MeshConfiguration : public xml::XMLTag::Listener
+class MeshConfiguration : public config::ConfigurationListener
 {
 public:
 
   /// Constructor, takes a valid data configuration as argument.
   MeshConfiguration (
     xml::XMLTag&       parent,
+    const config::ConfigurationContext& context,
     PtrDataConfiguration config );
 
   void setDimensions ( int dimensions );

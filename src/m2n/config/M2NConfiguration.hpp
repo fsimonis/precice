@@ -2,7 +2,7 @@
 
 #include "logging/Logger.hpp"
 #include "m2n/SharedPointer.hpp"
-#include "xml/XMLTag.hpp"
+#include "precice/config/ConfigurationListener.hpp"
 
 #include <tuple>
 
@@ -16,14 +16,14 @@ namespace m2n
 {
 
 /// Configuration for communication channels between solvers.
-class M2NConfiguration : public xml::XMLTag::Listener
+class M2NConfiguration : public config::ConfigurationListener
 {
 public:
   using SharedPointer = std::shared_ptr<M2NConfiguration>;
   using M2NTuple      = std::tuple<m2n::PtrM2N, std::string, std::string>;
 
 public:
-  explicit M2NConfiguration(xml::XMLTag &parent);
+  M2NConfiguration(xml::XMLTag &parent, const ConfigurationContext& context);
 
   virtual ~M2NConfiguration() {}
 

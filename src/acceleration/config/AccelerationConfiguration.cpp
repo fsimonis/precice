@@ -16,7 +16,6 @@
 #include "acceleration/impl/ResidualSumPreconditioner.hpp"
 #include "acceleration/impl/ValuePreconditioner.hpp"
 #include "xml/XMLAttribute.hpp"
-#include "xml/XMLTag.hpp"
 
 namespace precice
 {
@@ -26,8 +25,9 @@ namespace acceleration
 using namespace precice::acceleration::impl;
 
 AccelerationConfiguration::AccelerationConfiguration(
-    const mesh::PtrMeshConfiguration &meshConfig)
-    : TAG("post-processing"),
+    const mesh::PtrMeshConfiguration &meshConfig, config::ConfigurationContext const & context)
+    : ConfigurationListener(context),
+      TAG("post-processing"),
       TAG_RELAX("relaxation"),
       TAG_INIT_RELAX("initial-relaxation"),
       TAG_MAX_USED_ITERATIONS("max-used-iterations"),

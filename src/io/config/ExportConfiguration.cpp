@@ -1,12 +1,12 @@
 #include "ExportConfiguration.hpp"
 #include "io/Export.hpp"
 #include "xml/XMLAttribute.hpp"
-#include "xml/XMLTag.hpp"
 
 namespace precice {
 namespace io {
 
-ExportConfiguration::ExportConfiguration(xml::XMLTag &parent)
+ExportConfiguration::ExportConfiguration(xml::XMLTag &parent, const config::ConfigurationContext& context)
+    : config::ConfigurationListener(context)
 {
   using namespace xml;
   std::string        doc;

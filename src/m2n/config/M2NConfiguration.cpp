@@ -15,7 +15,8 @@ namespace precice
 {
 namespace m2n
 {
-M2NConfiguration::M2NConfiguration(xml::XMLTag &parent)
+M2NConfiguration::M2NConfiguration(xml::XMLTag &parent, const config::ConfigurationContext& context)
+    : config::ConfigurationListener(context)
 {
   using namespace xml;
   std::string        doc;

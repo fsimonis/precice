@@ -19,7 +19,6 @@
 #include "precice/impl/SharedPointer.hpp"
 #include "utils/Helpers.hpp"
 #include "xml/XMLAttribute.hpp"
-#include "xml/XMLTag.hpp"
 
 namespace precice
 {
@@ -30,9 +29,11 @@ using precice::impl::PtrParticipant;
 
 CouplingSchemeConfiguration::CouplingSchemeConfiguration(
     xml::XMLTag &                               parent,
+    const config::ConfigurationContext&         context,
     const mesh::PtrMeshConfiguration &          meshConfig,
     const m2n::M2NConfiguration::SharedPointer &m2nConfig)
-    : TAG("coupling-scheme"),
+    : config::ConfigurationListener(context),
+      TAG("coupling-scheme"),
       TAG_PARTICIPANTS("participants"),
       TAG_PARTICIPANT("participant"),
       TAG_EXCHANGE("exchange"),

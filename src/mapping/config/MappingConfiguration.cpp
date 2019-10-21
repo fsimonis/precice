@@ -14,8 +14,9 @@ namespace mapping {
 MappingConfiguration:: MappingConfiguration
 (
   xml::XMLTag &                   parent,
+  const config::ConfigurationContext& context,
   const mesh::PtrMeshConfiguration& meshConfiguration )
-:
+: config::ConfigurationListener(context),
   VALUE_NEAREST_NEIGHBOR("nearest-neighbor"),
   VALUE_NEAREST_PROJECTION("nearest-projection"),
   VALUE_RBF_TPS("rbf-thin-plate-splines"),

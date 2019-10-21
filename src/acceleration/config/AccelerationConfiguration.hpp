@@ -7,17 +7,17 @@
 #include "logging/Logger.hpp"
 #include "mesh/SharedPointer.hpp"
 #include "precice/config/SharedPointer.hpp"
-#include "xml/XMLTag.hpp"
+#include "precice/config/ConfigurationListener.hpp"
 
 namespace precice
 {
 namespace acceleration
 {
 
-class AccelerationConfiguration : public xml::XMLTag::Listener
+class AccelerationConfiguration : public config::ConfigurationListener
 {
 public:
-  AccelerationConfiguration(const mesh::PtrMeshConfiguration &meshConfig);
+  AccelerationConfiguration(const mesh::PtrMeshConfiguration &meshConfig, config::ConfigurationContext const & context);
 
   /// Returns the configured coupling scheme.
   PtrAcceleration getAcceleration();

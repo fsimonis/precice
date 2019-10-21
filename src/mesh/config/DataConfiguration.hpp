@@ -1,7 +1,7 @@
 #pragma once
 
 #include "mesh/Data.hpp"
-#include "xml/XMLTag.hpp"
+#include "precice/config/ConfigurationListener.hpp"
 #include "logging/Logger.hpp"
 #include <vector>
 #include <string>
@@ -10,7 +10,8 @@ namespace precice {
 namespace mesh {
 
 /// Performs and provides configuration for Data objects from XML files.
-class DataConfiguration : public xml::XMLTag::Listener
+class DataConfiguration : public config::ConfigurationListener
+
 {
 public:
 
@@ -25,7 +26,7 @@ public:
     : name(name), dimensions(dimensions) {}
   };
 
-  DataConfiguration ( xml::XMLTag& parent );
+  DataConfiguration ( xml::XMLTag& parent, const config::ConfigurationContext& context);
 
   void setDimensions ( int dimensions );
 

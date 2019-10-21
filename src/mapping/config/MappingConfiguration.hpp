@@ -3,7 +3,7 @@
 #include "mapping/SharedPointer.hpp"
 #include "mesh/SharedPointer.hpp"
 #include "logging/Logger.hpp"
-#include "xml/XMLTag.hpp"
+#include "precice/config/ConfigurationListener.hpp"
 #include <string>
 #include <vector>
 
@@ -32,7 +32,7 @@ enum class Preallocation {
 
 
 /// Performs XML configuration and holds configured mappings.
-class MappingConfiguration : public xml::XMLTag::Listener
+class MappingConfiguration : public ConfigurationListener
 {
 public:
 
@@ -68,8 +68,9 @@ public:
   };
 
   MappingConfiguration (
-    xml::XMLTag&                    parent,
-    const mesh::PtrMeshConfiguration& meshConfiguration );
+    xml::XMLTag&                        parent,
+    const config::ConfigurationContext& context,
+    const mesh::PtrMeshConfiguration&   meshConfiguration );
 
   /**
    * @brief Callback function required for use of automatic configuration.

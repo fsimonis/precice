@@ -6,7 +6,8 @@
 namespace precice {
 namespace mesh {
 
-DataConfiguration:: DataConfiguration(xml::XMLTag& parent)
+DataConfiguration:: DataConfiguration(xml::XMLTag& parent, const config::ConfigurationContext& context)
+    : config::ConfigurationListener(context)
 {
   using namespace xml;
   std::string doc;

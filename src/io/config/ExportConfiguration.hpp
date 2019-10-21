@@ -4,7 +4,7 @@
 #include <string>
 #include "io/ExportContext.hpp"
 #include "logging/Logger.hpp"
-#include "xml/XMLTag.hpp"
+#include "precice/config/ConfigurationListener.hpp"
 
 namespace precice {
 namespace io {
@@ -12,9 +12,9 @@ namespace io {
 /**
  * @brief Configuration class for exports.
  */
-class ExportConfiguration : public xml::XMLTag::Listener {
+class ExportConfiguration : public config::ConfigurationListener {
 public:
-  ExportConfiguration(xml::XMLTag &parent);
+  ExportConfiguration(xml::XMLTag &parent, const config::ConfigurationContext& context);
 
   /**
    * @brief Returns the configured export context

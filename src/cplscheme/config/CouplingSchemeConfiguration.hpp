@@ -14,7 +14,7 @@
 #include "mesh/SharedPointer.hpp"
 #include "precice/config/SharedPointer.hpp"
 #include "precice/impl/MeshContext.hpp"
-#include "xml/XMLTag.hpp"
+#include "precice/config/ConfigurationListener.hpp"
 
 namespace precice
 {
@@ -44,7 +44,7 @@ namespace precice
 namespace cplscheme
 {
 /// Configuration for coupling schemes.
-class CouplingSchemeConfiguration : public xml::XMLTag::Listener
+class CouplingSchemeConfiguration : public config::ConfigurationListener
 {
 public:
   /**
@@ -56,6 +56,7 @@ public:
    */
   CouplingSchemeConfiguration(
       xml::XMLTag &                               parent,
+      const ConfigurationContext &                context,
       const mesh::PtrMeshConfiguration &          meshConfig,
       const m2n::M2NConfiguration::SharedPointer &m2nConfig);
 
