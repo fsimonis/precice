@@ -235,6 +235,7 @@ target_sources(precice
     src/precice/bindings/fortran/SolverInterfaceFortran.hpp
     src/precice/config/Configuration.cpp
     src/precice/config/Configuration.hpp
+    src/precice/config/ConfigurationListener.hpp
     src/precice/config/ParticipantConfiguration.cpp
     src/precice/config/ParticipantConfiguration.hpp
     src/precice/config/SharedPointer.hpp
