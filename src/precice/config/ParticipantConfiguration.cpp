@@ -28,7 +28,7 @@ ParticipantConfiguration:: ParticipantConfiguration
   const mesh::PtrMeshConfiguration& meshConfiguration)
 :
   ConfigurationListener(context),
-  _meshConfig(meshConfiguration, context)
+  _meshConfig(meshConfiguration)
 {
   PRECICE_ASSERT(_meshConfig);
   using namespace xml;
@@ -66,12 +66,12 @@ ParticipantConfiguration:: ParticipantConfiguration
   tag.addSubtag(tagReadData);
 
   _mappingConfig = mapping::PtrMappingConfiguration(
-                   new mapping::MappingConfiguration(tag, _meshConfig));
+                   new mapping::MappingConfiguration(tag, _context, _meshConfig));
 
   _actionConfig = action::PtrActionConfiguration(
-                  new action::ActionConfiguration(tag, _meshConfig));
+                  new action::ActionConfiguration(tag, _context, _meshConfig));
 
-  _exportConfig = io::PtrExportConfiguration(new io::ExportConfiguration(tag));
+  _exportConfig = io::PtrExportConfiguration(new io::ExportConfiguration(tag, _context));
 
   XMLTag tagWatchPoint(*this, TAG_WATCH_POINT, XMLTag::OCCUR_ARBITRARY);
   doc = "A watch point can be used to follow the transient changes of data ";

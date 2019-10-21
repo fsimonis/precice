@@ -32,7 +32,7 @@ enum class Preallocation {
 
 
 /// Performs XML configuration and holds configured mappings.
-class MappingConfiguration : public ConfigurationListener
+class MappingConfiguration : public config::ConfigurationListener
 {
 public:
 

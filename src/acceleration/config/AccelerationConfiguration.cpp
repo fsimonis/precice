@@ -571,7 +571,7 @@ void AccelerationConfiguration::addTypeSpecificSubtags(
     // _coarseModelOptimizationConfig->clear();
     if (_coarseModelOptimizationConfig.get() == nullptr) {
       _coarseModelOptimizationConfig = PtrAccelerationConfiguration(
-          new AccelerationConfiguration(_meshConfig));
+          new AccelerationConfiguration(_meshConfig, _context));
     }
     _coarseModelOptimizationConfig->setIsAddManifoldMappingTagAllowed(false);
     _coarseModelOptimizationConfig->connectTags(tag);

@@ -101,7 +101,10 @@ void SolverInterfaceImpl:: configure
   const std::string& configurationFileName )
 {
   utils::Parallel::initializeMPI(nullptr, nullptr);
-  config::Configuration config;
+  config::ConfigurationContext context{
+      _accessorName, _accessorProcessRank, _accessorCommunicatorSize 
+  };
+  config::Configuration config{context};
   xml::configure(config.getXMLTag(), configurationFileName);
   if(_accessorProcessRank==0){
     PRECICE_INFO("This is preCICE version " << PRECICE_VERSION);

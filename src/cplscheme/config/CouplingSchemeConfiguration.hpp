@@ -56,7 +56,7 @@ public:
    */
   CouplingSchemeConfiguration(
       xml::XMLTag &                               parent,
-      const ConfigurationContext &                context,
+      const config::ConfigurationContext &        context,
       const mesh::PtrMeshConfiguration &          meshConfig,
       const m2n::M2NConfiguration::SharedPointer &m2nConfig);
 
