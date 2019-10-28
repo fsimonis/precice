@@ -1,7 +1,7 @@
 cmake_minimum_required (VERSION 3.10.2)
 include(${CMAKE_CURRENT_LIST_DIR}/cmake/XSDKCompilerDetect.cmake)
 
-project(preCICE VERSION 1.5.2 LANGUAGES CXX)
+project(preCICE VERSION 1.6.1 LANGUAGES CXX)
 
 #
 # Overview of this configuration
@@ -262,7 +262,7 @@ endif()
 # File Configuration
 include(GenerateVersionInformation)
 include(${CMAKE_CURRENT_LIST_DIR}/cmake/DetectGitRevision.cmake)
-configure_file("${PROJECT_SOURCE_DIR}/src/versions.hpp.in" "${PROJECT_BINARY_DIR}/src/versions.hpp" @ONLY)
+configure_file("${PROJECT_SOURCE_DIR}/src/precice/impl/versions.hpp.in" "${PROJECT_BINARY_DIR}/src/precice/impl/versions.hpp" @ONLY)
 
 # Includes Configuration
 target_include_directories(precice PUBLIC 

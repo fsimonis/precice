@@ -27,11 +27,12 @@
 #include "utils/Petsc.hpp"
 #include "utils/MasterSlave.hpp"
 #include "utils/EigenHelperFunctions.hpp"
+#include "utils/algorithm.hpp"
 #include "mapping/Mapping.hpp"
 #include <Eigen/Core>
 #include "partition/ReceivedPartition.hpp"
 #include "partition/ProvidedPartition.hpp"
-#include "versions.hpp"
+#include "precice/impl/versions.hpp"
 
 #include <utility>
 #include <algorithm>
@@ -99,6 +100,7 @@ void SolverInterfaceImpl:: configure
 (
   const std::string& configurationFileName )
 {
+  utils::Parallel::initializeMPI(nullptr, nullptr);
   config::Configuration config;
   xml::configure(config.getXMLTag(), configurationFileName);
   if(_accessorProcessRank==0){
@@ -184,15 +186,15 @@ void SolverInterfaceImpl:: configure
   for (const auto& meshID : _meshIDs) {
       _meshLock.add(meshID.second, false);
   }
-  
-  utils::Parallel::initializeMPI(nullptr, nullptr);
+
   logging::setMPIRank(utils::Parallel::getProcessRank());
   utils::EventRegistry::instance().initialize("precice-" + _accessorName, "", utils::Parallel::getGlobalCommunicator());
-  
+
   // Setup communication to server
   if (_clientMode){
     initializeClientServerCommunication();
   }
+  PRECICE_DEBUG("Initialize master-slave communication");
   if (utils::MasterSlave::isMaster() || utils::MasterSlave::isSlave()){
     initializeMasterSlaveCommunication();
   }
@@ -208,7 +210,7 @@ double SolverInterfaceImpl:: initialize()
   solverInitEvent.pause(precice::syncMode);
   Event e("initialize", precice::syncMode);
   utils::ScopedEventPrefix sep("initialize/");
-  
+
   if (_clientMode){
     PRECICE_DEBUG("Request perform initializations");
     _requestManager->requestInitialize();
@@ -241,6 +243,7 @@ double SolverInterfaceImpl:: initialize()
     std::set<action::Action::Timing> timings;
     double dt = 0.0;
 
+    PRECICE_DEBUG("Initialize watchpoints");
     for (PtrWatchPoint& watchPoint : _accessor->watchPoints()){
       watchPoint->initialize();
     }
@@ -249,6 +252,7 @@ double SolverInterfaceImpl:: initialize()
     double time = 0.0;
     int timestep = 1;
 
+    PRECICE_DEBUG("Initialize coupling schemes");
     _couplingScheme->initialize(time, timestep);
 
     dt = _couplingScheme->getNextTimestepMaxLength();
@@ -282,6 +286,8 @@ void SolverInterfaceImpl:: initializeData ()
   Event e("initializeData", precice::syncMode);
   utils::ScopedEventPrefix sep("initializeData/");
 
+  PRECICE_DEBUG("Initialize data");
+
   PRECICE_CHECK(_couplingScheme->isInitialized(),
         "initialize() has to be called before initializeData()");
   if (_clientMode){
@@ -298,7 +304,7 @@ void SolverInterfaceImpl:: initializeData ()
     }
     performDataActions(timings, 0.0, 0.0, 0.0, dt);
     resetWrittenData();
-    PRECICE_DEBUG("Plot output...");
+    PRECICE_DEBUG("Plot output");
     for (const io::ExportContext& context : _accessor->exportContexts()){
       if (context.timestepInterval != -1){
         std::ostringstream suffix;
@@ -329,12 +335,14 @@ double SolverInterfaceImpl:: advance
   utils::ScopedEventPrefix sep("advance/");
 
   PRECICE_CHECK(_couplingScheme->isInitialized(), "initialize() has to be called before advance()");
+  PRECICE_CHECK(isCouplingOngoing(), "advance() cannot be called when isCouplingOngoing() returns false");
   _numberAdvanceCalls++;
   if (_clientMode){
     _requestManager->requestAdvance(computedTimestepLength);
   }
   else {
 #   ifndef NDEBUG
+    PRECICE_DEBUG("Synchronize timestep length");
     if(utils::MasterSlave::isMaster() || utils::MasterSlave::isSlave()){
       syncTimestep(computedTimestepLength);
     }
@@ -369,7 +377,7 @@ double SolverInterfaceImpl:: advance
     }
     performDataActions(timings, time, computedTimestepLength, timestepPart, timestepLength);
 
-    PRECICE_DEBUG("Advancing coupling scheme");
+    PRECICE_DEBUG("Advance coupling scheme");
     _couplingScheme->advance();
 
     timings.clear();
@@ -388,6 +396,7 @@ double SolverInterfaceImpl:: advance
 
     PRECICE_INFO(_couplingScheme->printCouplingState());
 
+    PRECICE_DEBUG("Handle exports");
     handleExports();
 
     // deactivated the reset of written data, as it deletes all data that is not communicated
@@ -412,6 +421,7 @@ void SolverInterfaceImpl:: finalize()
   utils::ScopedEventPrefix sep("finalize/");
 
   PRECICE_CHECK(_couplingScheme->isInitialized(), "initialize() has to be called before finalize()");
+  PRECICE_DEBUG("Finalize coupling scheme");
   _couplingScheme->finalize();
   _couplingScheme.reset();
 
@@ -420,6 +430,7 @@ void SolverInterfaceImpl:: finalize()
     _accessor->getClientServerCommunication()->closeConnection();
   }
   else {
+    PRECICE_DEBUG("Handle exports");
     for (const io::ExportContext& context : _accessor->exportContexts()){
       if ( context.timestepInterval != -1 ){
         std::ostringstream suffix;
@@ -432,6 +443,7 @@ void SolverInterfaceImpl:: finalize()
     }
     // Apply some final ping-pong to synch solver that run e.g. with a uni-directional coupling only
     // afterwards close connections
+    PRECICE_DEBUG("Synchronize participants and close communication channels");
     std::string ping = "ping";
     std::string pong = "pong";
     for (auto &iter : _m2ns) {
@@ -452,6 +464,8 @@ void SolverInterfaceImpl:: finalize()
       iter.second.m2n->closeConnection();
     }
   }
+
+  PRECICE_DEBUG("Close master-slave communication");
   if(utils::MasterSlave::isSlave() || utils::MasterSlave::isMaster()){
     utils::MasterSlave::_communication->closeConnection();
     utils::MasterSlave::_communication = nullptr;
@@ -603,7 +617,7 @@ int SolverInterfaceImpl:: getMeshVertexSize
     PRECICE_ASSERT(context.mesh.get() != nullptr);
     size = context.mesh->vertices().size();
   }
-  PRECICE_DEBUG("return " << size);
+  PRECICE_DEBUG("Return mesh size of " << size);
   return size;
 }
 
@@ -763,8 +777,8 @@ int SolverInterfaceImpl:: setMeshEdge
     if ( context.meshRequirement == mapping::Mapping::MeshRequirement::FULL ){
       PRECICE_DEBUG("Full mesh required.");
       mesh::PtrMesh& mesh = context.mesh;
-      PRECICE_CHECK(mesh->isValidVertexID(firstVertexID),  " Given VertexID is invalid!");
-      PRECICE_CHECK(mesh->isValidVertexID(secondVertexID), " Given VertexID is invalid!");
+      PRECICE_CHECK(mesh->isValidVertexID(firstVertexID),  "Given VertexID is invalid!");
+      PRECICE_CHECK(mesh->isValidVertexID(secondVertexID), "Given VertexID is invalid!");
       mesh::Vertex& v0 = mesh->vertices()[firstVertexID];
       mesh::Vertex& v1 = mesh->vertices()[secondVertexID];
       return mesh->createEdge(v0, v1).getID ();
@@ -790,9 +804,11 @@ void SolverInterfaceImpl:: setMeshTriangle
     MeshContext& context = _accessor->meshContext(meshID);
     if ( context.meshRequirement == mapping::Mapping::MeshRequirement::FULL ){
       mesh::PtrMesh& mesh = context.mesh;
-      PRECICE_CHECK(mesh->isValidEdgeID(firstEdgeID),  " Given EdgeID is invalid!");
-      PRECICE_CHECK(mesh->isValidEdgeID(secondEdgeID), " Given EdgeID is invalid!");
-      PRECICE_CHECK(mesh->isValidEdgeID(thirdEdgeID),  " Given EdgeID is invalid!");
+      PRECICE_CHECK(mesh->isValidEdgeID(firstEdgeID),  "Given EdgeID is invalid!");
+      PRECICE_CHECK(mesh->isValidEdgeID(secondEdgeID), "Given EdgeID is invalid!");
+      PRECICE_CHECK(mesh->isValidEdgeID(thirdEdgeID),  "Given EdgeID is invalid!");
+      PRECICE_CHECK(utils::unique_elements(utils::make_array(firstEdgeID, secondEdgeID, thirdEdgeID)),
+              "Given EdgeIDs must be unique!");
       mesh::Edge& e0 = mesh->edges()[firstEdgeID];
       mesh::Edge& e1 = mesh->edges()[secondEdgeID];
       mesh::Edge& e2 = mesh->edges()[thirdEdgeID];
@@ -821,13 +837,18 @@ void SolverInterfaceImpl:: setMeshTriangleWithEdges
   MeshContext& context = _accessor->meshContext(meshID);
   if (context.meshRequirement == mapping::Mapping::MeshRequirement::FULL){
     mesh::PtrMesh& mesh = context.mesh;
-    PRECICE_CHECK(mesh->isValidVertexID(firstVertexID),  " Given VertexID is invalid!");
-    PRECICE_CHECK(mesh->isValidVertexID(secondVertexID), " Given VertexID is invalid!");
-    PRECICE_CHECK(mesh->isValidVertexID(thirdVertexID),  " Given VertexID is invalid!");
+    PRECICE_CHECK(mesh->isValidVertexID(firstVertexID),  "Given VertexID is invalid!");
+    PRECICE_CHECK(mesh->isValidVertexID(secondVertexID), "Given VertexID is invalid!");
+    PRECICE_CHECK(mesh->isValidVertexID(thirdVertexID),  "Given VertexID is invalid!");
+    PRECICE_CHECK(utils::unique_elements(utils::make_array(firstVertexID, secondVertexID, thirdVertexID)),
+            "Given VertexIDs must be unique!");
     mesh::Vertex* vertices[3];
     vertices[0] = &mesh->vertices()[firstVertexID];
     vertices[1] = &mesh->vertices()[secondVertexID];
     vertices[2] = &mesh->vertices()[thirdVertexID];
+    PRECICE_CHECK(utils::unique_elements(utils::make_array(vertices[0]->getCoords(),
+                vertices[1]->getCoords(), vertices[2]->getCoords())),
+            "The coordinates of the vertices must be unique!");
     mesh::Edge* edges[3];
     edges[0] = & mesh->createUniqueEdge(*vertices[0], *vertices[1]);
     edges[1] = & mesh->createUniqueEdge(*vertices[1], *vertices[2]);
@@ -856,10 +877,10 @@ void SolverInterfaceImpl:: setMeshQuad
     MeshContext& context = _accessor->meshContext(meshID);
     if (context.meshRequirement == mapping::Mapping::MeshRequirement::FULL){
       mesh::PtrMesh& mesh = context.mesh;
-      PRECICE_CHECK(mesh->isValidEdgeID(firstEdgeID),  " Given EdgeID is invalid!");
-      PRECICE_CHECK(mesh->isValidEdgeID(secondEdgeID), " Given EdgeID is invalid!");
-      PRECICE_CHECK(mesh->isValidEdgeID(thirdEdgeID),  " Given EdgeID is invalid!");
-      PRECICE_CHECK(mesh->isValidEdgeID(fourthEdgeID), " Given EdgeID is invalid!");
+      PRECICE_CHECK(mesh->isValidEdgeID(firstEdgeID),  "Given EdgeID is invalid!");
+      PRECICE_CHECK(mesh->isValidEdgeID(secondEdgeID), "Given EdgeID is invalid!");
+      PRECICE_CHECK(mesh->isValidEdgeID(thirdEdgeID),  "Given EdgeID is invalid!");
+      PRECICE_CHECK(mesh->isValidEdgeID(fourthEdgeID), "Given EdgeID is invalid!");
       mesh::Edge& e0 = mesh->edges()[firstEdgeID];
       mesh::Edge& e1 = mesh->edges()[secondEdgeID];
       mesh::Edge& e2 = mesh->edges()[thirdEdgeID];
@@ -888,10 +909,10 @@ void SolverInterfaceImpl:: setMeshQuadWithEdges
   MeshContext& context = _accessor->meshContext(meshID);
   if (context.meshRequirement == mapping::Mapping::MeshRequirement::FULL){
     mesh::PtrMesh& mesh = context.mesh;
-    PRECICE_CHECK(mesh->isValidVertexID(firstVertexID),  " Given VertexID is invalid!");
-    PRECICE_CHECK(mesh->isValidVertexID(secondVertexID), " Given VertexID is invalid!");
-    PRECICE_CHECK(mesh->isValidVertexID(thirdVertexID),  " Given VertexID is invalid!");
-    PRECICE_CHECK(mesh->isValidVertexID(fourthVertexID), " Given VertexID is invalid!");
+    PRECICE_CHECK(mesh->isValidVertexID(firstVertexID),  "Given VertexID is invalid!");
+    PRECICE_CHECK(mesh->isValidVertexID(secondVertexID), "Given VertexID is invalid!");
+    PRECICE_CHECK(mesh->isValidVertexID(thirdVertexID),  "Given VertexID is invalid!");
+    PRECICE_CHECK(mesh->isValidVertexID(fourthVertexID), "Given VertexID is invalid!");
     mesh::Vertex* vertices[4];
     vertices[0] = &mesh->vertices()[firstVertexID];
     vertices[1] = &mesh->vertices()[secondVertexID];
@@ -1348,7 +1369,7 @@ void SolverInterfaceImpl:: configurePartitions
       std::string receiver ( _accessorName );
       std::string provider ( context->receiveMeshFrom );
       PRECICE_DEBUG( "Receiving mesh from " << provider );
-      
+
       context->partition = partition::PtrPartition(new partition::ReceivedPartition(context->mesh, context->geoFilter, context->safetyFactor));
 
       m2n::PtrM2N m2n = m2nConfig->getM2N ( receiver, provider );
