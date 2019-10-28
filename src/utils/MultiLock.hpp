@@ -33,6 +33,8 @@ public:
   /// The type of the key
   using key_type = Key;
 
+  using size_type = std::size_t;
+
   /** @brief Adds a lock with a given state
    *
    * Adding an already existent lock does nothing.
@@ -131,9 +133,28 @@ public:
     return _locks.find(name) != _locks.end();
   }
 
+  /// Returns the total count of locks
+  size_type size() const noexcept
+  {
+      return _locks.size();
+  }
+
+  /// Returns the count of locked locks
+  size_t countLocked() const
+  {
+      return std::count_if(_locks.begin(), _locks.end(), [](typename map_type::value_type const & kv){ return kv.second; });
+  }
+
+  /// Returns the count of unlocked locks
+  size_t countUnlocked() const
+  {
+      return std::count_if(_locks.begin(), _locks.end(), [](typename map_type::value_type const & kv){ return not kv.second; });
+  }
+
 private:
+  using map_type = typename std::map<Key, bool>;
   /// The map that keeps track of the locks and their state.
-  std::map<Key, bool> _locks;
+   map_type _locks;
 };
 } // namespace utils
 } // namespace precice

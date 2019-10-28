@@ -598,6 +598,12 @@ private:
   /// Computes, performs, and resets all suitable read mappings.
   void mapReadData();
 
+  /// Reinitialize the solverinterface
+  void reinitialize();
+
+  /// Closes all m2n communication channels
+  void closeCommunicationChannels();
+
   /**
    * @brief Performs all data actions with given timing.
    *

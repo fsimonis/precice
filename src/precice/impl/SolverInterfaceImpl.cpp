@@ -348,6 +348,18 @@ double SolverInterfaceImpl:: advance
     }
 #   endif
 
+    // propertly treat serial case
+    if (_numberAdvanceCalls > 1) {
+        int localMeshesChanges = _meshLock.countUnlocked();
+        PRECICE_DEBUG("Local Mesh Changes: " << localMeshesChanges);
+        int totalMeshesChanged = 0;
+        utils::MasterSlave::allreduceSum(localMeshesChanges, totalMeshesChanged, 1);
+        PRECICE_DEBUG("Total Mesh Changes:" << totalMeshesChanged);
+        if(totalMeshesChanged > 0) {
+            reinitialize();
+        }
+    }
+
     double timestepLength = 0.0; // Length of (full) current dt
     double timestepPart = 0.0;   // Length of computed part of (full) curr. dt
     double time = 0.0;
@@ -441,28 +453,7 @@ void SolverInterfaceImpl:: finalize()
         }
       }
     }
-    // Apply some final ping-pong to synch solver that run e.g. with a uni-directional coupling only
-    // afterwards close connections
-    PRECICE_DEBUG("Synchronize participants and close communication channels");
-    std::string ping = "ping";
-    std::string pong = "pong";
-    for (auto &iter : _m2ns) {
-      if( not utils::MasterSlave::isSlave()){
-        if(iter.second.isRequesting){
-          iter.second.m2n->getMasterCommunication()->send(ping,0);
-          std::string receive = "init";
-          iter.second.m2n->getMasterCommunication()->receive(receive,0);
-          PRECICE_ASSERT(receive==pong);
-        }
-        else{
-          std::string receive = "init";
-          iter.second.m2n->getMasterCommunication()->receive(receive,0);
-          PRECICE_ASSERT(receive==ping);
-          iter.second.m2n->getMasterCommunication()->send(pong,0);
-        }
-      }
-      iter.second.m2n->closeConnection();
-    }
+    closeCommunicationChannels();
   }
 
   PRECICE_DEBUG("Close master-slave communication");
@@ -633,6 +624,7 @@ void SolverInterfaceImpl:: resetMesh
   else {
     PRECICE_VALIDATE_MESH_ID(meshID);
     impl::MeshContext& context = _accessor->meshContext(meshID);
+    /*
     bool hasMapping = context.fromMappingContext.mapping
               || context.toMappingContext.mapping;
     bool isStationary =
@@ -641,6 +633,7 @@ void SolverInterfaceImpl:: resetMesh
 
     PRECICE_CHECK(!isStationary, "A mesh with only initial mappings  must not be reseted");
     PRECICE_CHECK(hasMapping, "A mesh with no mappings must not be reseted");
+    */
 
     PRECICE_DEBUG( "Clear mesh positions for mesh \"" << context.mesh->getName() << "\"" );
     _meshLock.unlock(meshID);
@@ -963,6 +956,42 @@ void SolverInterfaceImpl:: mapWriteDataFrom
   mappingContext.hasMappedData = true;
 }
 
+void SolverInterfaceImpl::reinitialize()
+{
+  PRECICE_TRACE();
+
+  {
+      Event e("reinitialize");
+      closeCommunicationChannels();
+  }
+  initialize();
+}
+
+void SolverInterfaceImpl::closeCommunicationChannels()
+{
+    // Apply some final ping-pong to synch solver that run e.g. with a uni-directional coupling only
+    // afterwards close connections
+    PRECICE_DEBUG("Synchronize participants and close communication channels");
+    std::string ping = "ping";
+    std::string pong = "pong";
+    for (auto &iter : _m2ns) {
+      if( not utils::MasterSlave::isSlave()){
+        if(iter.second.isRequesting){
+          iter.second.m2n->getMasterCommunication()->send(ping,0);
+          std::string receive = "init";
+          iter.second.m2n->getMasterCommunication()->receive(receive,0);
+          PRECICE_ASSERT(receive==pong);
+        }
+        else{
+          std::string receive = "init";
+          iter.second.m2n->getMasterCommunication()->receive(receive,0);
+          PRECICE_ASSERT(receive==ping);
+          iter.second.m2n->getMasterCommunication()->send(pong,0);
+        }
+      }
+      iter.second.m2n->closeConnection();
+    }
+}
 
 void SolverInterfaceImpl:: mapReadDataTo
 (
