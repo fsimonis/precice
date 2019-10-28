@@ -321,7 +321,7 @@ public:
    * changes. Only has an effect, if the mapping used is non-stationary and
    * non-incremental.
    */
-  //  void resetMesh ( int meshID );
+  void resetMesh ( int meshID );
 
   /**
    * @brief Checks if the mesh with given name is used by a solver.
