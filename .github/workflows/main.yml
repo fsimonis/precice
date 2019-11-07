@@ -13,8 +13,8 @@ jobs:
         PETSC: [PETSC, NoPETSC]
         CXX: [g++, clang++]
         exclude:
-          - MPI: OFF
-            PETSC: ON
+          - MPI: NoMPI
+            PETSC: PETSC
     env:
       CCACHE_DIR: ${GITHUB_WORKSPACE}/ccache
 
