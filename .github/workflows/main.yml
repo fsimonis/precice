@@ -16,7 +16,7 @@ jobs:
           - MPI: NoMPI
             PETSC: PETSC
     env:
-      CCACHE_DIR: ${GITHUB_WORKSPACE}/ccache
+      CCACHE_DIR: ${{ workspace }}/ccache
 
     steps:
       - name: Install dependencies
@@ -24,7 +24,7 @@ jobs:
       - name: Restore ccache
         uses: actions/cache@v1
         with:
-          path: ${GITHUB_WORKSPACE}/ccache
+          path: ${{ workspace }}/ccache
           key: ${{ github.repository }}-${{ runner.OS }}-ccache-${{ matrix.CXX }}-${{ matrix.MPI }}-${{ matrix.PETSC }}
       - uses: actions/checkout@v1
       - name: Generate build directory
