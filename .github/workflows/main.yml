@@ -38,6 +38,8 @@ jobs:
       - name: Compile
         working-directory: build
         run: make -j $(nproc)
+      - name: CCache Statistics
+        run: ccache -s
       - name: Tests - mandatory
         env:
           CTEST_OUTPUT_ON_FAILURE: 1
