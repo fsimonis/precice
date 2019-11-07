@@ -33,6 +33,7 @@ jobs:
         working-directory: build
         env:
           CXX: ${{ matrix.CXX }}
+          CXX_FLAGS: "-Wall -Wextra -Wpedantic"
         run: cmake -DBUILD_SHARED_LIBS=ON -DMPI=${{ matrix.MPI == 'MPI' }} -DPETSC=${{ matrix.PETSC == 'PETSC' }} -DCMAKE_CXX_COMPILER_LAUNCHER=ccache ..
       - name: Compile
         working-directory: build
