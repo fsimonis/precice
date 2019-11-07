@@ -34,7 +34,7 @@ jobs:
         env:
           CXX: ${{ matrix.CXX }}
           CXX_FLAGS: "-Wall -Wextra -Wpedantic"
-        run: cmake -DBUILD_SHARED_LIBS=ON -DMPI=${{ matrix.MPI == 'MPI' }} -DPETSC=${{ matrix.PETSC == 'PETSC' }} -DCMAKE_CXX_COMPILER_LAUNCHER=ccache ..
+        run: cmake -DBUILD_SHARED_LIBS=ON -DCMAKE_BUILD_TYPE=Debug -DMPI=${{ matrix.MPI == 'MPI' }} -DPETSC=${{ matrix.PETSC == 'PETSC' }} -DCMAKE_CXX_COMPILER_LAUNCHER=ccache ..
       - name: Compile
         working-directory: build
         run: make -j $(nproc)
