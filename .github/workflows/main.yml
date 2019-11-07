@@ -15,9 +15,18 @@ jobs:
         exclude:
           - MPI: OFF
             PETSC: ON
+
+    env:
+      CCACHE_DIR: ${{ GITHUB_WORKSPACE }}/ccache
+
     steps:
       - name: Install dependencies
-        run: sudo apt-get update && sudo apt-get install -y build-essential cmake libeigen3-dev libxml2-dev petsc-dev libboost-all-dev python-dev python-numpy
+        run: sudo apt-get update && sudo apt-get install -y build-essential cmake libeigen3-dev libxml2-dev petsc-dev libboost-all-dev python-dev python-numpy ccache
+      - name: Restore ccache
+        uses: actions/cache@v1
+        with:
+          path: ${{ GITHUB_WORKSPACE }}/ccache
+          key: ${{ github.repository }}-${{ runner.OS }}-ccache-${{ matrix.CXX }}-${{ matrix.MPI }}-${{ matrix.PETSC }}
       - uses: actions/checkout@v1
       - name: Generate build directory
         run: mkdir -p build
@@ -25,7 +34,7 @@ jobs:
         working-directory: build
         env:
           CXX: ${{ matrix.CXX }}
-        run: cmake -DBUILD_SHARED_LIBS=ON -DMPI=${{ matrix.MPI == 'MPI' }} -DPETSC=${{ matrix.PETSC == 'PETSC' }} ..
+          run: cmake -DBUILD_SHARED_LIBS=ON -DMPI=${{ matrix.MPI == 'MPI' }} -DPETSC=${{ matrix.PETSC == 'PETSC' }} -DCMAKE_CXX_COMPILER_LAUNCHER=ccache ..
       - name: Compile
         working-directory: build
         run: make -j $(nproc)
