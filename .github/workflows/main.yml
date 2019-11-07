@@ -38,8 +38,14 @@ jobs:
       - name: Compile
         working-directory: build
         run: make -j $(nproc)
-      - name: Test
+      - name: Tests - mandatory
         env:
           CTEST_OUTPUT_ON_FAILURE: 1
         working-directory: build
-        run: make test
+        run: ctest -LE canfail
+      - name: Tests - canfail
+        env:
+          CTEST_OUTPUT_ON_FAILURE: 1
+        working-directory: build
+        continue-on-error: true
+        run: ctest -L canfail
