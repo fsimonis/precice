@@ -5,6 +5,7 @@ on: [push, pull_request]
 jobs:
   build:
     name: ${{ format('{0}++ {1} {2}', matrix.CXX, matrix.MPI, matrix.PETSC) }}
+    runs-on: ubuntu-latest
     container: precice/ci-base:latest
     strategy:
       fail-fast: false
