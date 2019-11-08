@@ -54,18 +54,23 @@ jobs:
       - name: Build packages
         working-directory: build
         run: cpack
+      - name: Prepare artifacts
+        run: |
+          mkdir -p artifacts/deb
+          cp build/libprecice*.deb* artifacts/deb
+          mkdir -p artifacts/tar
+          cp build/libprecice*.tar* artifacts/tar
+          mkdir -p artifacts/logs
+          cp build/CMakeCache.txt build/CMakeFiles/CMakeOutput.log build/CMakeFiles/CMakeError.log artifacts/logs
       - uses: actions/upload-artifact@master
         with:
           name: Debian package
-          path: "build/libprecice*deb*"
+          path: artifacts/deb
       - uses: actions/upload-artifact@master
         with:
           name: Tar package
-          path: "build/libprecice*tar*"
+          path: artifacts/tar
       - uses: actions/upload-artifact@master
         with:
-          name: CMake Logs
-          path:
-            - build/CMakeCache.txt
-            - build/CMakeFiles/CMakeError.log
-            - build/CMakeFiles/CMakeOutput.log
+          name: CMake logs
+          path: artifacts/logs
