@@ -57,11 +57,11 @@ jobs:
       - uses: actions/upload-artifact@master
         with:
           name: Debian package
-          path: build/libprecice*deb*
+          path: "build/libprecice*deb*"
       - uses: actions/upload-artifact@master
         with:
           name: Tar package
-          path: build/libprecice*targ*
+          path: "build/libprecice*tar*"
       - uses: actions/upload-artifact@master
         with:
           name: CMake Logs
