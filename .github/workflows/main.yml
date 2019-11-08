@@ -25,7 +25,7 @@ jobs:
         uses: actions/cache@v1
         with:
           path: ccache
-          key: ${{ github.repository }}-${{ runner.OS }}-ccache-${{ matrix.CXX }}-${{ matrix.MPI }}-${{ matrix.PETSC }}
+          key: precice-${{ runner.OS }}-ccache-${{ matrix.CXX }}-${{ matrix.MPI }}-${{ matrix.PETSC }}
       - uses: actions/checkout@v1
       - name: Generate build directory
         run: mkdir -p build
