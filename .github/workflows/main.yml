@@ -39,7 +39,7 @@ jobs:
       - name: CCache Statistics
         run: ccache -s
       - name: Adjust user rights
-        run: chown -R build $PRECICE_USER
+        run: chown -R $PRECICE_USER build
       - name: Tests - mandatory
         env:
           CTEST_OUTPUT_ON_FAILURE: 1
