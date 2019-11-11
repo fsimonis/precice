@@ -44,17 +44,13 @@ jobs:
         env:
           CTEST_OUTPUT_ON_FAILURE: 1
         working-directory: build
-        run: |
-          su $PRECICE_USER
-          ctest -LE canfail
+        run: su -c "ctest -LE canfail" $PRECICE_USER
       - name: Tests - canfail
         env:
           CTEST_OUTPUT_ON_FAILURE: 1
         working-directory: build
         continue-on-error: true
-        run: |
-          su $PRECICE_USER
-          ctest -L canfail
+        run: su -c "ctest -L canfail" $PRECICE_USER
       - name: Build packages
         working-directory: build
         run: cpack
