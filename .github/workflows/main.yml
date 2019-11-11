@@ -38,17 +38,23 @@ jobs:
         run: make -j $(nproc)
       - name: CCache Statistics
         run: ccache -s
+      - name: Adjust user rights
+        run: chown -R build $PRECICE_USER
       - name: Tests - mandatory
         env:
           CTEST_OUTPUT_ON_FAILURE: 1
         working-directory: build
-        run: ctest -LE canfail
+        run: |
+          su $PRECICE_USER
+          ctest -LE canfail
       - name: Tests - canfail
         env:
           CTEST_OUTPUT_ON_FAILURE: 1
         working-directory: build
         continue-on-error: true
-        run: ctest -L canfail
+        run: |
+          su $PRECICE_USER
+          ctest -L canfail
       - name: Build packages
         working-directory: build
         run: cpack
