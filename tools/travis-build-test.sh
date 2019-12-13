@@ -20,24 +20,8 @@ else
     mkdir $PRECICE_BUILD_DIR && cd $PRECICE_BUILD_DIR
     cmake -DPETSC=$PETSC -DMPI=$MPI -DPYTHON=on -DBUILD_SHARED_LIBS=ON -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DPYTHON-DPYTHON_LIBRARY=$PRECICE_PYTHON_PREFIX/lib/libpython3.6m.so -DPYTHON_INCLUDE_DIR=$PRECICE_PYTHON_PREFIX/include/python3.6m -DPYTHON_EXECUTABLE=$PRECICE_PYTHON_PREFIX/bin/python $TRAVIS_BUILD_DIR
     cmake --build . -- -j $(nproc)
-    ctest --output-on-failure -O $TRAVIS_BUILD_DIR/tests/boost-test-output
+    # Run tests with moderate console output
+    ctest -LE mpiports --output-on-failure -O $TRAVIS_BUILD_DIR/tests/boost-test-output
+    # Run tests which should be muted
+    ctest -L mpiports
 fi
-
-export FUTURE_PYTHON_BINDINGS_DIR=$TRAVIS_BUILD_DIR/src/precice/bindings/python_future
-cd $FUTURE_PYTHON_BINDINGS_DIR
-
-# test bindings
-export CPLUS_INCLUDE_PATH=$CPLUS_INCLUDE_PATH:$TRAVIS_BUILD_DIR/src
-python3 setup.py test
-
-# install bindings
-python3 setup.py build_ext --include-dirs=$TRAVIS_BUILD_DIR/src --library-dirs=$PRECICE_BUILD_DIR
-python3 setup.py install --user
-
-export PYTHON_BINDINGS_DIR=$TRAVIS_BUILD_DIR/src/precice/bindings/python
-cd $PYTHON_BINDINGS_DIR
-
-# install bindings
-pip3 install --user .
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PRECICE_BUILD_DIR
-python3 -c "import precice_future"
