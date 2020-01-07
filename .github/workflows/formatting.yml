@@ -6,7 +6,7 @@ jobs:
   formatting:
     name: Check Formatting
     runs-on: ubuntu-latest
-    container: precice/ci-base:latest
+    container: precice/ci-base:ubuntu1804
     steps:
       - uses: actions/checkout@v1
       - name: Check formatting
