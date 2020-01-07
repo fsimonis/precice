@@ -1,0 +1,13 @@
+name: Style Checker
+
+on: [push, pull_request]
+
+jobs:
+  formatting:
+    name: Check Formatting
+    runs-on: ubuntu-latest
+    container: precice/ci-base:latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Check formatting
+        run: tools/formatting/check-format
