@@ -23,20 +23,24 @@ public:
 
   virtual void acceptConnection(std::string const &acceptorName,
                                 std::string const &requesterName,
+                                std::string const &meshName,
                                 int                acceptorRank) override;
 
   virtual void acceptConnectionAsServer(std::string const &acceptorName,
                                         std::string const &requesterName,
+                                        std::string const &meshName,
                                         int                acceptorRank,
                                         int                requesterCommunicatorSize) override;
 
   virtual void requestConnection(std::string const &acceptorName,
                                  std::string const &requesterName,
+                                 std::string const &meshName,
                                  int                requesterRank,
                                  int                requesterCommunicatorSize) override;
 
   virtual void requestConnectionAsClient(std::string const &  acceptorName,
                                          std::string const &  requesterName,
+                                         std::string const &  meshName,
                                          std::set<int> const &acceptorRanks,
                                          int                  requesterRank) override;
 
