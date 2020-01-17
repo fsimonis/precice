@@ -61,7 +61,7 @@ void ConnectionInfoWriter::write(std::string const &info) const
   {
     std::ofstream ofs(tmp.string(), std::ofstream::out);
     ofs << info << "\n";
-    ofs << "Acceptor: " << acceptorName << ", Requester: " << requesterName << ", Mesh: " << meshName <<  ", Rank: " << rank << "\n";
+    ofs << "Acceptor: " << acceptorName << ", Requester: " << requesterName << ", Mesh: " << meshName << ", Rank: " << rank << "\n";
   }
   fs::rename(tmp, path);
 }

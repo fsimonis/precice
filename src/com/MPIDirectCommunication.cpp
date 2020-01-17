@@ -66,7 +66,7 @@ void MPIDirectCommunication::closeConnection()
 
 void MPIDirectCommunication::requestConnection(std::string const &acceptorName,
                                                std::string const &requesterName,
-                                              std::string const &meshName,
+                                               std::string const &meshName,
                                                int                requesterRank,
                                                int                requesterCommunicatorSize)
 {
