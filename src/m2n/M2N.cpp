@@ -102,16 +102,24 @@ void M2N::requestSlavesConnection(
   PRECICE_ASSERT(_areSlavesConnected);
 }
 
-void M2N::prepareEstablishment()
+void M2N::prepareEstablishment(
+    const std::string &acceptorName,
+    const std::string &requesterName)
 {
   PRECICE_TRACE();
-  _masterCom->prepareEstablishment();
+  if(utils::MasterSlave::isMaster()) {
+      _masterCom->prepareEstablishment(acceptorName, requesterName);
+  }
 }
 
-void M2N::cleanupEstablishment()
+void M2N::cleanupEstablishment(
+    const std::string &acceptorName,
+    const std::string &requesterName)
 {
   PRECICE_TRACE();
-  _masterCom->cleanupEstablishment();
+  if(utils::MasterSlave::isMaster()) {
+      _masterCom->cleanupEstablishment(acceptorName, requesterName);
+  }
 }
 
 void M2N::acceptSlavesPreConnection(

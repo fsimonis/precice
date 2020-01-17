@@ -1,5 +1,5 @@
-#include "Communication.hpp"
-#include "Request.hpp"
+#include "com/Communication.hpp"
+#include "com/Request.hpp"
 
 namespace precice {
 namespace com {

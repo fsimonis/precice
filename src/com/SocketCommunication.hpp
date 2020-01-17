@@ -49,6 +49,12 @@ public:
 
   virtual void closeConnection() override;
 
+  virtual void prepareEstablishment(std::string const &acceptorName,
+                                    std::string const &requesterName) override;
+
+  virtual void cleanupEstablishment(std::string const &acceptorName,
+                                    std::string const &requesterName) override;
+
   /// Sends a std::string to process with given rank.
   virtual void send(std::string const &itemToSend, int rankReceiver) override;
 

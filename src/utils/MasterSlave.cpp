@@ -311,5 +311,13 @@ void MasterSlave::broadcast(double *values, int size)
   }
 }
 
+void MasterSlave::barrier()
+{
+    int send = 1;
+    int receive = 0;
+    allreduceSum(send, receive, 1);
+    broadcast(receive)
+}
+
 } // namespace utils
 } // namespace precice

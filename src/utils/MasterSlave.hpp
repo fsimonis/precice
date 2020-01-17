@@ -53,6 +53,8 @@ public:
 
   static void broadcast(double *values, int size);
 
+  static void barrier();
+
 private:
   static logging::Logger _log;
 

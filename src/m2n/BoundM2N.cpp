@@ -7,7 +7,9 @@ namespace m2n {
 
 void BoundM2N::prepareEstablishment()
 {
-  m2n->prepareEstablishment();
+  if (!isRequesting) {
+    m2n->prepareEstablishment(localName, remoteName);
+  }
 }
 
 void BoundM2N::connectMasters()
@@ -32,7 +34,9 @@ void BoundM2N::connectSlaves()
 
 void BoundM2N::cleanupEstablishment()
 {
-  m2n->cleanupEstablishment();
+  if (!isRequesting) {
+    m2n->cleanupEstablishment(localName, remoteName);
+  }
 }
 
 } // namespace m2n

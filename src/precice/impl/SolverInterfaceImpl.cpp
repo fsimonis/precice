@@ -198,8 +198,12 @@ double SolverInterfaceImpl::initialize()
     auto &bm2n = m2nPair.second;
     PRECICE_DEBUG((bm2n.isRequesting ? "Awaiting slaves connection from " : "Establishing slaves connection to ") << bm2n.remoteName);
     bm2n.connectSlaves();
-    bm2n.cleanupEstablishment();
     PRECICE_DEBUG("Established slaves connection " << (bm2n.isRequesting ? "from " : "to ") << bm2n.remoteName);
+  }
+  PRECICE_DEBUG("Cleaning up environment after connection was established");
+  utils::MasterSlave::barrier();
+  for (auto &m2nPair : _m2ns) {
+    m2nPair.second.cleanupEstablishment();
   }
   PRECICE_INFO("Slaves are connected");
 
@@ -1366,13 +1370,17 @@ void SolverInterfaceImpl::initializeMasterSlaveCommunication()
   //therefore, the master uses a rankOffset and the slaves have to call request
   // with that offset
   int rankOffset = 1;
+  const std::string meshName{"MasterSlave"};
+  const std::string masterName = _accessorName + "Master";
+  const std::string slaveName = _accessorName;
   if (utils::MasterSlave::isMaster()) {
     PRECICE_INFO("Setting up communication to slaves");
-    utils::MasterSlave::_communication->acceptConnection(_accessorName + "Master", _accessorName, "MasterSlave", utils::MasterSlave::getRank());
+    utils::MasterSlave::_communication->acceptConnection(masterName, slaveName, meshName, utils::MasterSlave::getRank());
     utils::MasterSlave::_communication->setRankOffset(rankOffset);
+    utils::MasterSlave::_communication->cleanupEstablishment(masterName, slaveName);
   } else {
     PRECICE_ASSERT(utils::MasterSlave::isSlave());
-    utils::MasterSlave::_communication->requestConnection(_accessorName + "Master", _accessorName, "MasterSlave",
+    utils::MasterSlave::_communication->requestConnection(masterName, slaveName, meshName,
                                                           _accessorProcessRank - rankOffset, _accessorCommunicatorSize - rankOffset);
   }
 }

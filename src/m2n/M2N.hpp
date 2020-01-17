@@ -93,10 +93,13 @@ public:
    * This should be called before calling the accept and request methods.
    * Calling this function forwards the call to the configured master communication.
    *
+   * @param[in] acceptorName Name of local participant
+   * @param[in] requesterName Name of remote participant
+   *
    * @see com::Communication::prepareEstablishment()
    * @see cleanupEstablishment()
    */
-  void prepareEstablishment();
+  void prepareEstablishment(const std::string &acceptorName, const std::string &requesterName);
 
   /**
    * @brief cleans-up to establish the connections
@@ -104,10 +107,13 @@ public:
    * This should be called after calling the accept and request methods.
    * Calling this function forwards the call to the configured master communication.
    *
+   * @param[in] acceptorName Name of the local participant
+   * @param[in] requesterName Name of the remote participant
+   *
    * @see com::Communication::cleanupEstablishment()
    * @see prepareEstablishment()
    */
-  void cleanupEstablishment();
+  void cleanupEstablishment(const std::string &acceptorName, const std::string &requesterName);
 
   /**
    * @brief Disconnects from communication space, i.e. participant.
