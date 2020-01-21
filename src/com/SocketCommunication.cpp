@@ -354,6 +354,7 @@ void SocketCommunication::prepareEstablishment(std::string const &acceptorName,
 {
   using namespace boost::filesystem;
   path dir = com::impl::localDirectory(acceptorName, requesterName, _addressDirectory);
+  PRECICE_DEBUG("Creating connection exchange directory " << dir);
   try {
     create_directories(dir);
   } catch (const boost::filesystem::filesystem_error &e) {
@@ -366,6 +367,7 @@ void SocketCommunication::cleanupEstablishment(std::string const &acceptorName,
 {
   using namespace boost::filesystem;
   path dir = com::impl::localDirectory(acceptorName, requesterName, _addressDirectory);
+  PRECICE_DEBUG("Removing connection exchange directory " << dir);
   try {
     remove_all(dir);
   } catch (const boost::filesystem::filesystem_error &e) {
