@@ -10,35 +10,35 @@ on:
 
 jobs:
   build:
-    name: ${{ format('{0} {1} {2}', matrix.CXX, matrix.MPI, matrix.PETSC) }}
+    name: ${{ format('{0} {1} {2} {3}', matrix.IMAGE matrix.CXX, matrix.CONFIG, matrix.TYPE) }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        IMAGE: precice/ci-ubuntu18.04:latest
+        IMAGE: 'precice/ci-ubuntu18.04:latest'
         CONFIG: [Bare, MPI, MPIPETSc]
-        CXX: g++
+        CXX: 'g++'
         TYPE: [Debug, Release]
         include:
-          - IMAGE: precice/ci-ubuntu20.04:latest
+          - IMAGE: 'precice/ci-ubuntu20.04:latest'
             CONFIG: MPIPETSc
-            CXX: g++
+            CXX: 'g++'
             TYPE: Debug
-          - IMAGE: precice/ci-archlinux:latest
+          - IMAGE: 'precice/ci-archlinux:latest'
             CONFIG: MPIPETSc
-            CXX: g++
+            CXX: 'g++'
             TYPE: Debug
-          - IMAGE: precice/ci-archlinux:latest
+          - IMAGE: 'precice/ci-archlinux:latest'
             CONFIG: MPIPETSc
-            CXX: g++
+            CXX: 'g++'
             TYPE: Release
-          - IMAGE: precice/ci-archlinux:latest
+          - IMAGE: 'precice/ci-archlinux:latest'
             CONFIG: MPIPETSc
-            CXX: clang++
+            CXX: 'clang++'
             TYPE: Debug
-          - IMAGE: precice/ci-archlinux:latest
+          - IMAGE: 'precice/ci-archlinux:latest'
             CONFIG: MPIPETSc
-            CXX: clang++
+            CXX: 'clang++'
             TYPE: Release
     container: ${{ matrix.IMAGE }}
     env:
