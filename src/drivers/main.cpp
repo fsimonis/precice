@@ -4,7 +4,7 @@
 
 void printUsage()
 {
-  std::cout << "Usage:\n\n";
+  std::cout << "Usages:\n\n";
   std::cout << "Print XML reference      :  binprecice xml\n";
   std::cout << "Print DTD for XML config :  binprecice dtd" << std::endl;
   std::cout << "Print Markdown reference :  binprecice md" << std::endl;
