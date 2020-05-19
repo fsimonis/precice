@@ -15,9 +15,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        IMAGE: 'precice/ci-ubuntu18.04:latest'
+        IMAGE: ['precice/ci-ubuntu18.04:latest']
         CONFIG: [Bare, MPI, MPIPETSc]
-        CXX: 'g++'
+        CXX: ['g++']
         TYPE: [Debug, Release]
         include:
           - IMAGE: 'precice/ci-ubuntu20.04:latest'
