@@ -60,15 +60,15 @@ jobs:
           MPI: ${{ contains(matrix.CONFIG, 'MPI') }}
           PETSc: ${{ contains(matrix.CONFIG, 'PETSc') }}
         run: cmake -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Debug -DPRECICE_MPICommunication=${{ env.MPI }} -DPRECICE_PETScMapping=${{ env.PETSc }} -DCMAKE_CXX_COMPILER_LAUNCHER=ccache ..
-      - uses: actions/upload-artifact@2
+      - uses: actions/upload-artifact@v2
         with:
           name: CMakeCache
           path: build/CMakeCache.txt
-      - uses: actions/upload-artifact@2
+      - uses: actions/upload-artifact@v2
         with:
           name: CMakeLogs
           path: 'build/CMakeFiles/*.log'
-      - uses: actions/upload-artifact@2
+      - uses: actions/upload-artifact@v2
         with:
           name: CompileCommands
           path: build/compile_commands.json
@@ -96,7 +96,7 @@ jobs:
         run: |
           cpack
           lintian *.deb
-      - uses: actions/upload-artifact@2
+      - uses: actions/upload-artifact@v2
         if: failure()
         with:
           name: TestOutput
