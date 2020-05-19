@@ -16,12 +16,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        IMAGE: ['ubuntu1804']
+        IMAGE: ['ubuntu-1804']
         CONFIG: [Bare, MPI, MPIPETSc]
         CXX: ['g++']
         TYPE: [Debug, Release]
         include:
-          - IMAGE: 'ubuntu2004'
+          - IMAGE: 'ubuntu-2004'
             CONFIG: MPIPETSc
             CXX: 'g++'
             TYPE: Debug
