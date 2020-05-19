@@ -57,8 +57,8 @@ jobs:
         env:
           CXX: ${{ matrix.CXX }}
           CXXFLAGS: "-Wall -Wextra"
-          MPI: ${{ contains(matrix.CONFIG, "MPI") }}
-          PETSc: ${{ contains(matrix.CONFIG, "PETSc") }}
+          MPI: ${{ contains(matrix.CONFIG, 'MPI') }}
+          PETSc: ${{ contains(matrix.CONFIG, 'PETSc') }}
         run: cmake -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Debug -DPRECICE_MPICommunication=${{ env.MPI }} -DPRECICE_PETScMapping=${{ env.PETSc }} -DCMAKE_CXX_COMPILER_LAUNCHER=ccache ..
       - uses: actions/upload-artifact@2
         with:
@@ -92,7 +92,7 @@ jobs:
         run: su -c "ctest -L canfail" $PRECICE_USER
       - name: Check packages
         working-directory: build
-        if: ${{ contains(matrix.IMAGE, "ubuntu") }}
+        if: ${{ contains(matrix.IMAGE, 'ubuntu') }}
         run: |
           cpack
           lintian *.deb
