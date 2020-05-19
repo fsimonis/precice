@@ -12,35 +12,35 @@ jobs:
   build:
     name: ${{ format('{0} {1} {2} {3}', matrix.IMAGE, matrix.CXX, matrix.CONFIG, matrix.TYPE) }}
     runs-on: ubuntu-latest
+    container: 'precice/ci-${{ matrix.IMAGE }}:latest'
     strategy:
       fail-fast: false
       matrix:
-        IMAGE: ['precice/ci-ubuntu18.04:latest']
+        IMAGE: ['ubuntu1804']
         CONFIG: [Bare, MPI, MPIPETSc]
         CXX: ['g++']
         TYPE: [Debug, Release]
         include:
-          - IMAGE: 'precice/ci-ubuntu20.04:latest'
+          - IMAGE: 'ubuntu2004'
             CONFIG: MPIPETSc
             CXX: 'g++'
             TYPE: Debug
-          - IMAGE: 'precice/ci-archlinux:latest'
+          - IMAGE: 'archlinux'
             CONFIG: MPIPETSc
             CXX: 'g++'
             TYPE: Debug
-          - IMAGE: 'precice/ci-archlinux:latest'
+          - IMAGE: 'archlinux'
             CONFIG: MPIPETSc
             CXX: 'g++'
             TYPE: Release
-          - IMAGE: 'precice/ci-archlinux:latest'
+          - IMAGE: 'archlinux'
             CONFIG: MPIPETSc
             CXX: 'clang++'
             TYPE: Debug
-          - IMAGE: 'precice/ci-archlinux:latest'
+          - IMAGE: 'archlinux'
             CONFIG: MPIPETSc
             CXX: 'clang++'
             TYPE: Release
-    container: ${{ matrix.IMAGE }}
     env:
       CCACHE_DIR: "$GITHUB_WORKSPACE/ccache"
     steps:
