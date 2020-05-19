@@ -10,7 +10,7 @@ on:
 
 jobs:
   build:
-    name: ${{ format('{0} {1} {2} {3}', matrix.IMAGE matrix.CXX, matrix.CONFIG, matrix.TYPE) }}
+    name: ${{ format('{0} {1} {2} {3}', matrix.IMAGE, matrix.CXX, matrix.CONFIG, matrix.TYPE) }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
