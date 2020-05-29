@@ -23,6 +23,7 @@ jobs:
         CONFIG: [Bare, MPI, MPIPETSc]
         CXX: ['g++']
         TYPE: [Debug, Release]
+        COVFLAGS: "--coverage"
         include:
           - IMAGE: 'ubuntu-2004'
             CONFIG: MPIPETSc
@@ -60,12 +61,12 @@ jobs:
         working-directory: build
         env:
           CXX: ${{ matrix.CXX }}
-          CXXFLAGS: "-Wall -Wextra"
+          CXXFLAGS: "-Wall -Wextra {{ matrix.COVFLAGS }}"
           MPI: ${{ contains(matrix.CONFIG, 'MPI') }}
           PETSc: ${{ contains(matrix.CONFIG, 'PETSc') }}
         run: |
           cmake --version
-          cmake -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Debug -DPRECICE_MPICommunication=${{ env.MPI }} -DPRECICE_PETScMapping=${{ env.PETSc }} -DCMAKE_CXX_COMPILER_LAUNCHER=ccache ..
+          cmake -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Debug -DPRECICE_MPICommunication=${{ env.MPI }} -DPRECICE_PETScMapping=${{ env.PETSc }} -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_EXE_LINKER_FLAGS="{{ matrix.COVFLAGS }}" ..
       - uses: actions/upload-artifact@v2
         with:
           name: CMakeCache
@@ -86,6 +87,7 @@ jobs:
           make -j $(nproc)
           ccache -s
           cat ccache.log
+          find .
       - name: Adjust user rights
         run: chown -R $PRECICE_USER build
       - name: Tests - mandatory
