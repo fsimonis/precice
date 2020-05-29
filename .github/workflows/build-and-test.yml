@@ -99,7 +99,7 @@ jobs:
         if: ${{ contains(matrix.IMAGE, 'ubuntu') }}
         run: |
           cpack
-          lintian *.deb
+          lintian -i *.deb
       - uses: actions/upload-artifact@v2
         if: failure()
         with:
