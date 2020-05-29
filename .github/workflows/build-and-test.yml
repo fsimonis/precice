@@ -13,6 +13,9 @@ jobs:
     name: ${{ format('{0} {1} {2} {3}', matrix.IMAGE, matrix.CXX, matrix.CONFIG, matrix.TYPE) }}
     runs-on: ubuntu-latest
     container: 'precice/ci-${{ matrix.IMAGE }}:latest'
+    defaults:
+      run:
+        shell: "bash --login -eo pipefail {0}"
     strategy:
       fail-fast: false
       matrix:
