@@ -54,7 +54,6 @@ jobs:
           path: ccache
           key: precice-ccache-${{ runner.IMAGE }}-${{ matrix.CONFIG }}-${{ matrix.CXX }}-${{ matrix.TYPE }}
       - uses: actions/checkout@v2
-      - run: ls -l tools/releasing/packaging/debian
       - name: Generate build directory
         run: mkdir -p build
       - name: Configure
@@ -81,9 +80,9 @@ jobs:
           path: build/compile_commands.json
       - name: Compile
         working-directory: build
-        run: make -j $(nproc)
-      - name: CCache Statistics
-        run: ccache -s
+        run: |
+          make -j $(nproc)
+          ccache -s
       - name: Adjust user rights
         run: chown -R $PRECICE_USER build
       - name: Tests - mandatory
