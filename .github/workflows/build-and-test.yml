@@ -99,7 +99,7 @@ jobs:
         if: ${{ contains(matrix.IMAGE, 'ubuntu') }}
         run: |
           cpack
-          lintian -i *.deb
+          lintian -i --suppress-tags control-file-has-bad-permissions *.deb
       - uses: actions/upload-artifact@v2
         if: failure()
         with:
