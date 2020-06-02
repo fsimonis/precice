@@ -23,7 +23,7 @@ jobs:
         CONFIG: [Bare, MPI, MPIPETSc]
         CXX: ['g++']
         TYPE: [Debug, Release]
-        COVFLAGS: "--coverage"
+        COVFLAGS: ["--coverage"]
         include:
           - IMAGE: 'ubuntu-2004'
             CONFIG: MPIPETSc
