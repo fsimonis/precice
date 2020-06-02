@@ -19,12 +19,34 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        IMAGE: ['ubuntu-1804']
-        CONFIG: [Bare, MPI, MPIPETSc]
-        CXX: ['g++']
-        TYPE: [Debug, Release]
-        COVFLAGS: ["--coverage"]
         include:
+          - IMAGE: 'ubuntu-1804'
+            CONFIG: Bare
+            CXX: 'g++'
+            TYPE: Debug
+            COVFLAGS: '--coverage'
+          - IMAGE: 'ubuntu-1804'
+            CONFIG: MPI
+            CXX: 'g++'
+            TYPE: Debug
+            COVFLAGS: '--coverage'
+          - IMAGE: 'ubuntu-1804'
+            CONFIG: MPIPETSc
+            CXX: 'g++'
+            TYPE: Debug
+            COVFLAGS: '--coverage'
+          - IMAGE: 'ubuntu-1804'
+            CONFIG: Bare
+            CXX: 'g++'
+            TYPE: Release
+          - IMAGE: 'ubuntu-1804'
+            CONFIG: MPI
+            CXX: 'g++'
+            TYPE: Release
+          - IMAGE: 'ubuntu-1804'
+            CONFIG: MPIPETSc
+            CXX: 'g++'
+            TYPE: Release
           - IMAGE: 'ubuntu-2004'
             CONFIG: MPIPETSc
             CXX: 'g++'
@@ -101,6 +123,14 @@ jobs:
         working-directory: build
         continue-on-error: true
         run: su -c "ctest -L canfail" $PRECICE_USER
+      - name: Coverage Report
+        working-directory: build
+        if: ${{ matrix.COVFLAGS }}
+        run: |
+          - lcov --capture --directory . --output-file coverage.info
+          - lcov --remove coverage.info '/usr/*' "/opt/*" --output-file coverage.info # filter system-files and local-dependencies
+          - lcov --list coverage.info # debug info
+          - bash <(curl -s https://codecov.io/bash) -f coverage.info || echo "Codecov did not collect coverage reports"
       - name: Check packages
         working-directory: build
         if: ${{ contains(matrix.IMAGE, 'ubuntu') }}
