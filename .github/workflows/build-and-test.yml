@@ -103,13 +103,8 @@ jobs:
           path: build/compile_commands.json
       - name: Compile
         working-directory: build
-        env:
-          CCACHE_LOGFILE: ccache.log
         run: |
           make -j $(nproc)
-          ccache -s
-          cat ccache.log
-          find .
       - name: Adjust user rights
         run: chown -R $PRECICE_USER build
       - name: Tests - mandatory
