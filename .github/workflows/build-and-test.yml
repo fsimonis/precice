@@ -83,7 +83,7 @@ jobs:
         working-directory: build
         env:
           CXX: ${{ matrix.CXX }}
-          CXXFLAGS: "-Wall -Wextra ${{ matrix.COVFLAGS }}"
+          CXXFLAGS: "-Wall ${{ matrix.COVFLAGS }}"
           MPI: ${{ contains(matrix.CONFIG, 'MPI') }}
           PETSc: ${{ contains(matrix.CONFIG, 'PETSc') }}
         run: |
