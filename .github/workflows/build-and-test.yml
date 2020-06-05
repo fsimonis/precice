@@ -115,6 +115,7 @@ jobs:
       - name: Tests - canfail
         env:
           CTEST_OUTPUT_ON_FAILURE: 1
+          BOOST_TEST_LOG_LEVEL: all
         working-directory: build
         continue-on-error: true
         run: su -c "ctest -L canfail" $PRECICE_USER
