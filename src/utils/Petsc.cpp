@@ -1,6 +1,7 @@
 #include <utility>
 #include "Petsc.hpp"
 #include "utils/Parallel.hpp"
+#include "utils/assertion.hpp"
 
 #ifndef PRECICE_NO_PETSC
 #include "petsc.h"
@@ -75,15 +76,29 @@ void Petsc::initialize(
 
 void Petsc::finalize()
 {
+  PRECICE_TRACE();
 #ifndef PRECICE_NO_PETSC
   PetscBool petscIsInitialized;
   PetscInitialized(&petscIsInitialized);
   if (petscIsInitialized and weInitialized) {
+    CHKMEMA;
     PetscOptionsSetValueWrapper("-options_left", "no");
     PetscFinalize();
   }
 #endif // not PRECICE_NO_PETSC
 }
+
+bool Petsc::isInitialized()
+{
+#ifndef PRECICE_NO_PETSC   
+  PetscBool petscIsInitialized{PETSC_FALSE};
+  PetscInitialized(&petscIsInitialized);
+  return (petscIsInitialized == PETSC_TRUE);
+#else
+  return false;
+#endif // not PRECICE_NO_PETSC
+}
+
 } // namespace utils
 } // namespace precice
 
@@ -189,7 +204,8 @@ Vector::~Vector()
   PetscErrorCode ierr = 0;
   PetscBool      petscIsInitialized;
   PetscInitialized(&petscIsInitialized);
-  if (petscIsInitialized && vector) // If PetscFinalize is called before ~Vector
+  PRECICE_ASSERT(petscIsInitialized, "PETSc was finalized before ~Vector() was called.");
+  if (vector) // If PetscFinalize is called before ~Vector
     ierr = VecDestroy(&vector);
   CHKERRV(ierr);
 }
@@ -386,9 +402,11 @@ Matrix::Matrix(std::string name)
 Matrix::~Matrix()
 {
   PetscErrorCode ierr = 0;
+  // Check if PetscFinalize is called before ~Matrix
   PetscBool      petscIsInitialized;
   PetscInitialized(&petscIsInitialized);
-  if (petscIsInitialized && matrix) // If PetscFinalize is called before ~Matrix
+  PRECICE_ASSERT(petscIsInitialized, "PETSc was finalized before ~Matrix() was called.");
+  if (matrix)
     ierr = MatDestroy(&matrix);
   CHKERRV(ierr);
 }
@@ -596,7 +614,8 @@ KSPSolver::~KSPSolver()
   PetscErrorCode ierr = 0;
   PetscBool      petscIsInitialized;
   PetscInitialized(&petscIsInitialized);
-  if (petscIsInitialized && ksp) // If PetscFinalize is called before ~KSPSolver
+  PRECICE_ASSERT(petscIsInitialized, "PETSc was finalized before ~KSPSolver() was called.");
+  if (ksp) // If PetscFinalize is called before ~KSPSolver
     ierr = KSPDestroy(&ksp);
   CHKERRV(ierr);
 }

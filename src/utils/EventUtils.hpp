@@ -149,6 +149,8 @@ public:
 
   MPI_Comm const &getMPIComm() const;
 
+  bool isInitialized() const;
+
   /// Currently active prefix. Changing that applies only to newly created events.
   std::string prefix;
 

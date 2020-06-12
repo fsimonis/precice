@@ -21,13 +21,17 @@ using Par = utils::Parallel;
 
 TestContext::~TestContext() noexcept
 {
-  if (!invalid && _petsc) {
-    precice::utils::Petsc::finalize();
-  }
-  if (!invalid && _events) {
-    precice::utils::EventRegistry::instance().finalize();
-  }
-  if (!invalid && _initMS) {
+  if (!invalid) {
+    // Cleanup PETSc
+    if (_petsc || precice::utils::Petsc::isInitialized()) {
+      precice::utils::Petsc::finalize();
+    }
+    // Cleanup Events
+    auto & events = precice::utils::EventRegistry::instance();
+    if (_events || events.isInitialized()) {
+      precice::utils::EventRegistry::instance().finalize();
+    }
+    // Cleanup MasterSlaves communication
     utils::MasterSlave::_communication = nullptr;
     utils::MasterSlave::reset();
   }

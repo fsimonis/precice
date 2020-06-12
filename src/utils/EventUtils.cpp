@@ -575,5 +575,10 @@ std::pair<sys_clk::time_point, sys_clk::time_point> EventRegistry::findFirstAndL
   return std::make_pair(first->initializedAt, last->finalizedAt);
 }
 
+bool EventRegistry::isInitialized() const
+{
+  return initialized;
+}
+
 } // namespace utils
 } // namespace precice

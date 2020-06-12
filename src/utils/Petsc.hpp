@@ -24,6 +24,8 @@ public:
   /// Finalizes Petsc environment.
   static void finalize();
 
+  /// Returns whether PETSc has been initialized
+  static bool isInitialized();
 private:
   /// Whether we have initialized Petsc or if it was initialized by an application calling us.
   static bool weInitialized;
