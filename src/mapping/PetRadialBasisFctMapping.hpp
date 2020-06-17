@@ -687,6 +687,7 @@ void PetRadialBasisFctMapping<RADIAL_BASIS_FUNCTION_T>::map(int inputDataID, int
         utils::Event eSolve("map.pet.solveConservative.From" + input()->getName() + "To" + output()->getName(), precice::syncMode);
         if (not _solver.solve(au, out)) {
           KSPView(_solver, PETSC_VIEWER_STDOUT_WORLD);
+          _matrixC.view();
           PRECICE_ERROR("RBF linear system has not converged. "
                         "Try to fix axis-aligned mapping setups by marking perpendicular axes as dead.");
         }
@@ -756,6 +757,7 @@ void PetRadialBasisFctMapping<RADIAL_BASIS_FUNCTION_T>::map(int inputDataID, int
       utils::Event eSolve("map.pet.solveConsistent.From" + input()->getName() + "To" + output()->getName(), precice::syncMode);
       if (not _solver.solve(in, p)) {
         KSPView(_solver, PETSC_VIEWER_STDOUT_WORLD);
+        _matrixC.view();
         PRECICE_ERROR("RBF linear system has not converged. "
                       "Try to fix axis-aligned mapping setups by marking perpendicular axis as dead.");
       }
