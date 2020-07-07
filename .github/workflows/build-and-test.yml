@@ -91,15 +91,15 @@ jobs:
           cmake -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Debug -DPRECICE_MPICommunication=${{ env.MPI }} -DPRECICE_PETScMapping=${{ env.PETSc }} -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_EXE_LINKER_FLAGS="${{ matrix.COVFLAGS }}" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
       - uses: actions/upload-artifact@v2
         with:
-          name: CMakeCache
+          name: ${{ format('{0} {1} {2} {3}', matrix.IMAGE, matrix.CXX, matrix.CONFIG, matrix.TYPE) }} CMakeCache 
           path: build/CMakeCache.txt
       - uses: actions/upload-artifact@v2
         with:
-          name: CMakeLogs
+          name: ${{ format('{0} {1} {2} {3}', matrix.IMAGE, matrix.CXX, matrix.CONFIG, matrix.TYPE) }} CMakeLogs 
           path: 'build/CMakeFiles/*.log'
       - uses: actions/upload-artifact@v2
         with:
-          name: CompileCommands
+          name: ${{ format('{0} {1} {2} {3}', matrix.IMAGE, matrix.CXX, matrix.CONFIG, matrix.TYPE) }} CompileCommands 
           path: build/compile_commands.json
       - name: Compile
         working-directory: build
@@ -135,5 +135,5 @@ jobs:
       - uses: actions/upload-artifact@v2
         if: failure()
         with:
-          name: TestOutput
+          name: ${{ format('{0} {1} {2} {3}', matrix.IMAGE, matrix.CXX, matrix.CONFIG, matrix.TYPE) }} TestOutput 
           path: build/TestOutput/
