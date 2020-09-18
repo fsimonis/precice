@@ -133,6 +133,12 @@ public:
    */
   void closeConnection();
 
+  /// Closes the connection between the two masters
+  void closeMasterConnection();
+
+  /// Closes the connection between all slaves
+  void closeSlavesConnection();
+
   /// Get the basic communication between the 2 masters.
   com::PtrCommunication getMasterCommunication();
 
