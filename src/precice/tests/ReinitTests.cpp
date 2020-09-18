@@ -21,21 +21,14 @@ using namespace precice;
 using testing::TestContext;
 
 struct ReinitTestFixture : testing::WhiteboxAccessor {
-
-  std::string _pathToTests;
-  ReinitTestFixture()
-  {
-    _pathToTests = testing::getPathToSources() + "/precice/tests/";
-  }
 };
 
 BOOST_AUTO_TEST_SUITE(PreciceTests)
 BOOST_FIXTURE_TEST_SUITE(Reinit, ReinitTestFixture)
 
-BOOST_AUTO_TEST_CASE(ParallelExplicit)
+void reinitParallelExplicit(const testing::TestContext& context)
 {
-  PRECICE_TEST("SolverOne"_on(1_rank), "SolverTwo"_on(1_rank));
-  std::string configFilename = _pathToTests + "reinit-parallel-explicit.xml";
+  std::string configFilename = testing::getPathToSources() + "/precice/tests/reinit-parallel-explicit.xml";
 
   // SolverOne - Static Geometry
   if (context.isNamed("SolverOne")) {
@@ -45,16 +38,27 @@ BOOST_AUTO_TEST_CASE(ParallelExplicit)
     int dataID = interface.getDataID("Data1", meshID);
 
     int    vertexIDs[2];
-    double xCoord       = context.rank * 3;
-    double positions[6] = {xCoord, 0.0, 0.0, xCoord + 2.0, 0.0, 0.0};
+    double xCoord       = context.rank * 2.0;
+    double positions[6] = {xCoord, 0.0, xCoord + 1.0, 0.0};
     interface.setMeshVertices(meshID, 2, positions, vertexIDs);
     interface.initialize();
-    double values[6] = {1.1, 1.2, 1.3, 3.1, 3.2, 3.3};
+
+    // value format <RANK>.<time><node>
+    double valuest0[2] = {context.rank + 0.01,  context.rank + 0.02};
+    interface.writeBlockScalarData(dataID, 2, vertexIDs, valuest0);
+    interface.initializeData();
+
     interface.advance(1.0);
-    interface.writeBlockVectorData(dataID, 2, vertexIDs, values);
+    double valuest1[2] = {context.rank + 0.11,  context.rank + 0.12};
+    interface.writeBlockScalarData(dataID, 2, vertexIDs, valuest1);
+
     interface.advance(1.0);
-    interface.writeBlockVectorData(dataID, 2, vertexIDs, values);
+    double valuest2[2] = {context.rank + 0.21,  context.rank + 0.22};
+    interface.writeBlockScalarData(dataID, 2, vertexIDs, valuest2);
+
     interface.finalize();
+
+
   }
   // SolverTwo - Adaptive Geometry
   else {
@@ -64,23 +68,45 @@ BOOST_AUTO_TEST_CASE(ParallelExplicit)
     int meshID = interface.getMeshID("MeshTwo");
     int dataID = interface.getDataID("Data2", meshID);
 
-    int    vertexIDs[3];
-    double xCoord       = context.rank * 3;
-    double positions[9] = {xCoord, 0.0, 0.0, xCoord + 2.0, 0.0, 0.0, xCoord + 1, 0.0, 0.0};
+    int    vertexIDs[2];
+    double xCoord       = context.rank * 2;
+    double positions[4] = {xCoord, 0.0, xCoord + 1.0, 0.0};
     interface.setMeshVertices(meshID, 2, positions, vertexIDs);
     interface.initialize();
 
-    double values[9];
+    double values[2];
+    interface.readBlockScalarData(dataID, 2, vertexIDs, values);
+    BOOST_TEST(values[0] == xCoord + 0.01);
+    BOOST_TEST(values[1] == xCoord + 0.02);
+
     interface.advance(1.0);
-    interface.readBlockVectorData(dataID, 2, vertexIDs, values);
+    interface.readBlockScalarData(dataID, 2, vertexIDs, values);
+    BOOST_TEST(values[0] == xCoord + 0.11);
+    BOOST_TEST(values[1] == xCoord + 0.12);
 
     interface.resetMesh(meshID);
-    interface.setMeshVertices(meshID, 2, positions, vertexIDs);
+    double newpositions[4] = {xCoord, 0.2, xCoord + 1.0, 0.1};
+    interface.setMeshVertices(meshID, 2, newpositions, vertexIDs);
+
     interface.advance(1.0);
-    interface.readBlockVectorData(dataID, 2, vertexIDs, values);
+    interface.readBlockScalarData(dataID, 2, vertexIDs, values);
+    BOOST_TEST(values[0] == xCoord + 0.21);
+    BOOST_TEST(values[1] == xCoord + 0.22);
 
     interface.finalize();
   }
+}
+
+BOOST_AUTO_TEST_CASE(ParallelExplicitSingle)
+{
+  PRECICE_TEST("SolverOne"_on(1_rank), "SolverTwo"_on(1_rank));
+  reinitParallelExplicit(context);
+}
+
+BOOST_AUTO_TEST_CASE(ParallelExplicitDouble)
+{
+  PRECICE_TEST("SolverOne"_on(2_ranks), "SolverTwo"_on(2_ranks));
+  reinitParallelExplicit(context);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
