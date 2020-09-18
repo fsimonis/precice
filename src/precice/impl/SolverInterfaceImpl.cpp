@@ -409,6 +409,18 @@ double SolverInterfaceImpl::advance(
   }
 #endif
 
+   // propertly treat serial case
+   if (_numberAdvanceCalls > 1) {
+       int localMeshesChanges = _meshLock.countUnlocked();
+       PRECICE_DEBUG("Local Mesh Changes: " << localMeshesChanges);
+       int totalMeshesChanged = 0;
+       utils::MasterSlave::allreduceSum(localMeshesChanges, totalMeshesChanged, 1);
+       PRECICE_DEBUG("Total Mesh Changes:" << totalMeshesChanged);
+       if(totalMeshesChanged > 0) {
+           reinitialize();
+       }
+   }
+
   double timeWindowSize         = 0.0; // Length of (full) current time window
   double timeWindowComputedPart = 0.0; // Length of computed part of (full) current time window
   double time                   = 0.0; // Current time
@@ -1773,6 +1785,20 @@ const mesh::Mesh &SolverInterfaceImpl::mesh(const std::string &meshName) const
 {
   PRECICE_TRACE(meshName);
   return *_accessor->usedMeshContext(meshName).mesh;
+}
+
+
+/// REINIT SPECIFIC
+
+void SolverInterfaceImpl::reinitialize()
+{
+  PRECICE_TRACE();
+
+  {
+      Event e("reinitialize");
+      closeCommunicationChannels();
+  }
+  initialize();
 }
 
 } // namespace impl

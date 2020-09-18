@@ -599,6 +599,9 @@ private:
   /// Computes, performs, and resets all suitable read mappings.
   void mapReadData();
 
+  /// Reinitialize the solverinterface
+  void reinitialize();
+ 
   /**
    * @brief Performs all data actions with given timing.
    *
