@@ -32,10 +32,10 @@ struct ReinitTestFixture : testing::WhiteboxAccessor {
 BOOST_AUTO_TEST_SUITE(PreciceTests)
 BOOST_FIXTURE_TEST_SUITE(Reinit, ReinitTestFixture)
 
-BOOST_AUTO_TEST_CASE(MeshReset)
+BOOST_AUTO_TEST_CASE(ParallelExplicit)
 {
   PRECICE_TEST("SolverOne"_on(1_rank), "SolverTwo"_on(1_rank));
-  std::string configFilename = _pathToTests + "config1.xml";
+  std::string configFilename = _pathToTests + "reinit-parallel-explicit.xml";
 
   // SolverOne - Static Geometry
   if (context.isNamed("SolverOne")) {
