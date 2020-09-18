@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 
 <precice-configuration>
-   <solver-interface dimensions="3" >
+   <solver-interface dimensions="2" >
 
-      <data:vector name="Data1"  />
-      <data:vector name="Data2"  />
+      <data:scalar name="Data1"  />
+      <data:scalar name="Data2"  />
 
       <mesh name="MeshOne">
          <use-data name="Data1" />
