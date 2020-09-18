@@ -393,6 +393,18 @@ double SolverInterfaceImpl::advance(
   }
 #endif
 
+   // propertly treat serial case
+   if (_numberAdvanceCalls > 1) {
+       int localMeshesChanges = _meshLock.countUnlocked();
+       PRECICE_DEBUG("Local Mesh Changes: " << localMeshesChanges);
+       int totalMeshesChanged = 0;
+       utils::MasterSlave::allreduceSum(localMeshesChanges, totalMeshesChanged, 1);
+       PRECICE_DEBUG("Total Mesh Changes:" << totalMeshesChanged);
+       if(totalMeshesChanged > 0) {
+           reinitialize();
+       }
+   }
+
   double timeWindowSize         = 0.0; // Length of (full) current time window
   double timeWindowComputedPart = 0.0; // Length of computed part of (full) current time window
   double time                   = 0.0; // Current time
@@ -468,27 +480,7 @@ void SolverInterfaceImpl::finalize()
         }
       }
     }
-    // Apply some final ping-pong to synch solver that run e.g. with a uni-directional coupling only
-    // afterwards close connections
-    PRECICE_DEBUG("Synchronize participants and close communication channels");
-    std::string ping = "ping";
-    std::string pong = "pong";
-    for (auto &iter : _m2ns) {
-      if (not utils::MasterSlave::isSlave()) {
-        if (iter.second.isRequesting) {
-          iter.second.m2n->getMasterCommunication()->send(ping, 0);
-          std::string receive = "init";
-          iter.second.m2n->getMasterCommunication()->receive(receive, 0);
-          PRECICE_ASSERT(receive == pong);
-        } else {
-          std::string receive = "init";
-          iter.second.m2n->getMasterCommunication()->receive(receive, 0);
-          PRECICE_ASSERT(receive == ping);
-          iter.second.m2n->getMasterCommunication()->send(pong, 0);
-        }
-      }
-      iter.second.m2n->closeConnection();
-    }
+    closeCommunicationChannels();
   }
 
   // Release ownership
@@ -1646,6 +1638,47 @@ const mesh::Mesh &SolverInterfaceImpl::mesh(const std::string &meshName) const
   PRECICE_ASSERT(context && context->mesh,
                  "Participant \"" << _accessorName << "\" does not use mesh \"" << meshName << "\"!");
   return *context->mesh;
+}
+
+
+/// REINIT SPECIFIC
+
+void SolverInterfaceImpl::reinitialize()
+{
+  PRECICE_TRACE();
+
+  {
+      Event e("reinitialize");
+      closeCommunicationChannels();
+  }
+  initialize();
+}
+
+
+void SolverInterfaceImpl::closeCommunicationChannels()
+{
+    // Apply some final ping-pong to synch solver that run e.g. with a uni-directional coupling only
+    // afterwards close connections
+    PRECICE_DEBUG("Synchronize participants and close communication channels");
+    std::string ping = "ping";
+    std::string pong = "pong";
+    for (auto &iter : _m2ns) {
+      if( not utils::MasterSlave::isSlave()){
+        if(iter.second.isRequesting){
+          iter.second.m2n->getMasterCommunication()->send(ping,0);
+          std::string receive = "init";
+          iter.second.m2n->getMasterCommunication()->receive(receive,0);
+          PRECICE_ASSERT(receive==pong);
+        }
+        else{
+          std::string receive = "init";
+          iter.second.m2n->getMasterCommunication()->receive(receive,0);
+          PRECICE_ASSERT(receive==ping);
+          iter.second.m2n->getMasterCommunication()->send(pong,0);
+        }
+      }
+      iter.second.m2n->closeConnection();
+    }
 }
 
 } // namespace impl
