@@ -16,7 +16,6 @@
 #include "testing/TestContext.hpp"
 #include "testing/Testing.hpp"
 #include "utils/MasterSlave.hpp"
-#include "utils/Parallel.hpp"
 
 using namespace precice;
 using testing::TestContext;
@@ -24,8 +23,7 @@ using testing::TestContext;
 struct ReinitTestFixture : testing::WhiteboxAccessor {
 
   std::string _pathToTests;
-
-  ParallelTestFixture()
+  ReinitTestFixture()
   {
     _pathToTests = testing::getPathToSources() + "/precice/tests/";
   }
@@ -34,25 +32,21 @@ struct ReinitTestFixture : testing::WhiteboxAccessor {
 BOOST_AUTO_TEST_SUITE(PreciceTests)
 BOOST_FIXTURE_TEST_SUITE(Reinit, ReinitTestFixture)
 
-BOOST_AUTO_TEST_CASE(MeshReset, * testing::OnSize(4))
+BOOST_AUTO_TEST_CASE(MeshReset)
 {
+  PRECICE_TEST("SolverOne"_on(1_rank), "SolverTwo"_on(1_rank));
   std::string configFilename = _pathToTests + "config1.xml";
-  config::Configuration config;
 
   // SolverOne - Static Geometry
-  if(utils::Parallel::getProcessRank()<=1){
-    utils::Parallel::splitCommunicator( "SolverOne" );
-    utils::Parallel::clearGroups();
-    xml::configure(config.getXMLTag(), configFilename);
+  if (context.isNamed("SolverOne")) {
+    SolverInterface interface("SolverOne", configFilename, 0, 1);
 
-    SolverInterface interface ( "SolverOne", utils::Parallel::getProcessRank(), 2 );
-    impl(interface).configure(config.getSolverInterfaceConfiguration());
     int meshID = interface.getMeshID("MeshOne");
     int dataID = interface.getDataID("Data1", meshID);
 
-    int vertexIDs[2];
-    double xCoord = utils::Parallel::getProcessRank()*3;
-    double positions[6] = {xCoord,0.0,0.0,xCoord+2.0,0.0,0.0};
+    int    vertexIDs[2];
+    double xCoord       = context.rank * 3;
+    double positions[6] = {xCoord, 0.0, 0.0, xCoord + 2.0, 0.0, 0.0};
     interface.setMeshVertices(meshID, 2, positions, vertexIDs);
     interface.initialize();
     double values[6] = {1.1, 1.2, 1.3, 3.1, 3.2, 3.3};
@@ -64,18 +58,15 @@ BOOST_AUTO_TEST_CASE(MeshReset, * testing::OnSize(4))
   }
   // SolverTwo - Adaptive Geometry
   else {
-    utils::Parallel::splitCommunicator( "SolverTwo" );
-    utils::Parallel::clearGroups();
-    xml::configure(config.getXMLTag(), configFilename);
+    BOOST_REQUIRE(context.isNamed("SolverTwo"));
+    SolverInterface interface("SolverTwo", configFilename, 0, 1);
 
-    SolverInterface interface ( "SolverTwo", utils::Parallel::getProcessRank()-2, 2 );
-    impl(interface).configure(config.getSolverInterfaceConfiguration());
     int meshID = interface.getMeshID("MeshTwo");
     int dataID = interface.getDataID("Data2", meshID);
 
-    int vertexIDs[3];
-    double xCoord = (utils::Parallel::getProcessRank()-2)*3;
-    double positions[9] = {xCoord,0.0,0.0,xCoord+2.0,0.0,0.0,xCoord+1,0.0,0.0};
+    int    vertexIDs[3];
+    double xCoord       = context.rank * 3;
+    double positions[9] = {xCoord, 0.0, 0.0, xCoord + 2.0, 0.0, 0.0, xCoord + 1, 0.0, 0.0};
     interface.setMeshVertices(meshID, 2, positions, vertexIDs);
     interface.initialize();
 
@@ -87,7 +78,6 @@ BOOST_AUTO_TEST_CASE(MeshReset, * testing::OnSize(4))
     interface.setMeshVertices(meshID, 2, positions, vertexIDs);
     interface.advance(1.0);
     interface.readBlockVectorData(dataID, 2, vertexIDs, values);
-
 
     interface.finalize();
   }
