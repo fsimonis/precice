@@ -240,7 +240,7 @@ double SolverInterfaceImpl::initialize()
   PRECICE_TRACE();
   PRECICE_CHECK(_state != State::Finalized, "initialize() cannot be called after finalize().")
   PRECICE_CHECK(_state != State::Initialized, "initialize() may only be called once.");
-  PRECICE_ASSERT(not _couplingScheme->isInitialized());
+  //PRECICE_ASSERT(not _couplingScheme->isInitialized());
   auto &solverInitEvent = EventRegistry::instance().getStoredEvent("solver.initialize");
   solverInitEvent.pause(precice::syncMode);
   Event                    e("initialize", precice::syncMode);
@@ -251,10 +251,14 @@ double SolverInterfaceImpl::initialize()
   PRECICE_INFO("Setting up master communication to coupling partner/s");
   for (auto &m2nPair : _m2ns) {
     auto &bm2n = m2nPair.second;
-    PRECICE_DEBUG((bm2n.isRequesting ? "Awaiting master connection from " : "Establishing master connection to ") << bm2n.remoteName);
-    bm2n.prepareEstablishment();
-    bm2n.connectMasters();
-    PRECICE_DEBUG("Established master connection " << (bm2n.isRequesting ? "from " : "to ") << bm2n.remoteName);
+    if(bm2n.m2n->isConnected()) {
+      PRECICE_DEBUG("Master connection " << (bm2n.isRequesting ? "from " : "to ") << bm2n.remoteName << " already exists");
+    } else {
+      PRECICE_DEBUG((bm2n.isRequesting ? "Awaiting master connection from " : "Establishing master connection to ") << bm2n.remoteName);
+      bm2n.prepareEstablishment();
+      bm2n.connectMasters();
+      PRECICE_DEBUG("Established master connection " << (bm2n.isRequesting ? "from " : "to ") << bm2n.remoteName);
+    }
   }
 
   PRECICE_INFO("Masters are connected");
@@ -363,6 +367,50 @@ void SolverInterfaceImpl::initializeData()
   _hasInitializedData = true;
 }
 
+int SolverInterfaceImpl::getTotalMeshChanges() const 
+{
+  PRECICE_TRACE();
+  int localMeshesChanges = _meshLock.countUnlocked();
+  PRECICE_DEBUG("Local Mesh Changes: " << localMeshesChanges);
+
+  int totalMeshesChanges = 0;
+  utils::MasterSlave::allreduceSum(localMeshesChanges, totalMeshesChanges, 1);
+  PRECICE_DEBUG("Total Mesh Changes:" << totalMeshesChanges);
+  return totalMeshesChanges;
+}
+
+bool SolverInterfaceImpl::reinitHandshake(bool requestReinit) const {
+  PRECICE_TRACE();
+
+  if(not utils::MasterSlave::isSlave()) {
+    PRECICE_DEBUG("Reinitialization is " << (requestReinit ? "" : "not") <<  " required.");
+
+    PRECICE_DEBUG("Handshake Phase 1 - Broadcast requests");
+    bool swarmReinitRequired = requestReinit;
+    for (auto &iter : _m2ns) {
+      PRECICE_DEBUG("Performing handshake with " << iter.first);
+      bool received = false;
+      if (iter.second.isRequesting) {
+        iter.second.m2n->getMasterCommunication()->send(requestReinit,0);
+        iter.second.m2n->getMasterCommunication()->receive(received,0);
+      } else{
+        iter.second.m2n->getMasterCommunication()->receive(received,0);
+        iter.second.m2n->getMasterCommunication()->send(requestReinit,0);
+      }
+      swarmReinitRequired |= received;
+    }
+    PRECICE_DEBUG("Result of Phase 1 - " << (swarmReinitRequired ? "" : "no ") <<  "reinit required.");
+
+    utils::MasterSlave::broadcast(swarmReinitRequired);
+    return swarmReinitRequired;
+  } else {
+    bool swarmReinitRequired = false;
+    utils::MasterSlave::broadcast(swarmReinitRequired);
+    return swarmReinitRequired;
+  }
+}
+
+
 double SolverInterfaceImpl::advance(
     double computedTimestepLength)
 {
@@ -393,17 +441,10 @@ double SolverInterfaceImpl::advance(
   }
 #endif
 
-   // propertly treat serial case
-   if (_numberAdvanceCalls > 1) {
-       int localMeshesChanges = _meshLock.countUnlocked();
-       PRECICE_DEBUG("Local Mesh Changes: " << localMeshesChanges);
-       int totalMeshesChanged = 0;
-       utils::MasterSlave::allreduceSum(localMeshesChanges, totalMeshesChanged, 1);
-       PRECICE_DEBUG("Total Mesh Changes:" << totalMeshesChanged);
-       if(totalMeshesChanged > 0) {
-           reinitialize();
-       }
-   }
+  int totalMeshesChanges = getTotalMeshChanges();
+  if(reinitHandshake(totalMeshesChanges)) {
+    reinitialize();
+  }
 
   double timeWindowSize         = 0.0; // Length of (full) current time window
   double timeWindowComputedPart = 0.0; // Length of computed part of (full) current time window
@@ -1646,16 +1687,17 @@ const mesh::Mesh &SolverInterfaceImpl::mesh(const std::string &meshName) const
 void SolverInterfaceImpl::reinitialize()
 {
   PRECICE_TRACE();
-
+  PRECICE_INFO("Reinitializing Participant");
   {
       Event e("reinitialize");
-      closeCommunicationChannels();
+      closeCommunicationChannels(true);
   }
+  _state = State::Constructed;
   initialize();
 }
 
 
-void SolverInterfaceImpl::closeCommunicationChannels()
+void SolverInterfaceImpl::closeCommunicationChannels(bool keepMasterAlive)
 {
     // Apply some final ping-pong to synch solver that run e.g. with a uni-directional coupling only
     // afterwards close connections
@@ -1677,7 +1719,11 @@ void SolverInterfaceImpl::closeCommunicationChannels()
           iter.second.m2n->getMasterCommunication()->send(pong,0);
         }
       }
-      iter.second.m2n->closeConnection();
+      if (keepMasterAlive) {
+        iter.second.m2n->closeSlavesConnection();
+      } else {
+        iter.second.m2n->closeConnection();
+      }
     }
 }
 

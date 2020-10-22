@@ -518,6 +518,11 @@ public:
     return _accessorCommunicatorSize;
   }
 
+  /// Synchronizes all ranks and deduces the total amount changes meshes
+  int getTotalMeshChanges() const;
+
+  bool reinitHandshake(bool requestReinit) const;
+
   /// Allows to access a registered mesh
   const mesh::Mesh &mesh(const std::string &meshName) const;
 
@@ -638,7 +643,7 @@ private:
   void reinitialize();
  
   /// Closes all m2n communication channels
-  void closeCommunicationChannels();
+  void closeCommunicationChannels(bool keepMasterAlive = false);
 
   /**
    * @brief Performs all data actions with given timing.
