@@ -32,10 +32,10 @@ void reinitParallelExplicit(const testing::TestContext& context)
 
   // SolverOne - Static Geometry
   if (context.isNamed("SolverOne")) {
-    SolverInterface interface("SolverOne", configFilename, 0, 1);
+    SolverInterface interface("SolverOne", configFilename, context.rank, context.size);
 
-    int meshID = interface.getMeshID("MeshOne");
-    int dataID = interface.getDataID("Data1", meshID);
+    const int meshID = interface.getMeshID("MeshOne");
+    const int dataID = interface.getDataID("Data1", meshID);
 
     int    vertexIDs[2];
     double xCoord       = context.rank * 2.0;
@@ -46,7 +46,6 @@ void reinitParallelExplicit(const testing::TestContext& context)
     // value format <RANK>.<time><node>
     double valuest0[2] = {context.rank + 0.01,  context.rank + 0.02};
     interface.writeBlockScalarData(dataID, 2, vertexIDs, valuest0);
-    interface.initializeData();
 
     interface.advance(1.0);
     double valuest1[2] = {context.rank + 0.11,  context.rank + 0.12};
@@ -56,17 +55,16 @@ void reinitParallelExplicit(const testing::TestContext& context)
     double valuest2[2] = {context.rank + 0.21,  context.rank + 0.22};
     interface.writeBlockScalarData(dataID, 2, vertexIDs, valuest2);
 
+    interface.advance(1.0);
     interface.finalize();
-
-
   }
   // SolverTwo - Adaptive Geometry
   else {
     BOOST_REQUIRE(context.isNamed("SolverTwo"));
-    SolverInterface interface("SolverTwo", configFilename, 0, 1);
+    SolverInterface interface("SolverTwo", configFilename, context.rank, context.size);
 
-    int meshID = interface.getMeshID("MeshTwo");
-    int dataID = interface.getDataID("Data2", meshID);
+    const int meshID = interface.getMeshID("MeshTwo");
+    const int dataID = interface.getDataID("Data1", meshID);
 
     int    vertexIDs[2];
     double xCoord       = context.rank * 2;
@@ -75,6 +73,12 @@ void reinitParallelExplicit(const testing::TestContext& context)
     interface.initialize();
 
     double values[2];
+    // empty data from initialization
+    interface.readBlockScalarData(dataID, 2, vertexIDs, values);
+    BOOST_REQUIRE(values[0] == 0.0);
+    BOOST_REQUIRE(values[1] == 0.0);
+
+    interface.advance(1.0);
     interface.readBlockScalarData(dataID, 2, vertexIDs, values);
     BOOST_TEST(values[0] == xCoord + 0.01);
     BOOST_TEST(values[1] == xCoord + 0.02);
