@@ -41,6 +41,7 @@ ReceivedPartition::ReceivedPartition(
 void ReceivedPartition::communicate()
 {
   PRECICE_TRACE();
+  _mesh->clear();
   PRECICE_ASSERT(_mesh->vertices().empty());
 
   // for two-level initialization, receive mesh partitions
