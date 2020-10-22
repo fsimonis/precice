@@ -14,6 +14,10 @@ DummyCouplingScheme::DummyCouplingScheme(
 {
 }
 
+void DummyCouplingScheme::reinitialize()
+{
+}
+
 void DummyCouplingScheme::initialize(
     double startTime,
     int    startTimesteps)

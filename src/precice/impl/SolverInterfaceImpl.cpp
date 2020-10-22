@@ -305,12 +305,17 @@ double SolverInterfaceImpl::initialize()
     watchIntegral->initialize();
   }
 
-  // Initialize coupling state, overwrite these values for restart
-  double time       = 0.0;
-  int    timeWindow = 1;
+  if (_couplingScheme->isInitialized()) {
+    PRECICE_DEBUG("Reinitialize coupling schemes");
+    _couplingScheme->reinitialize();
+  } else {
+    // Initialize coupling state, overwrite these values for restart
+    double time       = 0.0;
+    int    timeWindow = 1;
 
-  PRECICE_DEBUG("Initialize coupling schemes");
-  _couplingScheme->initialize(time, timeWindow);
+    PRECICE_DEBUG("Initialize coupling schemes");
+    _couplingScheme->initialize(time, timeWindow);
+  }
   PRECICE_ASSERT(_couplingScheme->isInitialized());
 
   double dt = _couplingScheme->getNextTimestepMaxLength();

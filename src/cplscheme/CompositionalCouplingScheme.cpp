@@ -19,6 +19,14 @@ void CompositionalCouplingScheme::addCouplingScheme(
   _couplingSchemes.emplace_back(couplingScheme);
 }
 
+void CompositionalCouplingScheme::reinitialize()
+{
+  PRECICE_TRACE();
+  for (Scheme& scheme : _couplingSchemes) {
+    scheme.scheme->reinitialize();
+  }
+}
+
 void CompositionalCouplingScheme::initialize(
     double startTime,
     int    startTimeWindow)
