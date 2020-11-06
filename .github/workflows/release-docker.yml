@@ -1,7 +1,7 @@
 name: "Release Dockerfile"
 on:
   release:
-    types: [published, released]
+    types: released
 jobs:
   latest:
     runs-on: ubuntu-latest
