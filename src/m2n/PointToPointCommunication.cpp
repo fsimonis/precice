@@ -557,6 +557,7 @@ void PointToPointCommunication::completeSlavesConnection()
 {
   mesh::Mesh::CommunicationMap localCommunicationMap = _mesh->getCommunicationMap();
 
+  _mappings.clear();
   for (auto &i : _connectionDataVector) {
     _mappings.push_back({i.remoteRank, std::move(localCommunicationMap[i.remoteRank]), i.request, {}});
   }

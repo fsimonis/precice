@@ -2,6 +2,7 @@
 #include <boost/test/tree/traverse.hpp>
 #include <boost/test/unit_test.hpp>
 #include <boost/test/unit_test_parameters.hpp>
+#include <fstream>
 #include <iostream>
 #include <memory>
 #include <string>
@@ -63,6 +64,16 @@ bool init_unit_test()
     if (logLevel >= log_all_errors)
       config.filter = "%Severity% >= warning"; // log warnings in any case
 
+    const std::string prefix{"%TimeStamp(format=\"%H:%M:%S.%f\")%|%Participant%|%Rank%|%Module%|l%Line%|%Function%|"};
+
+    config.format = prefix + "%ColorizedSeverity%%Message%";
+    config.type   = "stream";
+    config.output = "stdout";
+    logConfigs.push_back(config);
+
+    config.format = prefix + "%Severity%%Message%";
+    config.type   = "file";
+    config.output = "test." + std::to_string(precice::utils::Parallel::current()->rank()) + ".log";
     logConfigs.push_back(config);
   }
 

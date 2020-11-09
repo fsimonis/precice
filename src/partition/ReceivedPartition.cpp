@@ -41,6 +41,7 @@ ReceivedPartition::ReceivedPartition(
 void ReceivedPartition::communicate()
 {
   PRECICE_TRACE();
+  _mesh->clear();
   PRECICE_ASSERT(_mesh->vertices().empty());
 
   // for two-level initialization, receive mesh partitions
@@ -99,6 +100,8 @@ void ReceivedPartition::compute()
       vertexCounter++;
     }
     _mesh->getVertexOffsets().push_back(vertexCounter);
+    if (_fromMapping) _fromMapping->clear();
+    if (_toMapping) _fromMapping->clear();
     return;
   }
 

@@ -190,6 +190,8 @@ public:
   /// Finalizes the coupling scheme.
   void finalize() override final;
 
+  void reinitialize() override final;
+
   /**
    * @brief Initializes the coupling scheme.
    *

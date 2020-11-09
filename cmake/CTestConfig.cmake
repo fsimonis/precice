@@ -273,7 +273,7 @@ add_precice_test(
   )
 add_precice_test(
   NAME interface
-  ARGUMENTS "--run_test=PreciceTests:\!PreciceTests/Serial:\!PreciceTests/Parallel"
+  ARGUMENTS "--run_test=PreciceTests:\!PreciceTests/Reinit:\!PreciceTests/Serial:\!PreciceTests/Parallel"
   TIMEOUT ${PRECICE_TEST_TIMEOUT_SHORT}
   )
 add_precice_test(
@@ -284,6 +284,11 @@ add_precice_test(
 add_precice_test(
   NAME parallel
   ARGUMENTS "--run_test=PreciceTests/Parallel"
+  TIMEOUT ${PRECICE_TEST_TIMEOUT_LONG}
+  )
+add_precice_test(
+  NAME reinit
+  ARGUMENTS "--run_test=PreciceTests/Reinit"
   TIMEOUT ${PRECICE_TEST_TIMEOUT_LONG}
   )
 add_precice_test(

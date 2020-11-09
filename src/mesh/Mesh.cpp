@@ -283,6 +283,12 @@ void Mesh::clear()
   _manageEdgeIDs.resetIDs();
   _manageVertexIDs.resetIDs();
 
+  _connectedRanks.clear();
+  _communicationMap.clear();
+  _vertexDistribution.clear();
+  _vertexOffsets.clear();
+  _globalNumberOfVertices = 0;
+
   meshChanged(*this);
 
   for (mesh::PtrData data : _data) {

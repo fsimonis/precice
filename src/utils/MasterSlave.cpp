@@ -190,6 +190,7 @@ void MasterSlave::allreduceSum(double *sendData, double *rcvData, int size)
   PRECICE_TRACE();
 
   if (not _isMaster && not _isSlave) {
+    std::copy(sendData, sendData+size, rcvData);
     return;
   }
 
@@ -212,6 +213,7 @@ void MasterSlave::allreduceSum(double &sendData, double &rcvData, int size)
   PRECICE_TRACE();
 
   if (not _isMaster && not _isSlave) {
+    rcvData = sendData;
     return;
   }
 
@@ -234,6 +236,7 @@ void MasterSlave::allreduceSum(int &sendData, int &rcvData, int size)
   PRECICE_TRACE();
 
   if (not _isMaster && not _isSlave) {
+    rcvData = sendData;
     return;
   }
 

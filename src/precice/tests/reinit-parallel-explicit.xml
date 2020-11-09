@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+
+<precice-configuration>
+   <solver-interface dimensions="2" >
+
+      <data:scalar name="Data1" />
+
+      <mesh name="MeshOne">
+         <use-data name="Data1" />
+      </mesh>
+
+      <mesh name="MeshTwo">
+         <use-data name="Data1" />
+      </mesh>
+
+      <participant name="SolverOne">
+         <use-mesh name="MeshOne" provide="yes" />
+         <use-mesh name="MeshTwo" from="SolverTwo" />
+         <write-data name="Data1" mesh="MeshOne" />
+
+         <mapping:nearest-neighbor direction="write" from="MeshOne" to="MeshTwo" constraint="consistent" />
+      </participant>
+
+      <participant name="SolverTwo">
+         <use-mesh name="MeshTwo" provide="yes"/>
+         <read-data name="Data1" mesh="MeshTwo" />
+      </participant>
+
+      <m2n:sockets from="SolverOne" to="SolverTwo" />
+
+      <coupling-scheme:parallel-explicit>
+         <participants first="SolverTwo" second="SolverOne" />
+         <max-time-windows value="10" />
+         <time-window-size value="1.0" />
+         <exchange data="Data1" mesh="MeshTwo" from="SolverOne" to="SolverTwo" />
+      </coupling-scheme:parallel-explicit>
+
+   </solver-interface>
+
+</precice-configuration>
