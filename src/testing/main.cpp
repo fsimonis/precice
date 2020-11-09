@@ -2,6 +2,7 @@
 #include <boost/test/tree/traverse.hpp>
 #include <boost/test/unit_test.hpp>
 #include <boost/test/unit_test_parameters.hpp>
+#include <fstream>
 #include <iostream>
 #include <memory>
 #include <string>
@@ -72,7 +73,7 @@ bool init_unit_test()
 
     config.format = prefix + "%Severity%%Message%";
     config.type   = "file";
-    config.output = "test.log";
+    config.output = "test." + std::to_string(precice::utils::Parallel::current()->rank()) + ".log";
     logConfigs.push_back(config);
   }
 

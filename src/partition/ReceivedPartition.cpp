@@ -100,6 +100,8 @@ void ReceivedPartition::compute()
       vertexCounter++;
     }
     _mesh->getVertexOffsets().push_back(vertexCounter);
+    if (_fromMapping) _fromMapping->clear();
+    if (_toMapping) _fromMapping->clear();
     return;
   }
 

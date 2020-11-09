@@ -26,9 +26,11 @@ struct ReinitTestFixture : testing::WhiteboxAccessor {
 BOOST_AUTO_TEST_SUITE(PreciceTests)
 BOOST_FIXTURE_TEST_SUITE(Reinit, ReinitTestFixture)
 
-void reinitParallelExplicit(const testing::TestContext& context)
+void reinitParallelExplicit(const testing::TestContext &context)
 {
-  std::string configFilename = testing::getPathToSources() + "/precice/tests/reinit-parallel-explicit.xml";
+  std::string      configFilename = testing::getPathToSources() + "/precice/tests/reinit-parallel-explicit.xml";
+  constexpr double y              = 0.0;
+  constexpr double y2             = 0.1; // after the reset
 
   // SolverOne - Static Geometry
   if (context.isNamed("SolverOne")) {
@@ -39,20 +41,20 @@ void reinitParallelExplicit(const testing::TestContext& context)
 
     int    vertexIDs[2];
     double xCoord       = context.rank * 2.0;
-    double positions[6] = {xCoord, 0.0, xCoord + 1.0, 0.0};
+    double positions[6] = {xCoord, y, xCoord + 1.0, y};
     interface.setMeshVertices(meshID, 2, positions, vertexIDs);
     interface.initialize();
 
     // value format <RANK>.<time><node>
-    double valuest0[2] = {context.rank + 0.01,  context.rank + 0.02};
+    double valuest0[2] = {context.rank + 0.01, context.rank + 0.02};
     interface.writeBlockScalarData(dataID, 2, vertexIDs, valuest0);
 
     interface.advance(1.0);
-    double valuest1[2] = {context.rank + 0.11,  context.rank + 0.12};
+    double valuest1[2] = {context.rank + 0.11, context.rank + 0.12};
     interface.writeBlockScalarData(dataID, 2, vertexIDs, valuest1);
 
     interface.advance(1.0);
-    double valuest2[2] = {context.rank + 0.21,  context.rank + 0.22};
+    double valuest2[2] = {context.rank + 0.21, context.rank + 0.22};
     interface.writeBlockScalarData(dataID, 2, vertexIDs, valuest2);
 
     interface.advance(1.0);
@@ -68,34 +70,46 @@ void reinitParallelExplicit(const testing::TestContext& context)
 
     int    vertexIDs[2];
     double xCoord       = context.rank * 2;
-    double positions[4] = {xCoord, 0.0, xCoord + 1.0, 0.0};
+    double positions[4] = {xCoord, y, xCoord + 1.0, y};
     interface.setMeshVertices(meshID, 2, positions, vertexIDs);
     interface.initialize();
 
     double values[2];
     // empty data from initialization
     interface.readBlockScalarData(dataID, 2, vertexIDs, values);
-    BOOST_REQUIRE(values[0] == 0.0);
-    BOOST_REQUIRE(values[1] == 0.0);
+    BOOST_TEST_CONTEXT("Initial")
+    {
+      BOOST_REQUIRE(values[0] == 0.0);
+      BOOST_REQUIRE(values[1] == 0.0);
+    }
 
     interface.advance(1.0);
     interface.readBlockScalarData(dataID, 2, vertexIDs, values);
-    BOOST_TEST(values[0] == xCoord + 0.01);
-    BOOST_TEST(values[1] == xCoord + 0.02);
+    BOOST_TEST_CONTEXT("Timestep 0")
+    {
+      BOOST_TEST(values[0] == context.rank + 0.01);
+      BOOST_TEST(values[1] == context.rank + 0.02);
+    }
 
     interface.advance(1.0);
     interface.readBlockScalarData(dataID, 2, vertexIDs, values);
-    BOOST_TEST(values[0] == xCoord + 0.11);
-    BOOST_TEST(values[1] == xCoord + 0.12);
+    BOOST_TEST_CONTEXT("Timestep 1")
+    {
+      BOOST_TEST(values[0] == context.rank + 0.11);
+      BOOST_TEST(values[1] == context.rank + 0.12);
+    }
 
     interface.resetMesh(meshID);
-    double newpositions[4] = {xCoord, 0.2, xCoord + 1.0, 0.1};
+    double newpositions[4] = {xCoord, y2, xCoord + 1.0, y2};
     interface.setMeshVertices(meshID, 2, newpositions, vertexIDs);
 
     interface.advance(1.0);
     interface.readBlockScalarData(dataID, 2, vertexIDs, values);
-    BOOST_TEST(values[0] == xCoord + 0.21);
-    BOOST_TEST(values[1] == xCoord + 0.22);
+    BOOST_TEST_CONTEXT("Timestep 2 - after reinit")
+    {
+      BOOST_TEST(values[0] == context.rank + 0.21);
+      BOOST_TEST(values[1] == context.rank + 0.22);
+    }
 
     interface.finalize();
   }

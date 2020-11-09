@@ -3,7 +3,7 @@
 <precice-configuration>
    <solver-interface dimensions="2" >
 
-      <data:scalar name="Data1"  />
+      <data:scalar name="Data1" />
 
       <mesh name="MeshOne">
          <use-data name="Data1" />
@@ -18,7 +18,7 @@
          <use-mesh name="MeshTwo" from="SolverTwo" />
          <write-data name="Data1" mesh="MeshOne" />
 
-         <mapping:nearest-neighbor direction="write" from="MeshOne" to="MeshTwo" constraint="conservative" />
+         <mapping:nearest-neighbor direction="write" from="MeshOne" to="MeshTwo" constraint="consistent" />
       </participant>
 
       <participant name="SolverTwo">
