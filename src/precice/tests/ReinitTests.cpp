@@ -107,7 +107,19 @@ BOOST_AUTO_TEST_CASE(ParallelExplicitSingle)
   reinitParallelExplicit(context);
 }
 
-BOOST_AUTO_TEST_CASE(ParallelExplicitDouble)
+BOOST_AUTO_TEST_CASE(ParallelExplicitDoubleOne)
+{
+  PRECICE_TEST("SolverOne"_on(2_ranks), "SolverTwo"_on(1_rank));
+  reinitParallelExplicit(context);
+}
+
+BOOST_AUTO_TEST_CASE(ParallelExplicitDoubleTwo)
+{
+  PRECICE_TEST("SolverOne"_on(1_rank), "SolverTwo"_on(2_ranks));
+  reinitParallelExplicit(context);
+}
+
+BOOST_AUTO_TEST_CASE(ParallelExplicitFullDouble)
 {
   PRECICE_TEST("SolverOne"_on(2_ranks), "SolverTwo"_on(2_ranks));
   reinitParallelExplicit(context);
