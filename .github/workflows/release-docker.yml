@@ -7,7 +7,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: hmarr/debug-action@v1.0.0
       - name: Login to DockerHub
         uses: docker/login-action@v1
         with:
@@ -16,7 +15,7 @@ jobs:
       - name: Build and push Dockerfile
         uses: docker/build-push-action@v2
         env:
-          version: ${{ github.events.release.tag_name }}
+          version: ${{ github.event.release.tag_name }}
         with:
           push: true
           file: "./tools/releasing/packaging/docker/Dockerfile"
