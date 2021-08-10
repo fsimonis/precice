@@ -398,7 +398,7 @@ bool SolverInterfaceImpl::reinitHandshake(bool requestReinit) const {
   PRECICE_TRACE();
 
   if(not utils::MasterSlave::isSlave()) {
-    PRECICE_DEBUG("Reinitialization is{} required.", (requestReinit ? "" : "not"));
+    PRECICE_DEBUG("Reinitialization is{} required.", (requestReinit ? "" : " not"));
 
     PRECICE_DEBUG("Handshake Phase 1 - Broadcast requests");
     bool swarmReinitRequired = requestReinit;
