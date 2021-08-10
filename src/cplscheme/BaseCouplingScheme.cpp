@@ -128,11 +128,12 @@ void BaseCouplingScheme::reinitialize()
   if (isImplicitCouplingScheme()) {
     if (not doesFirstStep()) {
       // reserve memory and initialize data with zero
-      setupDataMatrices(getAccelerationData());
-      if (getAcceleration()) {
-        getAcceleration()->initialize(getAccelerationData()); // Reserve memory, initialize
+      setupDataMatrices();
+      if (_acceleration) {
+        _acceleration->initialize(getAccelerationData()); // Reserve memory, initialize
       }
     }
+    /// @todo does this require a write iteration checkpoint?
     initializeTXTWriters();
   }
 

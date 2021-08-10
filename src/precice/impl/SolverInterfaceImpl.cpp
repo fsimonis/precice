@@ -386,11 +386,11 @@ int SolverInterfaceImpl::getTotalMeshChanges() const
 {
   PRECICE_TRACE();
   int localMeshesChanges = _meshLock.countUnlocked();
-  PRECICE_DEBUG("Local Mesh Changes: " << localMeshesChanges);
+  PRECICE_DEBUG("Local Mesh Changes: {}", localMeshesChanges);
 
   int totalMeshesChanges = 0;
-  utils::MasterSlave::allreduceSum(localMeshesChanges, totalMeshesChanges, 1);
-  PRECICE_DEBUG("Total Mesh Changes:" << totalMeshesChanges);
+  utils::MasterSlave::allreduceSum(localMeshesChanges, totalMeshesChanges);
+  PRECICE_DEBUG("Total Mesh Changes: {}", totalMeshesChanges);
   return totalMeshesChanges;
 }
 
@@ -398,12 +398,12 @@ bool SolverInterfaceImpl::reinitHandshake(bool requestReinit) const {
   PRECICE_TRACE();
 
   if(not utils::MasterSlave::isSlave()) {
-    PRECICE_DEBUG("Reinitialization is " << (requestReinit ? "" : "not") <<  " required.");
+    PRECICE_DEBUG("Reinitialization is{} required.", (requestReinit ? "" : "not"));
 
     PRECICE_DEBUG("Handshake Phase 1 - Broadcast requests");
     bool swarmReinitRequired = requestReinit;
     for (auto &iter : _m2ns) {
-      PRECICE_DEBUG("Performing handshake with " << iter.first);
+      PRECICE_DEBUG("Performing handshake with {}", iter.first);
       bool received = false;
       if (iter.second.isRequesting) {
         iter.second.m2n->getMasterCommunication()->send(requestReinit,0);
@@ -414,7 +414,7 @@ bool SolverInterfaceImpl::reinitHandshake(bool requestReinit) const {
       }
       swarmReinitRequired |= received;
     }
-    PRECICE_DEBUG("Result of Phase 1 - " << (swarmReinitRequired ? "" : "no ") <<  "reinit required.");
+    PRECICE_DEBUG("Result of Phase 1 -{} reinit required.",  (swarmReinitRequired ? "" : " no"));
 
     utils::MasterSlave::broadcast(swarmReinitRequired);
     return swarmReinitRequired;
