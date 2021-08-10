@@ -26,18 +26,169 @@ struct ReinitTestFixture : testing::WhiteboxAccessor {
 BOOST_AUTO_TEST_SUITE(PreciceTests)
 BOOST_FIXTURE_TEST_SUITE(Reinit, ReinitTestFixture)
 
+BOOST_AUTO_TEST_SUITE(Serial)
+
+BOOST_AUTO_TEST_CASE(ResetInput)
+{
+  PRECICE_TEST("A"_on(1_rank), "B"_on(1_rank));
+
+  constexpr double y  = 0.0;
+  constexpr double y2 = 0.1; // after the reset
+
+  std::vector<double> posBefore{0.0, y, 1.0, y};
+  std::vector<double> posAfter{0.0, y2, 1.0, y2};
+  const auto          sizeBefore = 2;
+  const auto          sizeAfter  = 2;
+
+  std::vector<double> valuesWrite0{0.01, 0.02};
+  std::vector<double> valuesWrite1{0.11, 0.12};
+
+  std::vector<double> valuesRead0{0.01, 0.02};
+  std::vector<double> valuesRead1{0.11, 0.12};
+
+  SolverInterface interface{context.name, "/precice/tests/reinit-parallel-explicit.xml"_src, context.rank, context.size};
+
+  const int meshID = interface.getMeshID("M" + context.name);
+  const int dataID = interface.getDataID("D", meshID);
+
+  // A - Static Geometry
+  if (context.isNamed("A")) {
+    std::vector<int> vertexIDs(sizeBefore);
+    auto             pVertexIDs = vertexIDs.data();
+
+    interface.setMeshVertices(meshID, sizeBefore, posBefore.data(), pVertexIDs);
+    interface.initialize();
+
+    interface.writeBlockScalarData(dataID, sizeBefore, pVertexIDs, valuesWrite0.data());
+    interface.advance(1.0);
+
+    vertexIDs.resize(sizeAfter, -1);
+    pVertexIDs = vertexIDs.data();
+    interface.resetMesh(meshID);
+    interface.setMeshVertices(meshID, sizeAfter, posAfter.data(), pVertexIDs);
+
+    interface.writeBlockScalarData(dataID, sizeAfter, pVertexIDs, valuesWrite1.data());
+    interface.advance(1.0);
+
+    interface.finalize();
+  }
+  // B - Adaptive Geometry
+  if (context.isNamed("B")) {
+    std::vector<int> vertexIDs(sizeBefore, -1);
+    auto             pVertexIDs = vertexIDs.data();
+
+    interface.setMeshVertices(meshID, sizeBefore, posBefore.data(), pVertexIDs);
+    interface.initialize();
+    interface.advance(1.0);
+
+    std::vector<double> readValues(sizeBefore, -1);
+    auto                pValues = readValues.data();
+
+    // empty data from initialization
+    interface.readBlockScalarData(dataID, sizeBefore, pVertexIDs, pValues);
+    BOOST_TEST_INFO("Before");
+    BOOST_TEST(readValues == valuesRead0, boost::test_tools::per_element());
+
+    interface.advance(1.0);
+
+    interface.readBlockScalarData(dataID, sizeBefore, pVertexIDs, pValues);
+    BOOST_TEST_INFO("After");
+    BOOST_TEST(readValues == valuesRead1, boost::test_tools::per_element());
+
+    interface.finalize();
+  }
+}
+
+BOOST_AUTO_TEST_CASE(ResetOutput)
+{
+  PRECICE_TEST("A"_on(1_rank), "B"_on(1_rank));
+
+  constexpr double y  = 0.0;
+  constexpr double y2 = 0.1; // after the reset
+
+  std::vector<double> posBefore{0.0, y, 1.0, y};
+  std::vector<double> posAfter{0.0, y2, 1.0, y2};
+  const auto          sizeBefore = 2;
+  const auto          sizeAfter  = 2;
+
+  std::vector<double> valuesWrite0{0.01, 0.02};
+  std::vector<double> valuesWrite1{0.11, 0.12};
+
+  std::vector<double> valuesRead0{0.01, 0.02};
+  std::vector<double> valuesRead1{0.11, 0.12};
+
+  SolverInterface interface{context.name, "/precice/tests/reinit-parallel-explicit.xml"_src, context.rank, context.size};
+
+  const int meshID = interface.getMeshID("M" + context.name);
+  const int dataID = interface.getDataID("D", meshID);
+
+  // A - Static Geometry
+  if (context.isNamed("A")) {
+    std::vector<int> vertexIDs(sizeBefore);
+    auto             pVertexIDs = vertexIDs.data();
+
+    interface.setMeshVertices(meshID, sizeBefore, posBefore.data(), pVertexIDs);
+    interface.initialize();
+
+    interface.writeBlockScalarData(dataID, sizeBefore, pVertexIDs, valuesWrite0.data());
+    interface.advance(1.0);
+
+    interface.writeBlockScalarData(dataID, sizeBefore, pVertexIDs, valuesWrite1.data());
+    interface.advance(1.0);
+
+    interface.finalize();
+  }
+  // B - Adaptive Geometry
+  if (context.isNamed("B")) {
+    std::vector<int> vertexIDs(sizeBefore, -1);
+    auto             pVertexIDs = vertexIDs.data();
+
+    interface.setMeshVertices(meshID, sizeBefore, posBefore.data(), pVertexIDs);
+    interface.initialize();
+    interface.advance(1.0);
+
+    std::vector<double> readValues(sizeBefore, -1);
+    auto                pValues = readValues.data();
+
+    // empty data from initialization
+    interface.readBlockScalarData(dataID, sizeBefore, pVertexIDs, pValues);
+    BOOST_TEST_INFO("Before");
+    BOOST_TEST(readValues == valuesRead0, boost::test_tools::per_element());
+
+    // Reset the Mesh
+    vertexIDs.resize(sizeAfter, -1);
+    pVertexIDs = vertexIDs.data();
+    readValues.resize(sizeAfter, -1);
+    pValues = readValues.data();
+    interface.resetMesh(meshID);
+
+    interface.setMeshVertices(meshID, sizeAfter, posAfter.data(), pVertexIDs);
+    interface.advance(1.0);
+
+    interface.readBlockScalarData(dataID, sizeAfter, pVertexIDs, pValues);
+    BOOST_TEST_INFO("After");
+    BOOST_TEST(readValues == valuesRead1, boost::test_tools::per_element());
+
+    interface.finalize();
+  }
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
 using RankDistribution = std::vector<std::vector<int>>;
 
 void reinitParallelExplicit(const testing::TestContext &context, const RankDistribution &rankDistribution)
 {
-  std::string configFilename = testing::getPathToSources() + "/precice/tests/reinit-parallel-explicit.xml";
+  std::string      configFilename = testing::getPathToSources() + "/precice/tests/reinit-parallel-explicit.xml";
+  constexpr double y              = 0.0;
+  constexpr double y2             = 0.1; // after the reset
 
-  // SolverOne - Static Geometry
-  if (context.isNamed("SolverOne")) {
-    SolverInterface interface("SolverOne", configFilename, context.rank, context.size);
+  // A - Static Geometry
+  if (context.isNamed("A")) {
+    SolverInterface interface("A", configFilename, context.rank, context.size);
 
-    const int meshID = interface.getMeshID("MeshOne");
-    const int dataID = interface.getDataID("Data1", meshID);
+    const int meshID = interface.getMeshID("MA");
+    const int dataID = interface.getDataID("D", meshID);
 
     // global setup
     double                           positions[8] = {0.0, y, 1.0, y, 2.0, y, 3.0, y};
@@ -55,28 +206,28 @@ void reinitParallelExplicit(const testing::TestContext &context, const RankDistr
     // setup mesh
     std::vector<int> vertexIDs(verticesPerRank);
     auto             pVertexIDs = vertexIDs.data();
-    interface.setMeshVertices(meshID, 2, mypositions, pVertexIDs);
+    interface.setMeshVertices(meshID, verticesPerRank, mypositions, pVertexIDs);
     interface.initialize();
 
     // value format <RANK>.<time><node>
-    interface.writeBlockScalarData(dataID, 2, pVertexIDs, values.at(0).data() + myOffset);
+    interface.writeBlockScalarData(dataID, verticesPerRank, pVertexIDs, values.at(0).data() + myOffset);
 
     interface.advance(1.0);
-    interface.writeBlockScalarData(dataID, 2, pVertexIDs, values.at(1).data() + myOffset);
+    interface.writeBlockScalarData(dataID, verticesPerRank, pVertexIDs, values.at(1).data() + myOffset);
 
     interface.advance(1.0);
-    interface.writeBlockScalarData(dataID, 2, pVertexIDs, values.at(2).data() + myOffset);
+    interface.writeBlockScalarData(dataID, verticesPerRank, pVertexIDs, values.at(2).data() + myOffset);
 
     interface.advance(1.0);
     interface.finalize();
   }
-  // SolverTwo - Adaptive Geometry
+  // B - Adaptive Geometry
   else {
-    BOOST_REQUIRE(context.isNamed("SolverTwo"));
-    SolverInterface interface("SolverTwo", configFilename, context.rank, context.size);
+    BOOST_REQUIRE(context.isNamed("B"));
+    SolverInterface interface("B", configFilename, context.rank, context.size);
 
-    const int meshID = interface.getMeshID("MeshTwo");
-    const int dataID = interface.getDataID("Data1", meshID);
+    const int meshID = interface.getMeshID("MB");
+    const int dataID = interface.getDataID("D", meshID);
 
     // global setup
     std::vector<std::vector<double>> positions{
@@ -105,7 +256,7 @@ void reinitParallelExplicit(const testing::TestContext &context, const RankDistr
     // setup mesh
     std::vector<int> vertexIDs(verticesPerRank);
     auto             pVertexIDs = vertexIDs.data();
-    interface.setMeshVertices(meshID, 2, mypositions0, pVertexIDs);
+    interface.setMeshVertices(meshID, verticesPerRank, mypositions0, pVertexIDs);
     interface.initialize();
 
     std::vector<double> readValues(verticesPerRank);
@@ -115,33 +266,42 @@ void reinitParallelExplicit(const testing::TestContext &context, const RankDistr
     BOOST_TEST_CONTEXT("Initial")
     {
       for (int idx = 0; idx != verticesPerRank; ++idx) {
-        BOOST_TEST(pValues[idx] == 0.0);
+        BOOST_TEST_CONTEXT("idx " << idx)
+        {
+          BOOST_TEST(pValues[idx] == 0.0);
+        }
       }
     }
 
     interface.advance(1.0);
-    interface.readBlockScalarData(dataID, 2, pVertexIDs, pValues);
+    interface.readBlockScalarData(dataID, verticesPerRank, pVertexIDs, pValues);
     BOOST_TEST_CONTEXT("Timestep 0")
     {
       for (int idx = 0; idx != verticesPerRank; ++idx) {
-        BOOST_TEST(pValues[idx] == expected.at(0).at(myOffset + idx));
+        BOOST_TEST_CONTEXT("idx " << idx)
+        {
+          BOOST_TEST(pValues[idx] == expected.at(0).at(myOffset + idx));
+        }
       }
     }
 
     interface.advance(1.0);
-    interface.readBlockScalarData(dataID, 2, pVertexIDs, pValues);
+    interface.readBlockScalarData(dataID, verticesPerRank, pVertexIDs, pValues);
     BOOST_TEST_CONTEXT("Timestep 1")
     {
       for (int idx = 0; idx != verticesPerRank; ++idx) {
-        BOOST_TEST(pValues[idx] == expected.at(1).at(myOffset + idx));
+        BOOST_TEST_CONTEXT("idx " << idx)
+        {
+          BOOST_TEST(pValues[idx] == expected.at(1).at(myOffset + idx));
+        }
       }
     }
 
     interface.resetMesh(meshID);
-    interface.setMeshVertices(meshID, 2, mypositions2, pVertexIDs);
+    interface.setMeshVertices(meshID, verticesPerRank, mypositions2, pVertexIDs);
 
     interface.advance(1.0);
-    interface.readBlockScalarData(dataID, 2, pVertexIDs, pValues);
+    interface.readBlockScalarData(dataID, verticesPerRank, pVertexIDs, pValues);
     BOOST_TEST_CONTEXT("Timestep 2 - after reinit")
     {
       for (int idx = 0; idx != verticesPerRank; ++idx) {
@@ -153,30 +313,30 @@ void reinitParallelExplicit(const testing::TestContext &context, const RankDistr
   }
 }
 
-BOOST_AUTO_TEST_CASE(ParallelExplicitSingle)
+BOOST_AUTO_TEST_CASE(ParallelExplicit_1_1)
 {
-  PRECICE_TEST("SolverOne"_on(1_rank), "SolverTwo"_on(1_rank));
+  PRECICE_TEST("A"_on(1_rank), "B"_on(1_rank));
   RankDistribution rd{{0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}};
   reinitParallelExplicit(context, rd);
 }
 
-BOOST_AUTO_TEST_CASE(ParallelExplicitDoubleOne)
+BOOST_AUTO_TEST_CASE(ParallelExplicit_2_1)
 {
-  PRECICE_TEST("SolverOne"_on(2_ranks), "SolverTwo"_on(1_rank));
+  PRECICE_TEST("A"_on(2_ranks), "B"_on(1_rank));
   RankDistribution rd{{0, 0, 1, 1}, {0, 0, 1, 1}, {0, 0, 1, 1}, {0, 0, 1, 1}};
   reinitParallelExplicit(context, rd);
 }
 
-BOOST_AUTO_TEST_CASE(ParallelExplicitDoubleTwo)
+BOOST_AUTO_TEST_CASE(ParallelExplicit_1_2)
 {
-  PRECICE_TEST("SolverOne"_on(1_rank), "SolverTwo"_on(2_ranks));
+  PRECICE_TEST("A"_on(1_rank), "B"_on(2_ranks));
   RankDistribution rd{{0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}};
   reinitParallelExplicit(context, rd);
 }
 
-BOOST_AUTO_TEST_CASE(ParallelExplicitFullDouble)
+BOOST_AUTO_TEST_CASE(ParallelExplicit_2_2)
 {
-  PRECICE_TEST("SolverOne"_on(2_ranks), "SolverTwo"_on(2_ranks));
+  PRECICE_TEST("A"_on(2_ranks), "B"_on(2_ranks));
   RankDistribution rd{{0, 0, 1, 1}, {0, 0, 1, 1}, {0, 0, 1, 1}, {0, 0, 1, 1}};
   reinitParallelExplicit(context, rd);
 }
