@@ -90,17 +90,17 @@ struct QuickTest {
   std::vector<int> vertexIDs;
 };
 
-QuickTest::Mesh operator""_mesh(const char *name, std::size_t)
+inline QuickTest::Mesh operator""_mesh(const char *name, std::size_t)
 {
   return {name};
 }
 
-QuickTest::Data operator""_scalar(const char *name, std::size_t)
+inline QuickTest::Data operator""_scalar(const char *name, std::size_t)
 {
   return {name, false};
 }
 
-QuickTest::Data operator""_vector(const char *name, std::size_t)
+inline QuickTest::Data operator""_vector(const char *name, std::size_t)
 {
   return {name, true};
 }
