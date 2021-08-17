@@ -13,11 +13,13 @@
 #include "precice/SolverInterface.hpp"
 #include "precice/config/Configuration.hpp"
 #include "precice/impl/SolverInterfaceImpl.hpp"
+#include "testing/QuickTest.hpp"
 #include "testing/TestContext.hpp"
 #include "testing/Testing.hpp"
 #include "utils/MasterSlave.hpp"
 
 using namespace precice;
+using namespace precice::testing;
 using testing::TestContext;
 
 struct ReinitTestFixture : testing::WhiteboxAccessor {
@@ -35,69 +37,35 @@ BOOST_AUTO_TEST_CASE(Input)
   PRECICE_TEST("A"_on(1_rank), "B"_on(1_rank));
 
   constexpr double y  = 0.0;
-  constexpr double y2 = 0.1; // after the reset
-
-  std::vector<double> posBefore{0.0, y, 1.0, y};
-  std::vector<double> posAfter{0.0, y2, 1.0, y2};
-  const auto          sizeBefore = 2;
-  const auto          sizeAfter  = 2;
-
-  std::vector<double> valuesWrite0{0.01, 0.02};
-  std::vector<double> valuesWrite1{0.11, 0.12};
-
-  std::vector<double> valuesRead0{0.01, 0.02};
-  std::vector<double> valuesRead1{0.11, 0.12};
 
   SolverInterface interface{context.name, "/precice/tests/reinit-parallel-explicit.xml"_src, context.rank, context.size};
 
-  const int meshID = interface.getMeshID("M" + context.name);
-  const int dataID = interface.getDataID("D", meshID);
-
   // A - Static Geometry
   if (context.isNamed("A")) {
-    std::vector<int> vertexIDs(sizeBefore);
-    auto             pVertexIDs = vertexIDs.data();
-
-    interface.setMeshVertices(meshID, sizeBefore, posBefore.data(), pVertexIDs);
-    interface.initialize();
-
-    interface.writeBlockScalarData(dataID, sizeBefore, pVertexIDs, valuesWrite0.data());
-    interface.advance(1.0);
-
-    vertexIDs.resize(sizeAfter, -1);
-    pVertexIDs = vertexIDs.data();
-    interface.resetMesh(meshID);
-    interface.setMeshVertices(meshID, sizeAfter, posAfter.data(), pVertexIDs);
-
-    interface.writeBlockScalarData(dataID, sizeAfter, pVertexIDs, valuesWrite1.data());
-    interface.advance(1.0);
-
-    interface.finalize();
+    QuickTest(interface, "MA"_mesh, "D"_scalar)
+        .setVertices({0.0, y, 1.0, y})
+        .initialize()
+        .write({0.01, 0.02})
+        .advance()
+        .resetMesh()
+        .setVertices({0.0, y, 1.0, y})
+        .write({0.11, 0.12})
+        .advance()
+        .finalize();
   }
   // B - Adaptive Geometry
   if (context.isNamed("B")) {
-    std::vector<int> vertexIDs(sizeBefore, -1);
-    auto             pVertexIDs = vertexIDs.data();
+    auto qt = QuickTest(interface, "MB"_mesh, "D"_scalar)
+                  .setVertices({0.0, y, 1.0, y})
+                  .initialize()
+                  .advance();
+    std::vector<double> expected0{0.01, 0.02};
+    BOOST_TEST(qt.read() == expected0, boost::test_tools::per_element());
+    qt.advance();
 
-    interface.setMeshVertices(meshID, sizeBefore, posBefore.data(), pVertexIDs);
-    interface.initialize();
-    interface.advance(1.0);
-
-    std::vector<double> readValues(sizeBefore, -1);
-    auto                pValues = readValues.data();
-
-    // empty data from initialization
-    interface.readBlockScalarData(dataID, sizeBefore, pVertexIDs, pValues);
-    BOOST_TEST_INFO("Before");
-    BOOST_TEST(readValues == valuesRead0, boost::test_tools::per_element());
-
-    interface.advance(1.0);
-
-    interface.readBlockScalarData(dataID, sizeBefore, pVertexIDs, pValues);
-    BOOST_TEST_INFO("After");
-    BOOST_TEST(readValues == valuesRead1, boost::test_tools::per_element());
-
-    interface.finalize();
+    std::vector<double> expected1{0.11, 0.12};
+    BOOST_TEST(qt.read() == expected1, boost::test_tools::per_element());
+    qt.finalize();
   }
 }
 
@@ -106,72 +74,34 @@ BOOST_AUTO_TEST_CASE(Output)
   PRECICE_TEST("A"_on(1_rank), "B"_on(1_rank));
 
   constexpr double y  = 0.0;
-  constexpr double y2 = 0.1; // after the reset
-
-  std::vector<double> posBefore{0.0, y, 1.0, y};
-  std::vector<double> posAfter{0.0, y2, 1.0, y2};
-  const auto          sizeBefore = 2;
-  const auto          sizeAfter  = 2;
-
-  std::vector<double> valuesWrite0{0.01, 0.02};
-  std::vector<double> valuesWrite1{0.11, 0.12};
-
-  std::vector<double> valuesRead0{0.01, 0.02};
-  std::vector<double> valuesRead1{0.11, 0.12};
 
   SolverInterface interface{context.name, "/precice/tests/reinit-parallel-explicit.xml"_src, context.rank, context.size};
 
-  const int meshID = interface.getMeshID("M" + context.name);
-  const int dataID = interface.getDataID("D", meshID);
-
   // A - Static Geometry
   if (context.isNamed("A")) {
-    std::vector<int> vertexIDs(sizeBefore);
-    auto             pVertexIDs = vertexIDs.data();
-
-    interface.setMeshVertices(meshID, sizeBefore, posBefore.data(), pVertexIDs);
-    interface.initialize();
-
-    interface.writeBlockScalarData(dataID, sizeBefore, pVertexIDs, valuesWrite0.data());
-    interface.advance(1.0);
-
-    interface.writeBlockScalarData(dataID, sizeBefore, pVertexIDs, valuesWrite1.data());
-    interface.advance(1.0);
-
-    interface.finalize();
+    QuickTest(interface, "MA"_mesh, "D"_scalar)
+        .setVertices({0.0, y, 1.0, y})
+        .initialize()
+        .write({0.01, 0.02})
+        .advance()
+        .write({0.11, 0.12})
+        .advance()
+        .finalize();
   }
   // B - Adaptive Geometry
   if (context.isNamed("B")) {
-    std::vector<int> vertexIDs(sizeBefore, -1);
-    auto             pVertexIDs = vertexIDs.data();
-
-    interface.setMeshVertices(meshID, sizeBefore, posBefore.data(), pVertexIDs);
-    interface.initialize();
-    interface.advance(1.0);
-
-    std::vector<double> readValues(sizeBefore, -1);
-    auto                pValues = readValues.data();
-
-    // empty data from initialization
-    interface.readBlockScalarData(dataID, sizeBefore, pVertexIDs, pValues);
-    BOOST_TEST_INFO("Before");
-    BOOST_TEST(readValues == valuesRead0, boost::test_tools::per_element());
-
-    // Reset the Mesh
-    vertexIDs.resize(sizeAfter, -1);
-    pVertexIDs = vertexIDs.data();
-    readValues.resize(sizeAfter, -1);
-    pValues = readValues.data();
-    interface.resetMesh(meshID);
-
-    interface.setMeshVertices(meshID, sizeAfter, posAfter.data(), pVertexIDs);
-    interface.advance(1.0);
-
-    interface.readBlockScalarData(dataID, sizeAfter, pVertexIDs, pValues);
-    BOOST_TEST_INFO("After");
-    BOOST_TEST(readValues == valuesRead1, boost::test_tools::per_element());
-
-    interface.finalize();
+    auto qt = QuickTest(interface, "MB"_mesh, "D"_scalar)
+                  .setVertices({0.0, y, 1.0, y})
+                  .initialize()
+                  .advance();
+    std::vector<double> expected0{0.01, 0.02};
+    BOOST_TEST(qt.read() == expected0, boost::test_tools::per_element());
+    qt.resetMesh()
+      .setVertices({0.0, y, 1.0, y})
+      .advance();
+    std::vector<double> expected1{0.11, 0.12};
+    BOOST_TEST(qt.read() == expected1, boost::test_tools::per_element());
+    qt.finalize();
   }
 }
 
@@ -180,77 +110,36 @@ BOOST_AUTO_TEST_CASE(Both)
   PRECICE_TEST("A"_on(1_rank), "B"_on(1_rank));
 
   constexpr double y  = 0.0;
-  constexpr double y2 = 0.1; // after the reset
-
-  std::vector<double> posBefore{0.0, y, 1.0, y};
-  std::vector<double> posAfter{0.0, y2, 1.0, y2};
-  const auto          sizeBefore = 2;
-  const auto          sizeAfter  = 2;
-
-  std::vector<double> valuesWrite0{0.01, 0.02};
-  std::vector<double> valuesWrite1{0.11, 0.12};
-
-  std::vector<double> valuesRead0{0.01, 0.02};
-  std::vector<double> valuesRead1{0.11, 0.12};
-
   SolverInterface interface{context.name, "/precice/tests/reinit-parallel-explicit.xml"_src, context.rank, context.size};
-
-  const int meshID = interface.getMeshID("M" + context.name);
-  const int dataID = interface.getDataID("D", meshID);
 
   // A - Static Geometry
   if (context.isNamed("A")) {
-    std::vector<int> vertexIDs(sizeBefore);
-    auto             pVertexIDs = vertexIDs.data();
-
-    interface.setMeshVertices(meshID, sizeBefore, posBefore.data(), pVertexIDs);
-    interface.initialize();
-
-    interface.writeBlockScalarData(dataID, sizeBefore, pVertexIDs, valuesWrite0.data());
-    interface.advance(1.0);
-
-    vertexIDs.resize(sizeAfter, -1);
-    pVertexIDs = vertexIDs.data();
-    interface.resetMesh(meshID);
-    interface.setMeshVertices(meshID, sizeAfter, posAfter.data(), pVertexIDs);
-
-    interface.writeBlockScalarData(dataID, sizeAfter, pVertexIDs, valuesWrite1.data());
-    interface.advance(1.0);
-
-    interface.finalize();
+    QuickTest(interface, "MA"_mesh, "D"_scalar)
+        .setVertices({0.0, y, 1.0, y})
+        .initialize()
+        .write({0.01, 0.02})
+        .advance()
+        .resetMesh()
+        .setVertices({0.0, y, 1.0, y})
+        .write({0.11, 0.12})
+        .advance()
+        .finalize();
   }
   // B - Adaptive Geometry
   if (context.isNamed("B")) {
-    std::vector<int> vertexIDs(sizeBefore, -1);
-    auto             pVertexIDs = vertexIDs.data();
+    auto qt = QuickTest(interface, "MB"_mesh, "D"_scalar)
+                  .setVertices({0.0, y, 1.0, y})
+                  .initialize()
+                  .advance();
+    std::vector<double> expected0{0.01, 0.02};
+    BOOST_TEST(qt.read() == expected0, boost::test_tools::per_element());
+    qt.resetMesh()
+      .setVertices({0.0, y, 1.0, y})
+      .advance();
 
-    interface.setMeshVertices(meshID, sizeBefore, posBefore.data(), pVertexIDs);
-    interface.initialize();
-    interface.advance(1.0);
-
-    std::vector<double> readValues(sizeBefore, -1);
-    auto                pValues = readValues.data();
-
-    // empty data from initialization
-    interface.readBlockScalarData(dataID, sizeBefore, pVertexIDs, pValues);
-    BOOST_TEST_INFO("Before");
-    BOOST_TEST(readValues == valuesRead0, boost::test_tools::per_element());
-
-    // Reset the Mesh
-    vertexIDs.resize(sizeAfter, -1);
-    pVertexIDs = vertexIDs.data();
-    readValues.resize(sizeAfter, -1);
-    pValues = readValues.data();
-    interface.resetMesh(meshID);
-
-    interface.setMeshVertices(meshID, sizeAfter, posAfter.data(), pVertexIDs);
-    interface.advance(1.0);
-
-    interface.readBlockScalarData(dataID, sizeAfter, pVertexIDs, pValues);
-    BOOST_TEST_INFO("After");
-    BOOST_TEST(readValues == valuesRead1, boost::test_tools::per_element());
-
-    interface.finalize();
+    std::vector<double> expected1{0.11, 0.12};
+    BOOST_TEST(qt.read() == expected1, boost::test_tools::per_element());
+    qt.finalize();
   }
 }
 
@@ -483,9 +372,6 @@ BOOST_AUTO_TEST_CASE(Both)
 }
 
 BOOST_AUTO_TEST_SUITE_END()
-
-
-
 
 BOOST_AUTO_TEST_SUITE_END()
 
