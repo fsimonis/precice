@@ -384,6 +384,7 @@ void SolverInterfaceImpl::initializeData()
 
 int SolverInterfaceImpl::getTotalMeshChanges() const 
 {
+  Event e("intra-handshake", precice::syncMode);
   PRECICE_TRACE();
   int localMeshesChanges = _meshLock.countUnlocked();
   PRECICE_DEBUG("Local Mesh Changes: {}", localMeshesChanges);
@@ -396,6 +397,7 @@ int SolverInterfaceImpl::getTotalMeshChanges() const
 
 bool SolverInterfaceImpl::reinitHandshake(bool requestReinit) const {
   PRECICE_TRACE();
+  Event e("inter-handshake", precice::syncMode);
 
   if(not utils::MasterSlave::isSlave()) {
     PRECICE_DEBUG("Reinitialization is{} required.", (requestReinit ? "" : " not"));
@@ -1836,10 +1838,9 @@ void SolverInterfaceImpl::reinitialize()
 {
   PRECICE_TRACE();
   PRECICE_INFO("Reinitializing Participant");
-  {
-      Event e("reinitialize");
-      closeCommunicationChannels(CloseChannels::Distributed);
-  }
+  Event e("reinitialize");
+  utils::ScopedEventPrefix sep("reinitialize/");
+  closeCommunicationChannels(CloseChannels::Distributed);
   _state = State::Constructed;
   initialize();
 }
