@@ -26,7 +26,7 @@ BOOST_AUTO_TEST_SUITE(Parallel)
 
 BOOST_AUTO_TEST_SUITE(Reset)
 
-void runResetInput(testing::TestContext& context, const std::string& config)
+void runResetInput(testing::TestContext &context, const std::string &config)
 {
   constexpr double y = 0.0;
 
@@ -100,14 +100,11 @@ BOOST_AUTO_TEST_CASE(Input2LI)
   runResetInput(context, "/precice/tests/reinit-parallel-explicit-2li.xml"_src);
 }
 
-
-BOOST_AUTO_TEST_CASE(Output)
+void runResetOutput(testing::TestContext &context, const std::string &config)
 {
-  PRECICE_TEST("A"_on(2_ranks), "B"_on(2_ranks));
-
   constexpr double y = 0.0;
 
-  SolverInterface interface{context.name, "/precice/tests/reinit-parallel-explicit.xml"_src, context.rank, context.size};
+  SolverInterface interface{context.name, config, context.rank, context.size};
 
   // A - Static Geometry
   if (context.isNamed("A")) {
@@ -156,6 +153,83 @@ BOOST_AUTO_TEST_CASE(Output)
       qt.resetMesh()
           .setVertices({2.0, y, 3.0, y})
           .advance();
+      std::vector<double> expected1{1.11, 1.12};
+      BOOST_TEST(qt.read() == expected1, boost::test_tools::per_element());
+      qt.finalize();
+    }
+  }
+}
+
+BOOST_AUTO_TEST_CASE(Output)
+{
+  PRECICE_TEST("A"_on(2_ranks), "B"_on(2_ranks));
+  runResetOutput(context, "/precice/tests/reinit-parallel-explicit.xml"_src);
+}
+
+BOOST_AUTO_TEST_CASE(Output2LI)
+{
+  PRECICE_TEST("A"_on(2_ranks), "B"_on(2_ranks));
+  runResetOutput(context, "/precice/tests/reinit-parallel-explicit-2li.xml"_src);
+}
+
+void runResetBoth(testing::TestContext &context, const std::string &config)
+{
+  constexpr double y = 0.0;
+  SolverInterface  interface{context.name, config, context.rank, context.size};
+
+  // A - Static Geometry
+  if (context.isNamed("A")) {
+    if (context.isMaster()) {
+      QuickTest(interface, "MA"_mesh, "D"_scalar)
+          .setVertices({0.0, y, 1.0, y})
+          .initialize()
+          .write({0.01, 0.02})
+          .advance()
+          .resetMesh()
+          .setVertices({0.0, y, 1.0, y})
+          .write({0.11, 0.12})
+          .advance()
+          .finalize();
+    } else {
+      QuickTest(interface, "MA"_mesh, "D"_scalar)
+          .setVertices({2.0, y, 3.0, y})
+          .initialize()
+          .write({1.01, 1.02})
+          .advance()
+          .resetMesh()
+          .setVertices({2.0, y, 3.0, y})
+          .write({1.11, 1.12})
+          .advance()
+          .finalize();
+    }
+  }
+  // B - Adaptive Geometry
+  if (context.isNamed("B")) {
+    if (context.isMaster()) {
+      auto qt = QuickTest(interface, "MB"_mesh, "D"_scalar)
+                    .setVertices({0.0, y, 1.0, y})
+                    .initialize()
+                    .advance();
+      std::vector<double> expected0{0.01, 0.02};
+      BOOST_TEST(qt.read() == expected0, boost::test_tools::per_element());
+      qt.resetMesh()
+          .setVertices({0.0, y, 1.0, y})
+          .advance();
+
+      std::vector<double> expected1{0.11, 0.12};
+      BOOST_TEST(qt.read() == expected1, boost::test_tools::per_element());
+      qt.finalize();
+    } else {
+      auto qt = QuickTest(interface, "MB"_mesh, "D"_scalar)
+                    .setVertices({2.0, y, 3.0, y})
+                    .initialize()
+                    .advance();
+      std::vector<double> expected0{1.01, 1.02};
+      BOOST_TEST(qt.read() == expected0, boost::test_tools::per_element());
+      qt.resetMesh()
+          .setVertices({2.0, y, 3.0, y})
+          .advance();
+
       std::vector<double> expected1{1.11, 1.12};
       BOOST_TEST(qt.read() == expected1, boost::test_tools::per_element());
       qt.finalize();
@@ -166,81 +240,24 @@ BOOST_AUTO_TEST_CASE(Output)
 BOOST_AUTO_TEST_CASE(Both)
 {
   PRECICE_TEST("A"_on(2_ranks), "B"_on(2_ranks));
+  runResetBoth(context, "/precice/tests/reinit-parallel-explicit.xml"_src);
+}
 
-  constexpr double y = 0.0;
-  SolverInterface  interface{context.name, "/precice/tests/reinit-parallel-explicit.xml"_src, context.rank, context.size};
-
-  // A - Static Geometry
-  if (context.isNamed("A")) {
-    if (context.isMaster()) {
-      QuickTest(interface, "MA"_mesh, "D"_scalar)
-          .setVertices({0.0, y, 1.0, y})
-          .initialize()
-          .write({0.01, 0.02})
-          .advance()
-          .resetMesh()
-          .setVertices({0.0, y, 1.0, y})
-          .write({0.11, 0.12})
-          .advance()
-          .finalize();
-    } else {
-      QuickTest(interface, "MA"_mesh, "D"_scalar)
-          .setVertices({2.0, y, 3.0, y})
-          .initialize()
-          .write({1.01, 1.02})
-          .advance()
-          .resetMesh()
-          .setVertices({2.0, y, 3.0, y})
-          .write({1.11, 1.12})
-          .advance()
-          .finalize();
-    }
-  }
-  // B - Adaptive Geometry
-  if (context.isNamed("B")) {
-    if (context.isMaster()) {
-      auto qt = QuickTest(interface, "MB"_mesh, "D"_scalar)
-                    .setVertices({0.0, y, 1.0, y})
-                    .initialize()
-                    .advance();
-      std::vector<double> expected0{0.01, 0.02};
-      BOOST_TEST(qt.read() == expected0, boost::test_tools::per_element());
-      qt.resetMesh()
-          .setVertices({0.0, y, 1.0, y})
-          .advance();
-
-      std::vector<double> expected1{0.11, 0.12};
-      BOOST_TEST(qt.read() == expected1, boost::test_tools::per_element());
-      qt.finalize();
-    } else {
-      auto qt = QuickTest(interface, "MB"_mesh, "D"_scalar)
-                    .setVertices({2.0, y, 3.0, y})
-                    .initialize()
-                    .advance();
-      std::vector<double> expected0{1.01, 1.02};
-      BOOST_TEST(qt.read() == expected0, boost::test_tools::per_element());
-      qt.resetMesh()
-          .setVertices({2.0, y, 3.0, y})
-          .advance();
-
-      std::vector<double> expected1{1.11, 1.12};
-      BOOST_TEST(qt.read() == expected1, boost::test_tools::per_element());
-      qt.finalize();
-    }
-  }
+BOOST_AUTO_TEST_CASE(Both2LI)
+{
+  PRECICE_TEST("A"_on(2_ranks), "B"_on(2_ranks));
+  runResetBoth(context, "/precice/tests/reinit-parallel-explicit-2li.xml"_src);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
 
 BOOST_AUTO_TEST_SUITE(ChangeMapping)
 
-BOOST_AUTO_TEST_CASE(Input)
+void runResetInput(testing::TestContext &context, const std::string &config)
 {
-  PRECICE_TEST("A"_on(2_ranks), "B"_on(2_ranks));
-
   constexpr double y = 0.0;
 
-  SolverInterface interface{context.name, "/precice/tests/reinit-parallel-explicit.xml"_src, context.rank, context.size};
+  SolverInterface interface{context.name, config, context.rank, context.size};
 
   // A - Static Geometry
   if (context.isNamed("A")) {
@@ -296,13 +313,23 @@ BOOST_AUTO_TEST_CASE(Input)
   }
 }
 
-BOOST_AUTO_TEST_CASE(Output)
+BOOST_AUTO_TEST_CASE(Input)
 {
   PRECICE_TEST("A"_on(2_ranks), "B"_on(2_ranks));
+  runResetInput(context, "/precice/tests/reinit-parallel-explicit.xml"_src);
+}
 
+BOOST_AUTO_TEST_CASE(Input2LI)
+{
+  PRECICE_TEST("A"_on(2_ranks), "B"_on(2_ranks));
+  runResetInput(context, "/precice/tests/reinit-parallel-explicit-2li.xml"_src);
+}
+
+void runResetOutput(testing::TestContext &context, const std::string &config)
+{
   constexpr double y = 0.0;
 
-  SolverInterface interface{context.name, "/precice/tests/reinit-parallel-explicit.xml"_src, context.rank, context.size};
+  SolverInterface interface{context.name, config, context.rank, context.size};
 
   // A - Static Geometry
   if (context.isNamed("A")) {
@@ -358,12 +385,22 @@ BOOST_AUTO_TEST_CASE(Output)
   }
 }
 
-BOOST_AUTO_TEST_CASE(Both)
+BOOST_AUTO_TEST_CASE(Output)
 {
   PRECICE_TEST("A"_on(2_ranks), "B"_on(2_ranks));
+  runResetOutput(context, "/precice/tests/reinit-parallel-explicit.xml"_src);
+}
 
+BOOST_AUTO_TEST_CASE(Output2LI)
+{
+  PRECICE_TEST("A"_on(2_ranks), "B"_on(2_ranks));
+  runResetOutput(context, "/precice/tests/reinit-parallel-explicit-2li.xml"_src);
+}
+
+void runResetBoth(testing::TestContext &context, const std::string &config)
+{
   constexpr double y = 0.0;
-  SolverInterface  interface{context.name, "/precice/tests/reinit-parallel-explicit.xml"_src, context.rank, context.size};
+  SolverInterface  interface{context.name, config, context.rank, context.size};
 
   // A - Static Geometry
   if (context.isNamed("A")) {
@@ -425,16 +462,26 @@ BOOST_AUTO_TEST_CASE(Both)
   }
 }
 
+BOOST_AUTO_TEST_CASE(Both)
+{
+  PRECICE_TEST("A"_on(2_ranks), "B"_on(2_ranks));
+  runResetBoth(context, "/precice/tests/reinit-parallel-explicit.xml"_src);
+}
+
+BOOST_AUTO_TEST_CASE(Both2LI)
+{
+  PRECICE_TEST("A"_on(2_ranks), "B"_on(2_ranks));
+  runResetBoth(context, "/precice/tests/reinit-parallel-explicit-2li.xml"_src);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 
 BOOST_AUTO_TEST_SUITE(ChangePartitions)
 
-BOOST_AUTO_TEST_CASE(OverlapBoth)
+void runOverlapBoth(testing::TestContext &context, const std::string &config)
 {
-  PRECICE_TEST("A"_on(2_ranks), "B"_on(2_ranks));
-
   constexpr double y = 0.0;
-  SolverInterface  interface{context.name, "/precice/tests/reinit-parallel-explicit.xml"_src, context.rank, context.size};
+  SolverInterface  interface{context.name, config, context.rank, context.size};
 
   // A - Static Geometry
   if (context.isNamed("A")) {
@@ -496,13 +543,23 @@ BOOST_AUTO_TEST_CASE(OverlapBoth)
   }
 }
 
-BOOST_AUTO_TEST_CASE(SwapOutputs)
+BOOST_AUTO_TEST_CASE(OverlapBoth)
 {
   PRECICE_TEST("A"_on(2_ranks), "B"_on(2_ranks));
+  runOverlapBoth(context, "/precice/tests/reinit-parallel-explicit.xml"_src);
+}
 
+BOOST_AUTO_TEST_CASE(OverlapBoth2LI)
+{
+  PRECICE_TEST("A"_on(2_ranks), "B"_on(2_ranks));
+  runOverlapBoth(context, "/precice/tests/reinit-parallel-explicit-2li.xml"_src);
+}
+
+void runSwapOutputs(testing::TestContext &context, const std::string &config)
+{
   constexpr double y = 0.0;
 
-  SolverInterface interface{context.name, "/precice/tests/reinit-parallel-explicit.xml"_src, context.rank, context.size};
+  SolverInterface interface{context.name, config, context.rank, context.size};
 
   // A - Static Geometry
   if (context.isNamed("A")) {
@@ -558,7 +615,19 @@ BOOST_AUTO_TEST_CASE(SwapOutputs)
   }
 }
 
-void runPartitionScatterOutputs(testing::TestContext& context, const std::string& config)
+BOOST_AUTO_TEST_CASE(SwapOutputs)
+{
+  PRECICE_TEST("A"_on(2_ranks), "B"_on(2_ranks));
+  runSwapOutputs(context, "/precice/tests/reinit-parallel-explicit.xml"_src);
+}
+
+BOOST_AUTO_TEST_CASE(SwapOutputs2LI)
+{
+  PRECICE_TEST("A"_on(2_ranks), "B"_on(2_ranks));
+  runSwapOutputs(context, "/precice/tests/reinit-parallel-explicit-2li.xml"_src);
+}
+
+void runPartitionScatterOutputs(testing::TestContext &context, const std::string &config)
 {
   constexpr double y = 0.0;
 
