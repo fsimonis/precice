@@ -18,6 +18,7 @@ jobs:
       - name: Install common dependencies
         env:
           DEBIAN_FRONTEND: noninteractive
+          TZ: Europe/Berlin
         run: |
           apt update
           apt -y upgrade
