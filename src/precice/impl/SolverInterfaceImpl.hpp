@@ -500,6 +500,11 @@ public:
    */
   void exportMesh(const std::string &filenameSuffix) const;
 
+  /// Synchronizes all ranks and deduces the total amount changes meshes
+  int getTotalMeshChanges() const;
+
+  bool reinitHandshake(bool requestReinit) const;
+
   /// Allows to access a registered mesh
   const mesh::Mesh &mesh(const std::string &meshName) const;
 
@@ -599,6 +604,9 @@ private:
   /// Computes, performs, and resets all suitable read mappings.
   void mapReadData();
 
+  /// Reinitialize the solverinterface
+  void reinitialize();
+ 
   /**
    * @brief Performs all data actions with given timing.
    *

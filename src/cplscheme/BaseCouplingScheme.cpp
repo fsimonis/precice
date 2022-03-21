@@ -121,6 +121,26 @@ void BaseCouplingScheme::finalize()
   PRECICE_ASSERT(_isInitialized, "Called finalize() before initialize().");
 }
 
+void BaseCouplingScheme::reinitialize()
+{
+  PRECICE_ASSERT(isInitialized());
+
+  if (isImplicitCouplingScheme()) {
+    if (not doesFirstStep()) {
+      // reserve memory and initialize data with zero
+      initializeStorages();
+      if (_acceleration) {
+        _acceleration->initialize(getAccelerationData()); // Reserve memory, initialize
+      }
+    }
+    /// @todo does this require a write iteration checkpoint?
+    initializeTXTWriters();
+  }
+
+  // Not sure about this
+  // initializeImplementation();
+}
+
 void BaseCouplingScheme::initialize(double startTime, int startTimeWindow)
 {
   // Initialize uses the template method pattern (https://en.wikipedia.org/wiki/Template_method_pattern).

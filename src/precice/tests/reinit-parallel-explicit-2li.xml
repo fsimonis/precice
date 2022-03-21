@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+
+<precice-configuration>
+   <solver-interface dimensions="2" experimental="yes" >
+
+      <data:scalar name="D"  />
+
+      <mesh name="MA">
+         <use-data name="D" />
+      </mesh>
+
+      <mesh name="MB">
+         <use-data name="D" />
+      </mesh>
+
+      <participant name="A">
+         <use-mesh name="MA" provide="yes" />
+         <write-data name="D" mesh="MA" />
+      </participant>
+
+      <participant name="B">
+         <use-mesh name="MB" provide="yes"/>
+         <use-mesh name="MA" from="A" />
+         <read-data name="D" mesh="MB" />
+
+         <mapping:nearest-neighbor direction="read" from="MA" to="MB" constraint="consistent" />
+      </participant>
+
+      <m2n:sockets from="A" to="B" use-two-level-initialization="yes" />
+
+      <coupling-scheme:parallel-explicit>
+         <participants first="B" second="A" />
+         <max-time-windows value="10" />
+         <time-window-size value="1.0" />
+         <exchange data="D" mesh="MA" from="A" to="B" />
+      </coupling-scheme:parallel-explicit>
+
+   </solver-interface>
+
+</precice-configuration>

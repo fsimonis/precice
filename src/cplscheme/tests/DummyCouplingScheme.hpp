@@ -30,6 +30,8 @@ public:
    */
   virtual ~DummyCouplingScheme() {}
 
+  void reinitialize() override final;
+
   /**
    * @brief
    */
