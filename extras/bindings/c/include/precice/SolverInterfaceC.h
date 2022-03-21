@@ -167,6 +167,13 @@ int precicec_getMeshID(const char *meshName);
 int precicec_isMeshConnectivityRequired(int meshID);
 
 /**
+ * @brief Resets the given mesh.
+ *
+ * @param[in] meshID the id of the mesh to reset.
+ */
+void precicec_resetMesh(int meshID);
+
+/**
  * @brief Creates a mesh vertex
  *
  * @param[in] meshID the id of the mesh to add the vertex to.

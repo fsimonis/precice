@@ -198,6 +198,12 @@ int precicec_isMeshConnectivityRequired(int meshID)
   return 0;
 }
 
+void precicec_resetMesh(int meshID)
+{
+  PRECICE_CHECK(impl != nullptr, errormsg);
+  return impl->resetMesh(meshID);
+}
+
 int precicec_setMeshVertex(
     int           meshID,
     const double *position)
