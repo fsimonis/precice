@@ -128,7 +128,7 @@ void BaseCouplingScheme::reinitialize()
   if (isImplicitCouplingScheme()) {
     if (not doesFirstStep()) {
       // reserve memory and initialize data with zero
-      setupDataMatrices();
+      initializeStorages();
       if (_acceleration) {
         _acceleration->initialize(getAccelerationData()); // Reserve memory, initialize
       }
