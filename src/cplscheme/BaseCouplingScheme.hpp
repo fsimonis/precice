@@ -221,7 +221,7 @@ public:
   /**
    * @brief Advances the coupling scheme.
    */
-  void advance() override final;
+  CouplingStep advance() override final;
 
   /// Adds a measure to determine the convergence of coupling iterations.
   void addConvergenceMeasure(

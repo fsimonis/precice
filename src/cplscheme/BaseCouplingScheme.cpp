@@ -21,6 +21,7 @@
 #include "precice/types.hpp"
 #include "utils/EigenHelperFunctions.hpp"
 #include "utils/IntraComm.hpp"
+#include "utils/assertion.hpp"
 
 namespace precice {
 namespace cplscheme {
@@ -203,7 +204,7 @@ void BaseCouplingScheme::initializeData()
   }
 }
 
-void BaseCouplingScheme::advance()
+CouplingStep BaseCouplingScheme::advance()
 {
   PRECICE_TRACE(_timeWindows, _time);
   checkCompletenessRequiredActions();
@@ -213,48 +214,56 @@ void BaseCouplingScheme::advance()
 
   PRECICE_ASSERT(_couplingMode != Undefined);
 
-  if (reachedEndOfTimeWindow()) {
+  if (!reachedEndOfTimeWindow()) {
+    return {CouplingState::Subcycling, ""};
+  }
 
-    _timeWindows += 1; // increment window counter. If not converged, will be decremented again later.
+  _timeWindows += 1; // increment window counter. If not converged, will be decremented again later.
 
-    bool convergence = exchangeDataAndAccelerate();
+  bool          convergence = exchangeDataAndAccelerate();
+  CouplingState state{CouplingState::Invalid};
 
-    if (isImplicitCouplingScheme()) { // check convergence
-      if (not convergence) {          // repeat window
-        PRECICE_DEBUG("No convergence achieved");
-        requireAction(constants::actionReadIterationCheckpoint());
-        // The computed time window part equals the time window size, since the
-        // time window remainder is zero. Subtract the time window size and do another
-        // coupling iteration.
-        PRECICE_ASSERT(math::greater(_computedTimeWindowPart, 0.0));
-        _time = _time - _computedTimeWindowPart;
-        _timeWindows -= 1;
-      } else { // write output, prepare for next window
-        PRECICE_DEBUG("Convergence achieved");
-        advanceTXTWriters();
-        PRECICE_INFO("Time window completed");
-        _isTimeWindowComplete = true;
-        if (isCouplingOngoing()) {
-          PRECICE_DEBUG("Setting require create checkpoint");
-          requireAction(constants::actionWriteIterationCheckpoint());
-        }
-      }
-      //update iterations
+  if (isImplicitCouplingScheme()) { // check convergence
+    if (not convergence) {          // repeat window
+      PRECICE_DEBUG("No convergence achieved");
+      requireAction(constants::actionReadIterationCheckpoint());
+      // The computed time window part equals the time window size, since the
+      // time window remainder is zero. Subtract the time window size and do another
+      // coupling iteration.
+      PRECICE_ASSERT(math::greater(_computedTimeWindowPart, 0.0));
+      _time = _time - _computedTimeWindowPart;
+      _timeWindows -= 1;
+      // update iterations
       _totalIterations++;
-      if (not convergence) {
-        _iterations++;
-      } else {
-        _iterations = 1;
-      }
-    } else {
+      _iterations++;
+      state = CouplingState::Iterating;
+    } else { // write output, prepare for next window
+      PRECICE_DEBUG("Convergence achieved");
+      advanceTXTWriters();
       PRECICE_INFO("Time window completed");
       _isTimeWindowComplete = true;
+      if (isCouplingOngoing()) {
+        PRECICE_DEBUG("Setting require create checkpoint");
+        requireAction(constants::actionWriteIterationCheckpoint());
+      }
+      // update iterations
+      _totalIterations++;
+      _iterations = 1;
+      state       = CouplingState::Done;
     }
-    if (isCouplingOngoing()) {
-      PRECICE_ASSERT(_hasDataBeenReceived);
-    }
-    _computedTimeWindowPart = 0.0; // reset window
+  } else {
+    // explicit
+    PRECICE_INFO("Time window completed");
+    _isTimeWindowComplete = true;
+    state                 = CouplingState::Done;
   }
+  if (isCouplingOngoing()) {
+    PRECICE_ASSERT(_hasDataBeenReceived);
+  }
+  _computedTimeWindowPart = 0.0; // reset window
+
+  PRECICE_ASSERT(state != CouplingState::Invalid);
+  return {state, ""};
 }
 
 void BaseCouplingScheme::storeExtrapolationData()

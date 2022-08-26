@@ -4,9 +4,54 @@
 #include <string>
 #include <vector>
 #include "com/SharedPointer.hpp"
+#include "utils/conditionals.hpp"
 
 namespace precice {
 namespace cplscheme {
+
+class CouplingScheme;
+
+enum struct CouplingState {
+  Subcycling, // Not end of time window
+  Continuing, // Next participant needs to be processed
+  Iterating,  // End of time window but not yet converged
+  Done,       // End of explicit time window or implicit converged
+  Invalid     // For save initialization
+};
+
+struct CouplingStep {
+  CouplingState state;
+  std::string   partner;
+  bool          operator==(const CouplingStep &other) const
+  {
+    return state == other.state && partner == other.partner;
+  }
+};
+
+struct CouplingIteratorEnd {
+};
+
+struct CouplingIterator {
+  CouplingStep    lastStep;
+  CouplingScheme *scheme;
+
+  void operator++();
+
+  CouplingStep operator*() const
+  {
+    return lastStep;
+  }
+
+  bool operator==(CouplingIterator &other) const
+  {
+    return lastStep == other.lastStep;
+  }
+
+  bool operator==(CouplingIteratorEnd &) const
+  {
+    return lastStep.state == utils::anyOf(CouplingState::Done, CouplingState::Iterating);
+  }
+};
 
 /**
  * @brief Interface for all coupling schemes.
@@ -108,7 +153,7 @@ public:
    *
    * Does not necessarily advance in time.
    */
-  virtual void advance() = 0;
+  virtual CouplingStep advance() = 0;
 
   /// Finalizes the coupling and disconnects communication.
   virtual void finalize() = 0;
@@ -186,7 +231,26 @@ public:
 
   /// Returns a string representation of the current coupling state.
   virtual std::string printCouplingState() const = 0;
+
+  CouplingIterator begin();
+
+  CouplingIteratorEnd end() const;
 };
+
+inline void CouplingIterator::operator++()
+{
+  lastStep = scheme->advance();
+}
+
+inline CouplingIterator CouplingScheme::begin()
+{
+  return {advance(), this};
+}
+
+inline CouplingIteratorEnd CouplingScheme::end() const
+{
+  return {};
+}
 
 } // namespace cplscheme
 } // namespace precice
