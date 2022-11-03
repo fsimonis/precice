@@ -215,40 +215,13 @@ public:
 private:
   mutable logging::Logger _log{"cplscheme::CompositionalCouplingScheme"};
 
-  /// Groups a coupling scheme with additional associated variables.
-  struct Scheme {
+  using Schemes = std::vector<PtrCouplingScheme>;
 
-    /// The actual coupling scheme
-    PtrCouplingScheme scheme;
+  /// Explicit coupling schemes to be executed
+  Schemes _explicitSchemes;
 
-    // @brief Excludes converged implicit schemes from some operations.
-    //
-    // When several implicit schemes are iterating their point of convergence
-    // will be different in general. Converged schemes are automatically advanced
-    // to the next timestep and are put on hold until all schemes are converged.
-    //
-    // This assumes that a once converged scheme does not leave the convergence
-    // region again.
-    bool onHold;
-
-    Scheme(PtrCouplingScheme scheme)
-        : scheme(scheme), onHold(false) {}
-  };
-
-  typedef std::list<Scheme>           Schemes;
-  typedef std::list<Scheme>::iterator SchemesIt;
-  //typedef std::list<PtrCouplingScheme>::const_iterator ConstSchemesIt;
-
-  /// Coupling schemes to be executed in parallel.
-  Schemes _couplingSchemes;
-
-  //Schemes _activeCouplingSchemes;
-
-  /// Iterator to begin of coupling schemes currently active.
-  SchemesIt _activeSchemesBegin = _couplingSchemes.end();
-
-  /// Iterator to behind the end of coupling schemes currently active.
-  SchemesIt _activeSchemesEnd = _couplingSchemes.end();
+  /// The optional implicit scheme to be handled last
+  PtrCouplingScheme _implicitScheme;
 
   /// Stores time added since last call of advance.
   double _lastAddedTime = 0;

@@ -5,6 +5,7 @@
 #include <memory>
 #include <ostream>
 #include "Constants.hpp"
+#include "cplscheme/BaseCouplingScheme.hpp"
 #include "cplscheme/CouplingScheme.hpp"
 #include "cplscheme/SharedPointer.hpp"
 #include "logging/LogMacros.hpp"
@@ -16,7 +17,18 @@ void CompositionalCouplingScheme::addCouplingScheme(
     const PtrCouplingScheme &couplingScheme)
 {
   PRECICE_TRACE();
-  _couplingSchemes.emplace_back(couplingScheme);
+
+  auto bcpl = std::dynamic_pointer_cast<BaseCouplingScheme *>(couplingScheme);
+  PRECICE_ASSERT(bcpl);
+  if (!bcpl->isImplicitCouplingScheme()) {
+    _explicitSchemes.emplace_back(couplingScheme);
+    return;
+  }
+
+  PRECICE_CHECK(_implicitScheme == nullptr,
+                "You attempted to define a second implicit coupling-scheme for the participant \"{}\", which is not allowed. "
+                "Please use a multi coupling-scheme for true implicit coupling of multiple participants.");
+  _implicitScheme = couplingScheme;
 }
 
 void CompositionalCouplingScheme::initialize(
