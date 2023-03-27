@@ -31,12 +31,12 @@ Data::Data(
   PRECICE_ASSERT(dimensions > 0, dimensions);
 }
 
-Eigen::VectorXd &Data::values()
+Eigen::MatrixXd &Data::values()
 {
   return _values;
 }
 
-const Eigen::VectorXd &Data::values() const
+const Eigen::MatrixXd &Data::values() const
 {
   return _values;
 }

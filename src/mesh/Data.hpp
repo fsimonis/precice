@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Eigen/Core>
+#include <Eigen/src/Core/Matrix.h>
 #include <stddef.h>
 #include <string>
 
@@ -52,10 +53,10 @@ public:
       int         spatialDimensions = -1);
 
   /// Returns a reference to the data values.
-  Eigen::VectorXd &values();
+  Eigen::MatrixXd &values();
 
   /// Returns a const reference to the data values.
-  const Eigen::VectorXd &values() const;
+  const Eigen::MatrixXd &values() const;
 
   /// Returns a reference to the gradient data values.
   Eigen::MatrixXd &gradientValues();
@@ -87,7 +88,7 @@ public:
 private:
   logging::Logger _log{"mesh::Data"};
 
-  Eigen::VectorXd _values;
+  Eigen::MatrixXd _values;
 
   Eigen::MatrixXd _gradientValues;
 

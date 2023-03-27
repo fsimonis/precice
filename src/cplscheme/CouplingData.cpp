@@ -36,13 +36,13 @@ int CouplingData::getSize() const
   return values().size();
 }
 
-Eigen::VectorXd &CouplingData::values()
+Eigen::MatrixXd &CouplingData::values()
 {
   PRECICE_ASSERT(_data != nullptr);
   return _data->values();
 }
 
-const Eigen::VectorXd &CouplingData::values() const
+const Eigen::MatrixXd &CouplingData::values() const
 {
   PRECICE_ASSERT(_data != nullptr);
   return _data->values();
@@ -80,7 +80,7 @@ void CouplingData::storeIteration()
   }
 }
 
-const Eigen::VectorXd CouplingData::previousIteration() const
+const Eigen::MatrixXd CouplingData::previousIteration() const
 {
   return _previousIteration;
 }

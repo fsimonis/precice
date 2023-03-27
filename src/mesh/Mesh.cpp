@@ -219,35 +219,33 @@ void Mesh::allocateDataValues()
   for (PtrData &data : _data) {
 
     // Allocate data values
-    const SizeType expectedSize = expectedCount * data->getDimensions();
-    const auto     actualSize   = static_cast<SizeType>(data->values().size());
+    const SizeType expectedSize = expectedCount;
+    const auto     actualSize   = static_cast<SizeType>(data->values().cols());
     // Shrink Buffer
     if (expectedSize < actualSize) {
-      data->values().resize(expectedSize);
+      data->values().resize(data->getDimensions(), expectedSize);
     }
     // Enlarge Buffer
     if (expectedSize > actualSize) {
       const auto leftToAllocate = expectedSize - actualSize;
       utils::append(data->values(), Eigen::VectorXd(Eigen::VectorXd::Zero(leftToAllocate)));
     }
-    PRECICE_DEBUG("Data {} now has {} values", data->getName(), data->values().size());
+    PRECICE_DEBUG("Data {} now has {} x {} values", data->getName(), data->values().rows(), data->values().cols());
 
     // Allocate gradient data values
     if (data->hasGradient()) {
-      const SizeType spaceDimensions = data->getSpatialDimensions();
-
-      const SizeType expectedColumnSize = expectedCount * data->getDimensions();
-      const auto     actualColumnSize   = static_cast<SizeType>(data->gradientValues().cols());
+      const SizeType gradientSize     = data->getSpatialDimensions() * data->getDimensions();
+      const auto     actualColumnSize = static_cast<SizeType>(data->gradientValues().cols());
 
       // Shrink Buffer
-      if (expectedColumnSize < actualColumnSize) {
-        data->gradientValues().resize(spaceDimensions, expectedColumnSize);
+      if (expectedCount < actualColumnSize) {
+        data->gradientValues().resize(gradientSize, expectedCount);
       }
 
       // Enlarge Buffer
-      if (expectedColumnSize > actualColumnSize) {
-        const auto columnLeftToAllocate = expectedColumnSize - actualColumnSize;
-        utils::append(data->gradientValues(), Eigen::MatrixXd(Eigen::MatrixXd::Zero(spaceDimensions, columnLeftToAllocate)));
+      if (expectedCount > actualColumnSize) {
+        const auto columnLeftToAllocate = expectedCount - actualColumnSize;
+        utils::append(data->gradientValues(), Eigen::MatrixXd(Eigen::MatrixXd::Zero(gradientSize, columnLeftToAllocate)));
       }
       PRECICE_DEBUG("Gradient Data {} now has {} x {} values", data->getName(), data->gradientValues().rows(), data->gradientValues().cols());
     }

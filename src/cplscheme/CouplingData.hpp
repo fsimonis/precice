@@ -23,10 +23,10 @@ public:
   int getSize() const;
 
   /// Returns a reference to the data values.
-  Eigen::VectorXd &values();
+  Eigen::MatrixXd &values();
 
   /// Returns a const reference to the data values.
-  const Eigen::VectorXd &values() const;
+  const Eigen::MatrixXd &values() const;
 
   /// Returns a reference to the gradient data values.
   Eigen::MatrixXd &gradientValues();
@@ -44,7 +44,7 @@ public:
   void storeIteration();
 
   /// returns data value from previous iteration
-  const Eigen::VectorXd previousIteration() const;
+  const Eigen::MatrixXd previousIteration() const;
 
   /// returns gradient data from previous iteration
   const Eigen::MatrixXd &previousIterationGradients() const;
@@ -90,7 +90,7 @@ private:
   }
 
   /// Data values of previous iteration.
-  Eigen::VectorXd _previousIteration;
+  Eigen::MatrixXd _previousIteration;
 
   /// Gradient data of previous iteration.
   /// Lazy allocation: only used in case the corresponding data has gradients

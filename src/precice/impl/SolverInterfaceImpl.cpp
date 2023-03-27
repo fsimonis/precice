@@ -1,4 +1,5 @@
 #include <Eigen/Core>
+#include <Eigen/src/Core/Matrix.h>
 #include <Eigen/src/Core/util/Meta.h>
 #include <algorithm>
 #include <array>
@@ -987,19 +988,15 @@ void SolverInterfaceImpl::writeBlockVectorData(
   PRECICE_VALIDATE_DATA(values, size * _dimensions);
 
   auto &     valuesInternal = context.providedData()->values();
-  const auto vertexCount    = valuesInternal.size() / context.getDataDimensions();
+  const auto vertexCount    = valuesInternal.cols();
+
+  Eigen::Map<const Eigen::MatrixXd> input(values, size, context.providedData()->getDimensions());
   for (int i = 0; i < size; i++) {
     const auto valueIndex = valueIndices[i];
     PRECICE_CHECK(0 <= valueIndex && valueIndex < vertexCount,
                   "Cannot write data \"{}\" to invalid Vertex ID ({}). Please make sure you only use the results from calls to setMeshVertex/Vertices().",
                   context.getDataName(), valueIndex);
-    const int offsetInternal = valueIndex * _dimensions;
-    const int offset         = i * _dimensions;
-    for (int dim = 0; dim < _dimensions; dim++) {
-      PRECICE_ASSERT(offset + dim < valuesInternal.size(),
-                     offset + dim, valuesInternal.size());
-      valuesInternal[offsetInternal + dim] = values[offset + dim];
-    }
+    valuesInternal.col(valuesIndex) = input.col(i);
   }
 }
 
@@ -1020,15 +1017,13 @@ void SolverInterfaceImpl::writeVectorData(
                 context.getDataName());
   PRECICE_VALIDATE_DATA(value, _dimensions);
 
-  auto &     values      = context.providedData()->values();
-  const auto vertexCount = values.size() / context.getDataDimensions();
+  auto &     valuesInternal = context.providedData()->values();
+  const auto vertexCount    = valuesInternal.cols();
   PRECICE_CHECK(0 <= valueIndex && valueIndex < vertexCount,
                 "Cannot write data \"{}\" to invalid Vertex ID ({}). Please make sure you only use the results from calls to setMeshVertex/Vertices().",
                 context.getDataName(), valueIndex);
-  const int offset = valueIndex * _dimensions;
-  for (int dim = 0; dim < _dimensions; dim++) {
-    values[offset + dim] = value[dim];
-  }
+  Eigen::Map<const Eigen::VectorXd> input(value, context.providedData()->getDimensions());
+  valuesInternal.col(valueIndex) = input;
 }
 
 void SolverInterfaceImpl::writeBlockScalarData(
@@ -1053,7 +1048,7 @@ void SolverInterfaceImpl::writeBlockScalarData(
   PRECICE_VALIDATE_DATA(values, size);
 
   auto &     valuesInternal = context.providedData()->values();
-  const auto vertexCount    = valuesInternal.size() / context.getDataDimensions();
+  const auto vertexCount    = valuesInternal.cols();
   for (int i = 0; i < size; i++) {
     const auto valueIndex = valueIndices[i];
     PRECICE_CHECK(0 <= valueIndex && valueIndex < vertexCount,
@@ -1127,7 +1122,8 @@ void SolverInterfaceImpl::writeScalarGradientData(
 
     // Gets the gradientvalues matrix corresponding to the dataID
     auto &     gradientValuesInternal = meshData.gradientValues();
-    const auto vertexCount            = gradientValuesInternal.cols() / context.getDataDimensions();
+    const auto vertexCount            = gradientValuesInternal.cols();
+    const auto gradientSize           = gradientValuesInternal.rows();
 
     // Check if the index and dimensions are valid
     PRECICE_CHECK(valueIndex >= -1,
@@ -1146,8 +1142,8 @@ void SolverInterfaceImpl::writeScalarGradientData(
                   meshData.getName());
 
     // Values are entered derived in the spatial dimensions (#rows = #spatial dimensions)
-    Eigen::Map<const Eigen::MatrixXd> gradient(gradientValues, _dimensions, 1);
-    gradientValuesInternal.block(0, valueIndex, _dimensions, 1) = gradient;
+    Eigen::Map<const Eigen::VectorXd> gradient(gradientValues, gradientSize);
+    gradientValuesInternal.col(valueIndex) = gradient;
   }
 }
 
@@ -1191,16 +1187,17 @@ void SolverInterfaceImpl::writeBlockScalarGradientData(
 
     // Get gradient data and check if initialized
     auto &     gradientValuesInternal = meshData.gradientValues();
-    const auto vertexCount            = gradientValuesInternal.cols() / context.getDataDimensions();
+    const auto vertexCount            = gradientValuesInternal.cols();
+    const auto gradientSize           = gradientValuesInternal.rows();
 
-    Eigen::Map<const Eigen::MatrixXd> gradients(gradientValues, _dimensions, size);
+    Eigen::Map<const Eigen::MatrixXd> gradients(gradientValues, gradientSize, size);
 
     for (auto i = 0; i < size; i++) {
       const auto valueIndex = valueIndices[i];
       PRECICE_CHECK(0 <= valueIndex && valueIndex < vertexCount,
                     "Cannot write gradient data \"{}\" to invalid Vertex ID ({}). Please make sure you only use the results from calls to setMeshVertex/Vertices().",
                     context.getDataName(), valueIndex);
-      gradientValuesInternal.block(0, valueIndex, _dimensions, 1) = gradients.block(0, i, _dimensions, 1);
+      gradientValuesInternal.col(valueIndex) = gradients.col(i);
     }
   }
 }
@@ -1239,16 +1236,16 @@ void SolverInterfaceImpl::writeVectorGradientData(
     PRECICE_VALIDATE_DATA(gradientValues, _dimensions * _dimensions);
 
     auto &     gradientValuesInternal = meshData.gradientValues();
-    const auto vertexCount            = gradientValuesInternal.cols() / meshData.getDimensions();
+    const auto vertexCount            = gradientValuesInternal.cols();
+    const auto gradientSize           = gradientValuesInternal.rows();
 
     // Check if the index is valid
     PRECICE_CHECK(0 <= valueIndex && valueIndex < vertexCount,
                   "Cannot write gradient data \"{}\" to invalid Vertex ID ({}). Please make sure you only use the results from calls to setMeshVertex/Vertices().",
                   meshData.getName(), valueIndex)
 
-    const Eigen::Index                dims{_dimensions};
-    Eigen::Map<const Eigen::MatrixXd> gradient(gradientValues, dims, dims);
-    gradientValuesInternal.block(0, dims * valueIndex, dims, dims) = gradient;
+    Eigen::Map<const Eigen::VectorXd> gradient(gradientValues, gradientSize);
+    gradientValuesInternal.col(valueIndex) = gradient;
   }
 }
 
@@ -1295,18 +1292,18 @@ void SolverInterfaceImpl::writeBlockVectorGradientData(
 
     // Get the gradient data and check if initialized
     auto &     gradientValuesInternal = meshData.gradientValues();
-    const auto vertexCount            = gradientValuesInternal.cols() / meshData.getDimensions();
+    const auto vertexCount            = gradientValuesInternal.cols();
+    const auto gradientSize           = gradientValuesInternal.rows();
 
-    const Eigen::Index                dims{_dimensions};
-    Eigen::Map<const Eigen::MatrixXd> gradients(gradientValues, dims, dims * size);
+    Eigen::Map<const Eigen::MatrixXd> gradients(gradientValues, gradientSize, size);
+
     // gradient matrices input one after the other (read row-wise)
     for (auto i = 0; i < size; i++) {
       const auto valueIndex = valueIndices[i];
       PRECICE_CHECK(0 <= valueIndex && valueIndex < vertexCount,
                     "Cannot write gradient data \"{}\" to invalid Vertex ID ({}). Please make sure you only use the results from calls to setMeshVertex/Vertices().",
                     meshData.getName(), valueIndex);
-
-      gradientValuesInternal.block(0, dims * valueIndex, dims, dims) = gradients.block(0, i * dims, dims, dims);
+      gradientValuesInternal.col(valueIndex) = gradients.col(i);
     }
   }
 }
@@ -1371,18 +1368,16 @@ void SolverInterfaceImpl::readBlockVectorDataImpl(
                 "Use readBlockScalarData or change the data type for \"{0}\" to vector.",
                 context.getDataName());
   const auto valuesInternal = context.sampleWaveformAt(normalizedReadTime);
-  const auto vertexCount    = valuesInternal.size() / context.getDataDimensions();
+  const auto vertexCount    = valuesInternal.cols();
+
+  Eigen::Map<Eigen::MatrixXd> output(values, context.getDataDimensions(), size);
   for (int i = 0; i < size; i++) {
     const auto valueIndex = valueIndices[i];
     PRECICE_CHECK(0 <= valueIndex && valueIndex < vertexCount,
                   "Cannot read data \"{}\" to invalid Vertex ID ({}). "
                   "Please make sure you only use the results from calls to setMeshVertex/Vertices().",
                   context.getDataName(), valueIndex);
-    int offsetInternal = valueIndex * _dimensions;
-    int offset         = i * _dimensions;
-    for (int dim = 0; dim < _dimensions; dim++) {
-      values[offset + dim] = valuesInternal[offsetInternal + dim];
-    }
+    output.col(i) = valuesInternal.col(valueIndex);
   }
 }
 
@@ -1442,16 +1437,14 @@ void SolverInterfaceImpl::readVectorDataImpl(
                 "You cannot call readVectorData on the scalar data type \"{0}\". Use readScalarData or change the data type for \"{0}\" to vector.",
                 context.getDataName());
   const auto values      = context.sampleWaveformAt(normalizedReadTime);
-  const auto vertexCount = values.size() / context.getDataDimensions();
+  const auto vertexCount = values.cols();
   PRECICE_CHECK(0 <= valueIndex && valueIndex < vertexCount,
                 "Cannot read data \"{}\" to invalid Vertex ID ({}). "
                 "Please make sure you only use the results from calls to setMeshVertex/Vertices().",
                 context.getDataName(), valueIndex);
-  int offset = valueIndex * _dimensions;
-  for (int dim = 0; dim < _dimensions; dim++) {
-    value[dim] = values[offset + dim];
-  }
-  PRECICE_DEBUG("read value = {}", Eigen::Map<const Eigen::VectorXd>(value, _dimensions).format(utils::eigenio::debug()));
+  Eigen::Map<Eigen::VectorXd> output(value, context.getDataDimensions());
+  output = valuesInternal.col(valueIndex);
+  PRECICE_DEBUG("read value = {}", output.format(utils::eigenio::debug()));
 }
 
 void SolverInterfaceImpl::readBlockScalarData(
