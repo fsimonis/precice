@@ -12,6 +12,7 @@
 #include "mesh/SharedPointer.hpp"
 #include "mesh/Triangle.hpp"
 #include "mesh/Vertex.hpp"
+#include "utils/EigenIO.hpp"
 #include "utils/IntraComm.hpp"
 #include "utils/assertion.hpp"
 
@@ -129,33 +130,14 @@ void ExportVTK::exportData(
   outFile << "\n\n";
 
   for (const mesh::PtrData &data : mesh.data()) { // Plot vertex data
-    Eigen::VectorXd &values = data->values();
     if (data->getDimensions() > 1) {
-      Eigen::VectorXd viewTemp(data->getDimensions());
       outFile << "VECTORS " << data->getName() << " double\n";
-      for (const mesh::Vertex &vertex : mesh.vertices()) {
-        int offset = vertex.getID() * data->getDimensions();
-        for (int i = 0; i < data->getDimensions(); i++) {
-          viewTemp[i] = values(offset + i);
-        }
-        int i = 0;
-        for (; i < data->getDimensions(); i++) {
-          outFile << viewTemp[i] << ' ';
-        }
-        if (i < 3) {
-          outFile << '0';
-        }
-        outFile << '\n';
-      }
-      outFile << '\n';
-    } else if (data->getDimensions() == 1) {
+    } else {
       outFile << "SCALARS " << data->getName() << " double\n";
       outFile << "LOOKUP_TABLE default\n";
-      for (const mesh::Vertex &vertex : mesh.vertices()) {
-        outFile << values(vertex.getID()) << '\n';
-      }
-      outFile << '\n';
     }
+    outFile << data->values().transpose().format(utils::eigenio::legacyVtkByDim(data->getDimensions()));
+    outFile << '\n';
   }
 }
 
@@ -163,67 +145,35 @@ void ExportVTK::exportGradient(std::ofstream &outFile, const mesh::Mesh &mesh)
 {
   const int spaceDim = mesh.getDimensions();
   for (const mesh::PtrData &data : mesh.data()) {
-    if (data->hasGradient()) { // Check whether this data has gradient
-      auto &gradientValues = data->gradientValues();
-      if (data->getDimensions() == 1) { // Scalar data, create a vector <dataname>_gradient
-        outFile << "VECTORS " << data->getName() << "_gradient"
-                << " double\n";
-        for (int i = 0; i < gradientValues.cols(); i++) { // Loop over vertices
-          int j = 0;                                      // Dimension counter
-          for (; j < gradientValues.rows(); j++) {        // Loop over space directions
-            outFile << gradientValues.coeff(j, i) << " ";
-          }
-          if (j < 3) { // If 2D data add additional zero as third component
-            outFile << '0';
-          }
-          outFile << "\n";
-        }
-      } else { // Vector data, write n vector for n dimension <dataname>_(dx/dy/dz)
-        outFile << "VECTORS " << data->getName() << "_dx"
-                << " double\n";
-        for (int i = 0; i < gradientValues.cols(); i += spaceDim) { // Loop over vertices
-          int j = 0;
-          for (; j < gradientValues.rows(); j++) { // Loop over components
-            outFile << gradientValues.coeff(j, i) << " ";
-          }
-          if (j < 3) { // If 2D data add additional zero as third component
-            outFile << '0';
-          }
-          outFile << "\n";
-        }
-        outFile << "\n";
-
-        outFile << "VECTORS " << data->getName() << "_dy"
-                << " double\n";
-        for (int i = 1; i < gradientValues.cols(); i += spaceDim) { // Loop over vertices
-          int j = 0;
-          for (; j < gradientValues.rows(); j++) { // Loop over components
-            outFile << gradientValues.coeff(j, i) << " ";
-          }
-          if (j < 3) { // If 2D data add additional zero as third component
-            outFile << '0';
-          }
-          outFile << "\n";
-        }
-        outFile << "\n";
-
-        if (spaceDim == 3) { // dz is only for 3D data
-          outFile << "VECTORS " << data->getName() << "_dz"
-                  << " double\n";
-          for (int i = 2; i < gradientValues.cols(); i += spaceDim) { // Loop over vertices
-            int j = 0;
-            for (; j < gradientValues.rows(); j++) { // Loop over components
-              outFile << gradientValues.coeff(j, i) << " ";
-            }
-            if (j < 3) { // If 2D data add additional zero as third component
-              outFile << '0';
-            }
-            outFile << "\n";
-          }
-        }
-      }
-      outFile << '\n';
+    if (!data->hasGradient()) { // Check whether this data has gradient
+      continue;
     }
+    auto &gradientValues = data->gradientValues();
+    auto  dataDim        = data->getDimensions();
+    if (dataDim == 1) { // Scalar data, create a vector <dataname>_gradient
+      outFile << "VECTORS " << data->getName() << "_gradient"
+              << " double\n"
+              << gradientValues.transpose().format(utils::eigenio::legacyVtkByDim(dataDim))
+              << "\n";
+    } else { // Vector data, write n vector for n dimension <dataname>_(dx/dy/dz)
+      outFile << "VECTORS " << data->getName() << "_dx"
+              << " double\n"
+              << gradientValues.middleRows(0, dataDim).transpose().format(utils::eigenio::legacyVtkByDim(dataDim))
+              << "\n";
+
+      outFile << "VECTORS " << data->getName() << "_dy"
+              << " double\n"
+              << gradientValues.middleRows(dataDim, dataDim).transpose().format(utils::eigenio::legacyVtkByDim(dataDim))
+              << "\n";
+
+      if (spaceDim == 3) { // dz is only for 3D data
+        outFile << "VECTORS " << data->getName() << "_dz"
+                << " double\n"
+                << gradientValues.middleRows(2 * dataDim, dataDim).transpose().format(utils::eigenio::legacyVtkByDim(dataDim))
+                << "\n";
+      }
+    }
+    outFile << '\n';
   }
 }
 

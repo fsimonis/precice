@@ -14,6 +14,7 @@
 #include "mesh/Tetrahedron.hpp"
 #include "mesh/Triangle.hpp"
 #include "mesh/Vertex.hpp"
+#include "utils/EigenIO.hpp"
 #include "utils/Helpers.hpp"
 #include "utils/IntraComm.hpp"
 #include "utils/assertion.hpp"
@@ -172,16 +173,7 @@ void ExportXML::exportGradient(const mesh::PtrData data, const int spaceDim, std
     outFile << "            <DataArray type=\"Float64\" Name=\"" << dataName << suffix << "\" NumberOfComponents=\"" << 3;
     outFile << "\" format=\"ascii\">\n";
     outFile << "               ";
-    for (int i = counter; i < gradientValues.cols(); i += spaceDim) { // Loop over vertices
-      int j = 0;
-      for (; j < gradientValues.rows(); j++) { // Loop over components
-        outFile << gradientValues.coeff(j, i) << " ";
-      }
-      if (j < 3) { // If 2D data add additional zero as third component
-        outFile << "0.0"
-                << " ";
-      }
-    }
+    outFile << gradientValues.middleRows(counter * dataDimensions, dataDimensions).transpose().format(utils::eigenio::vtkByDim(dataDimensions));
     outFile << '\n'
             << "            </DataArray>\n";
     counter++; // Increment counter for next component
@@ -212,7 +204,7 @@ void ExportXML::exportData(
   outFile << "\n            </DataArray>\n";
 
   for (const mesh::PtrData &data : mesh.data()) { // Plot vertex data
-    Eigen::VectorXd &values         = data->values();
+    Eigen::MatrixXd &values         = data->values();
     int              dataDimensions = data->getDimensions();
     std::string      dataName(data->getName());
     int              numberOfComponents = (dataDimensions == 2) ? 3 : dataDimensions;
@@ -220,26 +212,7 @@ void ExportXML::exportData(
     outFile << "            <DataArray type=\"Float64\" Name=\"" << dataName << "\" NumberOfComponents=\"" << numberOfComponents;
     outFile << "\" format=\"ascii\">\n";
     outFile << "               ";
-    if (dataDimensions > 1) {
-      Eigen::VectorXd viewTemp(dataDimensions);
-      for (size_t count = 0; count < mesh.vertices().size(); count++) {
-        size_t offset = count * dataDimensions;
-        for (int i = 0; i < dataDimensions; i++) {
-          viewTemp[i] = values(offset + i);
-        }
-        for (int i = 0; i < dataDimensions; i++) {
-          outFile << viewTemp[i] << ' ';
-        }
-        if (dataDimensions == 2) {
-          outFile << "0.0" << ' '; // 2D data needs to be 3D for vtk
-        }
-        outFile << ' ';
-      }
-    } else if (dataDimensions == 1) {
-      for (size_t count = 0; count < mesh.vertices().size(); count++) {
-        outFile << values(count) << ' ';
-      }
-    }
+    outFile << values.transpose().format(utils::eigenio::vtkByDim(dataDimensions));
     outFile << '\n'
             << "            </DataArray>\n";
     if (hasGradient) {
