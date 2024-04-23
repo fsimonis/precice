@@ -251,7 +251,7 @@ double SolverInterfaceImpl::initialize()
   PRECICE_TRACE();
   PRECICE_CHECK(_state != State::Finalized, "initialize() cannot be called after finalize().")
   PRECICE_CHECK(_state != State::Initialized, "initialize() may only be called once.");
-  PRECICE_ASSERT(not _couplingScheme->isInitialized());
+  //PRECICE_ASSERT(not _couplingScheme->isInitialized());
   auto &solverInitEvent = EventRegistry::instance().getStoredEvent("solver.initialize");
   solverInitEvent.pause(precice::syncMode);
   Event                    e("initialize", precice::syncMode);
@@ -305,12 +305,17 @@ double SolverInterfaceImpl::initialize()
     watchIntegral->initialize();
   }
 
-  // Initialize coupling state, overwrite these values for restart
-  double time       = 0.0;
-  int    timeWindow = 1;
+  if (_couplingScheme->isInitialized()) {
+    PRECICE_DEBUG("Reinitialize coupling schemes");
+    _couplingScheme->reinitialize();
+  } else {
+    // Initialize coupling state, overwrite these values for restart
+    double time       = 0.0;
+    int    timeWindow = 1;
 
-  PRECICE_DEBUG("Initialize coupling schemes");
-  _couplingScheme->initialize(time, timeWindow);
+    PRECICE_DEBUG("Initialize coupling schemes");
+    _couplingScheme->initialize(time, timeWindow);
+  }
   PRECICE_ASSERT(_couplingScheme->isInitialized());
 
   double dt = _couplingScheme->getNextTimestepMaxLength();
@@ -377,6 +382,52 @@ void SolverInterfaceImpl::initializeData()
   _hasInitializedData = true;
 }
 
+int SolverInterfaceImpl::getTotalMeshChanges() const 
+{
+  Event e("intra-handshake", precice::syncMode);
+  PRECICE_TRACE();
+  int localMeshesChanges = _meshLock.countUnlocked();
+  PRECICE_DEBUG("Local Mesh Changes: {}", localMeshesChanges);
+
+  int totalMeshesChanges = 0;
+  utils::MasterSlave::allreduceSum(localMeshesChanges, totalMeshesChanges);
+  PRECICE_DEBUG("Total Mesh Changes: {}", totalMeshesChanges);
+  return totalMeshesChanges;
+}
+
+bool SolverInterfaceImpl::reinitHandshake(bool requestReinit) const {
+  PRECICE_TRACE();
+  Event e("inter-handshake", precice::syncMode);
+
+  if(not utils::MasterSlave::isSlave()) {
+    PRECICE_DEBUG("Reinitialization is{} required.", (requestReinit ? "" : " not"));
+
+    PRECICE_DEBUG("Handshake Phase 1 - Broadcast requests");
+    bool swarmReinitRequired = requestReinit;
+    for (auto &iter : _m2ns) {
+      PRECICE_DEBUG("Performing handshake with {}", iter.first);
+      bool received = false;
+      if (iter.second.isRequesting) {
+        iter.second.m2n->getMasterCommunication()->send(requestReinit,0);
+        iter.second.m2n->getMasterCommunication()->receive(received,0);
+      } else{
+        iter.second.m2n->getMasterCommunication()->receive(received,0);
+        iter.second.m2n->getMasterCommunication()->send(requestReinit,0);
+      }
+      swarmReinitRequired |= received;
+    }
+    PRECICE_DEBUG("Result of Phase 1 -{} reinit required.",  (swarmReinitRequired ? "" : " no"));
+
+    utils::MasterSlave::broadcast(swarmReinitRequired);
+    return swarmReinitRequired;
+  } else {
+    bool swarmReinitRequired = false;
+    utils::MasterSlave::broadcast(swarmReinitRequired);
+    return swarmReinitRequired;
+  }
+}
+
+
 double SolverInterfaceImpl::advance(
     double computedTimestepLength)
 {
@@ -408,6 +459,11 @@ double SolverInterfaceImpl::advance(
     syncTimestep(computedTimestepLength);
   }
 #endif
+
+  int totalMeshesChanges = getTotalMeshChanges();
+  if(reinitHandshake(totalMeshesChanges)) {
+    reinitialize();
+  }
 
   double timeWindowSize         = 0.0; // Length of (full) current time window
   double timeWindowComputedPart = 0.0; // Length of computed part of (full) current time window
@@ -1773,6 +1829,20 @@ const mesh::Mesh &SolverInterfaceImpl::mesh(const std::string &meshName) const
 {
   PRECICE_TRACE(meshName);
   return *_accessor->usedMeshContext(meshName).mesh;
+}
+
+
+/// REINIT SPECIFIC
+
+void SolverInterfaceImpl::reinitialize()
+{
+  PRECICE_TRACE();
+  PRECICE_INFO("Reinitializing Participant");
+  Event e("reinitialize");
+  utils::ScopedEventPrefix sep("reinitialize/");
+  closeCommunicationChannels(CloseChannels::Distributed);
+  _state = State::Constructed;
+  initialize();
 }
 
 } // namespace impl

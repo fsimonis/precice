@@ -57,6 +57,8 @@ public:
 
   virtual ~CouplingScheme() {}
 
+  virtual void reinitialize() = 0;
+
   /**
    * @brief Initializes the coupling scheme and establishes a communication
    *        connection to the coupling partner.

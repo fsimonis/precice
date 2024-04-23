@@ -71,6 +71,8 @@ public:
    */
   void addCouplingScheme(const PtrCouplingScheme &scheme);
 
+  void reinitialize() final override;
+
   /**
    * @brief Initializes the coupling scheme and establishes a communication
    *        connection to the coupling partner.
