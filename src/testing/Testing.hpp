@@ -17,29 +17,6 @@ namespace testing {
 
 namespace bt = boost::unit_test;
 
-constexpr DataID operator"" _dataID(unsigned long long n)
-{
-  PRECICE_ASSERT(n >= 0, "DataID must be positive");
-  PRECICE_ASSERT(n < std::numeric_limits<DataID>::max(), "DataID is too big");
-  return static_cast<DataID>(n);
-}
-
-namespace inject {
-using precice::testing::Require;
-using precice::testing::operator""_rank;
-using precice::testing::operator""_ranks;
-using precice::testing::operator""_on;
-using precice::testing::operator""_dataID;
-} // namespace inject
-
-#define PRECICE_TEST(...)                             \
-  using namespace precice::testing::inject;           \
-  precice::testing::TestContext context{__VA_ARGS__}; \
-  if (context.invalid) {                              \
-    return;                                           \
-  }                                                   \
-  BOOST_TEST_MESSAGE(context.describe());
-
 /// Boost.Test decorator that unconditionally deletes the test.
 class Deleted : public bt::decorator::base {
 private:
@@ -57,13 +34,13 @@ private:
 /// struct giving access to the impl of a befriended class or struct
 struct WhiteboxAccessor {
   /** Returns the impl of the obj by reference.
-     *
-     * Returns a reference to the object pointed to by the _impl of a class.
-     * This class needs to be friend of T.
-     *
-     * @param[in] obj The object to fetch the impl from.
-     * @returns a lvalue reference to the impl object.
-     */
+   *
+   * Returns a reference to the object pointed to by the _impl of a class.
+   * This class needs to be friend of T.
+   *
+   * @param[in] obj The object to fetch the impl from.
+   * @returns a lvalue reference to the impl object.
+   */
   template <typename T>
   static auto impl(T &obj) -> typename std::add_lvalue_reference<decltype(*(obj._impl))>::type
   {
@@ -133,6 +110,21 @@ std::string getTestName();
 /// Returns the full path to the file containting the current test.
 std::string getTestPath();
 
+inline std::string operator""_src(const char *name, std::size_t n)
+{
+  if (name && n > 0 && *name == '/') {
+    return getPathToSources().append(name, n);
+  }
+  return getPathToSources().append("/").append(name, n);
+}
+
+constexpr DataID operator"" _dataID(unsigned long long n)
+{
+  PRECICE_ASSERT(n >= 0, "DataID must be positive");
+  PRECICE_ASSERT(n < std::numeric_limits<DataID>::max(), "DataID is too big");
+  return static_cast<DataID>(n);
+}
+
 /** Generates a new mesh id for use in tests.
  *
  * @returns a new unique mesh ID
@@ -142,6 +134,23 @@ inline int nextMeshID()
   static utils::ManageUniqueIDs manager;
   return manager.getFreeID();
 }
+
+namespace inject {
+using precice::testing::Require;
+using precice::testing::operator""_rank;
+using precice::testing::operator""_ranks;
+using precice::testing::operator""_on;
+using precice::testing::operator""_dataID;
+using precice::testing::operator""_src;
+} // namespace inject
+
+#define PRECICE_TEST(...)                             \
+  using namespace precice::testing::inject;           \
+  precice::testing::TestContext context{__VA_ARGS__}; \
+  if (context.invalid) {                              \
+    return;                                           \
+  }                                                   \
+  boost::unit_test::framework::add_context(BOOST_TEST_LAZY_MSG(context.describe()), true);
 
 } // namespace testing
 } // namespace precice
