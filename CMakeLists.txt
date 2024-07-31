@@ -66,6 +66,8 @@ option(PRECICE_BINDINGS_FORTRAN "Enable the native Fortran bindings" ON)
 option(PRECICE_BUILD_TOOLS "Build the \"precice-tools\" executable" ON)
 option(PRECICE_FEATURE_LIBBACKTRACE_STACKTRACES "Enable libbacktrace for stacktrace generation." OFF)
 
+option(PRECICE_HIDE_SYMBOLS "" ON)
+
 option(CMAKE_INTERPROCEDURAL_OPTIMIZATION "Enable interprocedural optimization for all targets." OFF)
 
 option(PRECICE_RELEASE_WITH_DEBUG_LOG "Enable debug logging in release builds" OFF)
@@ -366,10 +368,12 @@ set_target_properties(preciceCore PROPERTIES
   )
 
 if(NOT ${Kokkos_VERSION} VERSION_LESS 4.4)
-set_target_properties(preciceCore PROPERTIES
-  CXX_VISIBILITY_PRESET hidden
-  VISIBILITY_INLINES_HIDDEN YES
-)
+  if(PRECICE_HIDE_SYMBOLS)
+    set_target_properties(preciceCore PROPERTIES
+      CXX_VISIBILITY_PRESET hidden
+      VISIBILITY_INLINES_HIDDEN YES
+    )
+  endif()
 endif()
 
 # Setup release override options
@@ -517,11 +521,13 @@ set_target_properties(precice PROPERTIES
   VISIBILITY_INLINES_HIDDEN NO
   )
 
-  if(NOT ${Kokkos_VERSION} VERSION_LESS 4.4)
-set_target_properties(precice PROPERTIES
-  CXX_VISIBILITY_PRESET hidden
-  VISIBILITY_INLINES_HIDDEN YES
- )
+if(NOT ${Kokkos_VERSION} VERSION_LESS 4.4)
+  if(PRECICE_HIDE_SYMBOLS)
+    set_target_properties(precice PROPERTIES
+      CXX_VISIBILITY_PRESET hidden
+      VISIBILITY_INLINES_HIDDEN YES
+      )
+  endif()
 endif()
 
 
