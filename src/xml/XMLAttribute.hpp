@@ -233,5 +233,16 @@ XMLAttribute<T> makeXMLAttribute(std::string name, T defaultValue)
   return XMLAttribute<T>(std::move(name), std::move(defaultValue));
 }
 
+/** creates an XMLAttribute given a name and type.
+ *
+ *  @param[in] name the name of the attribute
+ *  @return an XMLAttribute with the above settings
+ */
+template <typename T>
+XMLAttribute<T> makeXMLAttribute(std::string name)
+{
+  return XMLAttribute<T>(std::move(name));
+}
+
 } // namespace xml
 } // namespace precice
