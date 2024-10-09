@@ -138,6 +138,8 @@ target_sources(testprecice
     tests/remeshing/parallel/implicit/changed-partition/SwapFirst2LI.cpp
     tests/remeshing/parallel/implicit/changed-partition/SwapSecond.cpp
     tests/remeshing/parallel/implicit/changed-partition/SwapSecond2LI.cpp
+    tests/remeshing/parallel/implicit/convergence/RemeshFirstSerial.cpp
+    tests/remeshing/parallel/implicit/convergence/RemeshSecondSerial.cpp
     tests/remeshing/parallel/implicit/helper.hpp
     tests/remeshing/parallel/implicit/noop/RemeshBoth.cpp
     tests/remeshing/parallel/implicit/noop/RemeshBoth2LI.cpp

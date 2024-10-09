@@ -872,4 +872,102 @@ inline void runScatterA(testing::TestContext &context)
 }
 
 } // namespace changepartition
+
+namespace convergence {
+
+inline void runResetA(testing::TestContext &context)
+{
+  constexpr double y = 0.0;
+
+  BOOST_REQUIRE(context.size == 1);
+  BOOST_REQUIRE(context.rank == 0);
+  Participant p{context.name, context.config(), 0, 1};
+
+  // The data format uses the following format:
+  //  0 xpos . (00 | 10 | 11 )
+
+  // A - Adaptive Geometry
+  if (context.isNamed("A")) {
+    QuickTest(p, "MA"_mesh, "DB"_read, "DA"_write)
+        .setVertices({1.0, y, 2.0, y})
+        .initialize()
+        .expectWriteCheckpoint()
+        .expect({00.00, 00.00})
+        .write({01.00, 02.00})
+        .advance()
+
+        .expectReadCheckpoint()
+        .expect({01.00, 02.00})
+        .write({01.10, 02.10})
+        .advance()
+
+        .expectReadCheckpoint()
+        .expect({01.10, 02.10})
+        .write({01.11, 02.11})
+        .advance()
+
+        .expectWriteCheckpoint()
+        .expect({01.11, 02.11})
+        .resetMesh()
+        .setVertices({2.0, y})
+        .write({02.00})
+        .advance()
+
+        .expectReadCheckpoint()
+        .expect({02.00})
+        .write({02.10})
+        .advance()
+
+        .expectReadCheckpoint()
+        .expect({02.10})
+        .write({02.11})
+        .advance()
+
+        .expectCouplingCompleted()
+        .expect({02.11})
+        .finalize();
+  }
+  // B - Changing Geometry
+  if (context.isNamed("B")) {
+    QuickTest(p, "MB"_mesh, "DA"_read, "DB"_write)
+        .setVertices({1.0, y, 2.0, y})
+        .initialize()
+        .expectWriteCheckpoint()
+        .expect({00.00, 00.00})
+        .write({01.00, 02.00})
+        .advance()
+
+        .expectReadCheckpoint()
+        .expect({01.00, 02.00})
+        .write({01.10, 02.10})
+        .advance()
+
+        .expectReadCheckpoint()
+        .expect({01.10, 02.10})
+        .write({01.11, 02.11})
+        .advance()
+
+        .expectWriteCheckpoint()
+        .expect({01.11, 02.11})
+        .write({01.00, 02.00})
+        .advance()
+
+        .expectReadCheckpoint()
+        .expect({02.00, 02.00})
+        .write({01.10, 02.10})
+        .advance()
+
+        .expectReadCheckpoint()
+        .expect({02.10, 02.10})
+        .write({01.11, 02.11})
+        .advance()
+
+        .expectCouplingCompleted()
+        .expect({02.11, 02.11})
+        .finalize();
+  }
+}
+
+} // namespace convergence
+
 } // namespace precice::tests::remesh::parallelImplicit
