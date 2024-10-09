@@ -364,6 +364,8 @@ void CouplingSchemeConfiguration::xmlEndTagCallback(
       addCouplingScheme(scheme, accessor);
       _config = Config();
     } else if (_config.type == VALUE_MULTI) {
+      /// TODO test multi coupling scheme
+      PRECICE_CHECK(!_allowRemeshing, "Remeshing is currently incompatible with multi coupling schemes. Try using a parallel coupling scheme instead.");
       PRECICE_INFO_IF(_allowRemeshing, "Remeshing for implicit coupling schemes is in development. Currently, the acceleration data is deleted on remeshing.");
       updateConfigForImplicitCoupling();
       PRECICE_CHECK(_config.setController,
