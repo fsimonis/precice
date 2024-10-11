@@ -401,7 +401,6 @@ void ParticipantImpl::advance(
   if (_allowsRemeshing) {
     if (isAtWindowEnd) {
       int totalMeshChanges = getTotalMeshChanges();
-      // TODO assert that if meshes change, we are in the first iteration of the time window.
       if (reinitHandshake(totalMeshChanges)) {
         reinitialize();
       }

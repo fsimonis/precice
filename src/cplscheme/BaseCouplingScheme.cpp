@@ -303,6 +303,11 @@ void BaseCouplingScheme::reinitialize()
   PRECICE_ASSERT(isInitialized());
 
   if (isImplicitCouplingScheme()) {
+    // overwrite past iteration with new samples
+    for (const auto &data : _allData | boost::adaptors::map_values) {
+      data->reinitialize();
+    }
+
     if (not doesFirstStep()) {
       if (_acceleration) {
         _acceleration->initialize(getAccelerationData());

@@ -83,6 +83,7 @@ Eigen::MatrixXd CouplingData::getPreviousGradientsAtTime(double relativeDt)
 
 void CouplingData::setSampleAtTime(double time, time::Sample sample)
 {
+  ;
   PRECICE_ASSERT(not sample.values.hasNaN());
   this->sample() = sample; // @todo at some point we should not need this anymore, when mapping, acceleration ... directly work on _timeStepsStorage
   _data->setSampleAtTime(time, sample);
@@ -97,6 +98,26 @@ bool CouplingData::hasGradient() const
 int CouplingData::meshDimensions() const
 {
   return _mesh->getDimensions();
+}
+
+void CouplingData::reinitialize()
+{
+  PRECICE_ASSERT(!_data->timeStepsStorage().empty());
+  // TODO port this to subcyling
+  // everything is obsolete at this point and we don't know the written values yet
+  // The last sample will be added later in advance
+  auto zero = time::Sample(_data->getDimensions(), _mesh->nVertices());
+  zero.setZero();
+
+  // Add existing stamples as zero data of the correct shape
+  auto times = _data->timeStepsStorage().getTimes();
+  _data->timeStepsStorage().clear();
+  for (double t : times) {
+    _data->setSampleAtTime(t, zero);
+  }
+
+  // We wipe the previous storage
+  _previousTimeStepsStorage = _data->timeStepsStorage();
 }
 
 void CouplingData::storeIteration()
