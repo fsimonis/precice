@@ -20,7 +20,7 @@ namespace acceleration {
 // first and second are read data from the first and second iteration
 // The end of a timewindow and the end of the simulation are never accelerated and thus 15
 
-inline void runResetA(testing::TestContext &context, double first, double second)
+inline void runResetA(testing::TestContext &context, double first, double second, double third, double forth)
 {
   constexpr double y = 0.0;
 
@@ -50,6 +50,21 @@ inline void runResetA(testing::TestContext &context, double first, double second
 
         .expectWriteCheckpoint()
         .expectAll(15)
+        .writeAll(40.00)
+        .advance()
+
+        .expectReadCheckpoint()
+        .expectAll(third)
+        .writeAll(30.00)
+        .advance()
+
+        .expectReadCheckpoint()
+        .expectAll(forth)
+        .writeAll(15.00)
+        .advance()
+
+        .expectWriteCheckpoint()
+        .expectAll(15)
         .resetMesh()
         .setVertices({2.0, y})
         .writeAll(40.00)
@@ -62,6 +77,21 @@ inline void runResetA(testing::TestContext &context, double first, double second
 
         .expectReadCheckpoint()
         .expectAll(second)
+        .writeAll(15.00)
+        .advance()
+
+        .expectWriteCheckpoint()
+        .expectAll(15)
+        .writeAll(40.00)
+        .advance()
+
+        .expectReadCheckpoint()
+        .expectAll(third)
+        .writeAll(30.00)
+        .advance()
+
+        .expectReadCheckpoint()
+        .expectAll(forth)
         .writeAll(15.00)
         .advance()
 
@@ -95,12 +125,42 @@ inline void runResetA(testing::TestContext &context, double first, double second
         .advance()
 
         .expectReadCheckpoint()
+        .expectAll(third)
+        .writeAll(30.00)
+        .advance()
+
+        .expectReadCheckpoint()
+        .expectAll(forth)
+        .writeAll(15.00)
+        .advance()
+
+        .expectWriteCheckpoint()
+        .expectAll(15.00)
+        .writeAll(40.00)
+        .advance()
+
+        .expectReadCheckpoint()
         .expectAll(first)
         .writeAll(30.00)
         .advance()
 
         .expectReadCheckpoint()
         .expectAll(second)
+        .writeAll(15.00)
+        .advance()
+
+        .expectWriteCheckpoint()
+        .expectAll(15.00)
+        .writeAll(40.00)
+        .advance()
+
+        .expectReadCheckpoint()
+        .expectAll(third)
+        .writeAll(30.00)
+        .advance()
+
+        .expectReadCheckpoint()
+        .expectAll(forth)
         .writeAll(15.00)
         .advance()
 
@@ -112,25 +172,25 @@ inline void runResetA(testing::TestContext &context, double first, double second
 
 inline void runResetAConstant(testing::TestContext &context)
 {
-  runResetA(context, 20, 25);
+  runResetA(context, 20, 25, 27.5, 28.75);
 }
 
 inline void runResetAAitken(testing::TestContext &context)
 {
-  runResetA(context, 20, 26.666666666);
+  runResetA(context, 20, 26.666666666, 27.5, 28.888888888);
 }
 
 inline void runResetAIQNILS(testing::TestContext &context)
 {
-  runResetA(context, 4, 11.4285714285714);
+  runResetA(context, 4, 11.4285714285714, 23.280254777, 26.324041811);
 }
 
 inline void runResetAIQNIMVJ(testing::TestContext &context)
 {
-  runResetA(context, 4, 11.4285714285714);
+  runResetA(context, 4, 11.428571428, 6.560509554, -120.204081632);
 }
 
-inline void runResetBoth(testing::TestContext &context, double first, double second)
+inline void runResetBoth(testing::TestContext &context, double first, double second, double third, double forth)
 {
   constexpr double y = 0.0;
 
@@ -160,6 +220,21 @@ inline void runResetBoth(testing::TestContext &context, double first, double sec
 
         .expectWriteCheckpoint()
         .expectAll(15.00) // end of lw
+        .writeAll(40.00)
+        .advance()
+
+        .expectReadCheckpoint()
+        .expectAll(third)
+        .writeAll(30.00)
+        .advance()
+
+        .expectReadCheckpoint()
+        .expectAll(forth)
+        .writeAll(15.00)
+        .advance()
+
+        .expectWriteCheckpoint()
+        .expectAll(15.00) // end of lw
         .resetMesh()
         .setVertices({2.0, y})
         .writeAll(40.00)
@@ -172,6 +247,21 @@ inline void runResetBoth(testing::TestContext &context, double first, double sec
 
         .expectReadCheckpoint()
         .expectAll(second)
+        .writeAll(15.00)
+        .advance()
+
+        .expectWriteCheckpoint()
+        .expectAll(15.00) // end sample
+        .writeAll(40.00)
+        .advance()
+
+        .expectReadCheckpoint()
+        .expectAll(third)
+        .writeAll(30.00)
+        .advance()
+
+        .expectReadCheckpoint()
+        .expectAll(forth)
         .writeAll(15.00)
         .advance()
 
@@ -201,6 +291,21 @@ inline void runResetBoth(testing::TestContext &context, double first, double sec
 
         .expectWriteCheckpoint()
         .expectAll(15.00) // end of tw
+        .writeAll(40.00)
+        .advance()
+
+        .expectReadCheckpoint()
+        .expectAll(third)
+        .writeAll(30.00)
+        .advance()
+
+        .expectReadCheckpoint()
+        .expectAll(forth)
+        .writeAll(15.00)
+        .advance()
+
+        .expectWriteCheckpoint()
+        .expectAll(15.00) // end of tw
         .resetMesh()
         .setVertices({2.0, y, 3.0, y})
         .writeAll(40.00)
@@ -216,6 +321,21 @@ inline void runResetBoth(testing::TestContext &context, double first, double sec
         .writeAll(15.00)
         .advance()
 
+        .expectWriteCheckpoint()
+        .expectAll(15.00) // end of tw
+        .writeAll(40.00)
+        .advance()
+
+        .expectReadCheckpoint()
+        .expectAll(third)
+        .writeAll(30.00)
+        .advance()
+
+        .expectReadCheckpoint()
+        .expectAll(forth)
+        .writeAll(15.00)
+        .advance()
+
         .expectCouplingCompleted()
         .expectAll(15.00) // end sample
         .finalize();
@@ -224,22 +344,22 @@ inline void runResetBoth(testing::TestContext &context, double first, double sec
 
 inline void runResetBothConstant(testing::TestContext &context)
 {
-  runResetBoth(context, 20, 25);
+  runResetBoth(context, 20, 25, 27.5, 28.75);
 }
 
 inline void runResetBothAitken(testing::TestContext &context)
 {
-  runResetBoth(context, 20, 26.666666666);
+  runResetBoth(context, 20, 26.666666666, 27.5, 28.888888888);
 }
 
 inline void runResetBothIQNILS(testing::TestContext &context)
 {
-  runResetBoth(context, 4, 11.4285714285714);
+  runResetBoth(context, 4, 11.4285714285714, 23.280254777, 26.324041811);
 }
 
 inline void runResetBothIQNIMVJ(testing::TestContext &context)
 {
-  runResetBoth(context, 4, 11.4285714285714);
+  runResetBoth(context, 4, 11.4285714285714, 6.560509554, -120.204081632);
 }
 } // namespace acceleration
 } // namespace precice::tests::remesh::parallelImplicit

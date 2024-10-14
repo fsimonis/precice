@@ -33,7 +33,7 @@
 
   <coupling-scheme:parallel-implicit>
     <participants first="A" second="B" />
-    <max-time-windows value="2" />
+    <max-time-windows value="4" />
     <time-window-size value="1" />
     <max-iterations value="3" />
     <exchange data="DA" mesh="MA" from="A" to="B" />
