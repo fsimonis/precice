@@ -17,7 +17,7 @@ using testing::operator""_write;
 namespace acceleration {
 
 // The data written in the acceleration tests are always 40, 30, 15
-// first and second are read data from the first and second iteration
+// first, second, third, and forth are read data from the first, second, third and forth iteration
 // The end of a timewindow and the end of the simulation are never accelerated and thus 15
 
 inline void runResetA(testing::TestContext &context, double first, double second, double third, double forth)
