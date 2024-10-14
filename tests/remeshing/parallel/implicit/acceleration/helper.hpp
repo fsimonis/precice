@@ -16,16 +16,17 @@ using testing::operator""_write;
 
 namespace acceleration {
 
-inline void runResetA(testing::TestContext &context)
+// The data written in the acceleration tests are always 40, 30, 15
+// first and second are read data from the first and second iteration
+// The end of a timewindow and the end of the simulation are never accelerated and thus 15
+
+inline void runResetA(testing::TestContext &context, double first, double second)
 {
   constexpr double y = 0.0;
 
   BOOST_REQUIRE(context.size == 1);
   BOOST_REQUIRE(context.rank == 0);
   Participant p{context.name, context.config(), 0, 1};
-
-  // The data format uses the following format:
-  //  0 xpos . (00 | 10 | 11 )
 
   // A - Adaptive Geometry
   if (context.isNamed("A")) {
@@ -38,34 +39,34 @@ inline void runResetA(testing::TestContext &context)
         .advance()
 
         .expectReadCheckpoint()
-        .expectAll(20.00)
+        .expectAll(first)
         .writeAll(30.00)
         .advance()
 
         .expectReadCheckpoint()
-        .expectAll(25.00)
+        .expectAll(second)
         .writeAll(15.00)
         .advance()
 
         .expectWriteCheckpoint()
-        .expectAll(15.00)
+        .expectAll(15)
         .resetMesh()
         .setVertices({2.0, y})
         .writeAll(40.00)
         .advance()
 
         .expectReadCheckpoint()
-        .expectAll(20.00)
+        .expectAll(first)
         .writeAll(30.00)
         .advance()
 
         .expectReadCheckpoint()
-        .expectAll(25.00)
+        .expectAll(second)
         .writeAll(15.00)
         .advance()
 
         .expectCouplingCompleted()
-        .expectAll(15.00) // end sample
+        .expectAll(15)
         .finalize();
   }
   // B - Changing Geometry
@@ -79,46 +80,63 @@ inline void runResetA(testing::TestContext &context)
         .advance()
 
         .expectReadCheckpoint()
-        .expectAll(20.00)
+        .expectAll(first)
         .writeAll(30.00)
         .advance()
 
         .expectReadCheckpoint()
-        .expectAll(25.00)
+        .expectAll(second)
         .writeAll(15.00)
         .advance()
 
         .expectWriteCheckpoint()
-        .expectAll(15.00) // end of last tw
+        .expectAll(15.00)
         .writeAll(40.00)
         .advance()
 
         .expectReadCheckpoint()
-        .expectAll(20.00)
+        .expectAll(first)
         .writeAll(30.00)
         .advance()
 
         .expectReadCheckpoint()
-        .expectAll(25.00)
+        .expectAll(second)
         .writeAll(15.00)
         .advance()
 
         .expectCouplingCompleted()
-        .expectAll(15.00) // end sample
+        .expectAll(15)
         .finalize();
   }
 }
 
-inline void runResetBoth(testing::TestContext &context)
+inline void runResetAConstant(testing::TestContext &context)
+{
+  runResetA(context, 20, 25);
+}
+
+inline void runResetAAitken(testing::TestContext &context)
+{
+  runResetA(context, 20, 26.666666666);
+}
+
+inline void runResetAIQNILS(testing::TestContext &context)
+{
+  runResetA(context, 4, 11.4285714285714);
+}
+
+inline void runResetAIQNIMVJ(testing::TestContext &context)
+{
+  runResetA(context, 4, 11.4285714285714);
+}
+
+inline void runResetBoth(testing::TestContext &context, double first, double second)
 {
   constexpr double y = 0.0;
 
   BOOST_REQUIRE(context.size == 1);
   BOOST_REQUIRE(context.rank == 0);
   Participant p{context.name, context.config(), 0, 1};
-
-  // The data format uses the following format:
-  //  0 xpos . (00 | 10 | 11 )
 
   // A - Adaptive Geometry
   if (context.isNamed("A")) {
@@ -131,12 +149,12 @@ inline void runResetBoth(testing::TestContext &context)
         .advance()
 
         .expectReadCheckpoint()
-        .expectAll(20.00)
+        .expectAll(first)
         .writeAll(30.00)
         .advance()
 
         .expectReadCheckpoint()
-        .expectAll(25.00)
+        .expectAll(second)
         .writeAll(15.00)
         .advance()
 
@@ -148,12 +166,12 @@ inline void runResetBoth(testing::TestContext &context)
         .advance()
 
         .expectReadCheckpoint()
-        .expectAll(20.00) // initial sample is 0
+        .expectAll(first)
         .writeAll(30.00)
         .advance()
 
         .expectReadCheckpoint()
-        .expectAll(25.00)
+        .expectAll(second)
         .writeAll(15.00)
         .advance()
 
@@ -172,12 +190,12 @@ inline void runResetBoth(testing::TestContext &context)
         .advance()
 
         .expectReadCheckpoint()
-        .expectAll(20.00)
+        .expectAll(first)
         .writeAll(30.00)
         .advance()
 
         .expectReadCheckpoint()
-        .expectAll(25.00)
+        .expectAll(second)
         .writeAll(15.00)
         .advance()
 
@@ -189,12 +207,12 @@ inline void runResetBoth(testing::TestContext &context)
         .advance()
 
         .expectReadCheckpoint()
-        .expectAll(20.00) // initial sample is 0
+        .expectAll(first)
         .writeAll(30.00)
         .advance()
 
         .expectReadCheckpoint()
-        .expectAll(25.00)
+        .expectAll(second)
         .writeAll(15.00)
         .advance()
 
@@ -203,6 +221,25 @@ inline void runResetBoth(testing::TestContext &context)
         .finalize();
   }
 }
-} // namespace acceleration
 
+inline void runResetBothConstant(testing::TestContext &context)
+{
+  runResetBoth(context, 20, 25);
+}
+
+inline void runResetBothAitken(testing::TestContext &context)
+{
+  runResetBoth(context, 20, 26.666666666);
+}
+
+inline void runResetBothIQNILS(testing::TestContext &context)
+{
+  runResetBoth(context, 4, 11.4285714285714);
+}
+
+inline void runResetBothIQNIMVJ(testing::TestContext &context)
+{
+  runResetBoth(context, 4, 11.4285714285714);
+}
+} // namespace acceleration
 } // namespace precice::tests::remesh::parallelImplicit

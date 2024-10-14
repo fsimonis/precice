@@ -119,9 +119,18 @@ target_sources(testprecice
     tests/remeshing/parallel/explicit/noop/RemeshOutput.cpp
     tests/remeshing/parallel/explicit/noop/RemeshOutput2LI.cpp
     tests/remeshing/parallel/explicit/noop/RemeshOutputSerial.cpp
-    tests/remeshing/parallel/implicit/acceleration/RemeshBothSerial.cpp
-    tests/remeshing/parallel/implicit/acceleration/RemeshFirstSerial.cpp
-    tests/remeshing/parallel/implicit/acceleration/RemeshSecondSerial.cpp
+    tests/remeshing/parallel/implicit/acceleration/IQN-ILS/RemeshBothSerial.cpp
+    tests/remeshing/parallel/implicit/acceleration/IQN-ILS/RemeshFirstSerial.cpp
+    tests/remeshing/parallel/implicit/acceleration/IQN-ILS/RemeshSecondSerial.cpp
+    tests/remeshing/parallel/implicit/acceleration/IQN-IMVJ/RemeshBothSerial.cpp
+    tests/remeshing/parallel/implicit/acceleration/IQN-IMVJ/RemeshFirstSerial.cpp
+    tests/remeshing/parallel/implicit/acceleration/IQN-IMVJ/RemeshSecondSerial.cpp
+    tests/remeshing/parallel/implicit/acceleration/aitken/RemeshBothSerial.cpp
+    tests/remeshing/parallel/implicit/acceleration/aitken/RemeshFirstSerial.cpp
+    tests/remeshing/parallel/implicit/acceleration/aitken/RemeshSecondSerial.cpp
+    tests/remeshing/parallel/implicit/acceleration/constant/RemeshBothSerial.cpp
+    tests/remeshing/parallel/implicit/acceleration/constant/RemeshFirstSerial.cpp
+    tests/remeshing/parallel/implicit/acceleration/constant/RemeshSecondSerial.cpp
     tests/remeshing/parallel/implicit/acceleration/helper.hpp
     tests/remeshing/parallel/implicit/changed-mapping/RemeshBoth.cpp
     tests/remeshing/parallel/implicit/changed-mapping/RemeshBoth2LI.cpp
