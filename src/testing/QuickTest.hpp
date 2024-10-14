@@ -53,6 +53,7 @@ struct QuickTest {
 
   QuickTest &resetMesh()
   {
+    BOOST_TEST_MESSAGE("Remeshing");
     interface.resetMesh(meshName);
     return *this;
   }
@@ -86,6 +87,13 @@ struct QuickTest {
     return *this;
   }
 
+  QuickTest &writeAll(double d)
+  {
+    std::vector<double> data(vertexIDs.size() * interface.getDataDimensions(meshName, writeDataName), d);
+    interface.writeData(meshName, writeDataName, vertexIDs, data);
+    return *this;
+  }
+
   std::vector<double> read()
   {
     auto                n = vertexIDs.size() * interface.getDataDimensions(meshName, readDataName);
@@ -97,6 +105,14 @@ struct QuickTest {
   QuickTest &expect(const std::vector<double> &expected)
   {
     auto data = read();
+    BOOST_TEST(data == expected, boost::test_tools::per_element());
+    return *this;
+  }
+
+  QuickTest &expectAll(double e)
+  {
+    auto                data = read();
+    std::vector<double> expected(vertexIDs.size() * interface.getDataDimensions(meshName, readDataName), e);
     BOOST_TEST(data == expected, boost::test_tools::per_element());
     return *this;
   }

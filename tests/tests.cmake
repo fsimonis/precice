@@ -119,6 +119,10 @@ target_sources(testprecice
     tests/remeshing/parallel/explicit/noop/RemeshOutput.cpp
     tests/remeshing/parallel/explicit/noop/RemeshOutput2LI.cpp
     tests/remeshing/parallel/explicit/noop/RemeshOutputSerial.cpp
+    tests/remeshing/parallel/implicit/acceleration/RemeshBothSerial.cpp
+    tests/remeshing/parallel/implicit/acceleration/RemeshFirstSerial.cpp
+    tests/remeshing/parallel/implicit/acceleration/RemeshSecondSerial.cpp
+    tests/remeshing/parallel/implicit/acceleration/helper.hpp
     tests/remeshing/parallel/implicit/changed-mapping/RemeshBoth.cpp
     tests/remeshing/parallel/implicit/changed-mapping/RemeshBoth2LI.cpp
     tests/remeshing/parallel/implicit/changed-mapping/RemeshBothSerial.cpp
