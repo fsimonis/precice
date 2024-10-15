@@ -305,6 +305,7 @@ void BaseCouplingScheme::reinitialize()
   if (isImplicitCouplingScheme()) {
     // overwrite past iteration with new samples
     for (const auto &data : _allData | boost::adaptors::map_values) {
+      // TODO: reset CouplingData of changed meshes only #2102
       data->reinitialize();
     }
 
