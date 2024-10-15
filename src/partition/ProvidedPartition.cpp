@@ -147,7 +147,6 @@ void ProvidedPartition::prepare()
       globalNumberOfVertices += numberOfSecondaryRankVertices;
     }
     PRECICE_ASSERT(std::all_of(vertexOffsets.begin(), vertexOffsets.end(), [](auto i) { return i >= 0; }));
-    //PRECICE_ASSERT(_mesh->getVertexOffsets().empty());
     _mesh->setVertexOffsets(vertexOffsets);
 
     // set and broadcast global number of vertices
