@@ -81,9 +81,7 @@ void CompositionalCouplingScheme::initialize()
 void CompositionalCouplingScheme::reinitialize()
 {
   PRECICE_TRACE();
-  for (const auto scheme : allSchemes()) {
-    scheme->reinitialize();
-  }
+  PRECICE_UNREACHABLE("Not implemented and not allowed");
 }
 
 bool CompositionalCouplingScheme::sendsInitializedData() const

@@ -78,6 +78,9 @@ public:
    */
   virtual void initialize() = 0;
 
+  /**
+   * @brief Reinitializes the coupling scheme, coupling data, and acceleration schemes
+   */
   virtual void reinitialize() = 0;
 
   /**
