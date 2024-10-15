@@ -218,6 +218,7 @@ void ProvidedPartition::prepare()
     }());
     _mesh->setVertexOffsets({numberOfVertices});
     _mesh->setGlobalNumberOfVertices(numberOfVertices);
+    PRECICE_ASSERT(!_mesh->getVertexDistribution().empty());
   }
 
   PRECICE_DEBUG("Set owner information");
@@ -227,12 +228,6 @@ void ProvidedPartition::prepare()
 
   PRECICE_ASSERT(_mesh->getGlobalNumberOfVertices() > 0);
   PRECICE_ASSERT(!_mesh->getVertexOffsets().empty());
-
-  /* TODO check why this doesn't work
-  if (!utils::IntraComm::isParallel() || utils::IntraComm::isPrimary()) {
-    PRECICE_ASSERT(!_mesh->getVertexDistribution().empty());
-  }
-  */
 }
 
 void ProvidedPartition::compute()
