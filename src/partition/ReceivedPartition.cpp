@@ -265,11 +265,9 @@ void ReceivedPartition::compute()
   }
 
   PRECICE_ASSERT(!_mesh->getVertexOffsets().empty());
-  /* TODO this triggers even though it shouldn't. Asserting in the branch above after setting it does not trigger
-  if (m2n().usesTwoLevelInitialization() && utils::IntraComm::isPrimary()) {
+  if (!m2n().usesTwoLevelInitialization() && utils::IntraComm::isPrimary()) {
     PRECICE_ASSERT(!_mesh->getVertexDistribution().empty());
   }
-  */
 }
 
 namespace {
