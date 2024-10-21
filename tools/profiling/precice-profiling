@@ -771,6 +771,67 @@ def mergeCommand(files, outfile, align):
     return 0
 
 
+def checkCommand(files):
+    resolved = detectFiles(files)
+
+    problems = False
+    for name, sizes in groupRuns(resolved).items():
+        for size, ranks in sizes.items():
+            sizeNote = "serial" if size == 1 else f"parallel on {size} ranks"
+            print(f"Checking participant {name} [{sizeNote}]")
+
+            # Check files
+            expectedRanks = set(range(size))
+            for rank, filename in ranks.items():
+                expectedRanks.discard(rank)
+
+                def warn(s: str):
+                    nonlocal problems
+                    problems = True
+                    print(f"{filename}: \033[31merror:\033[0m {s}")
+
+                with open(filename, "r") as f:
+                    content = f.read()
+
+                if len(content) == 0:
+                    warn("File is empty")
+                    continue
+
+                try:
+                    data = json.loads(content)
+                except:
+                    # Not correctly terminated?
+                    content += "]}"
+                    try:
+                        data = json.loads(content)
+                        warn("File was not terminated")
+                    except:
+                        # Defect?
+                        warn("File is defect")
+                        continue
+
+                if "meta" not in data:
+                    warn("Metadata is missing")
+                else:
+                    if data["meta"]["name"] != name:
+                        warn("Metadata name is incorrect")
+                    if int(data["meta"]["size"]) != size:
+                        warn("Metadata size is incorrect")
+                    if int(data["meta"]["rank"]) != rank:
+                        warn("Metadata rank is incorrect")
+
+            if expectedRanks:
+                missing = ", ".join(map(str, expectedRanks))
+                print(f"\033[31merror:\033[0m missing files for ranks {missing}")
+                problems = True
+
+    if problems:
+        print("\033[31mProblems found\033[0m")
+    else:
+        print("\033[32mNo problems found\033[0m")
+    return problems
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="", epilog="")
     subparsers = parser.add_subparsers(
@@ -910,6 +971,16 @@ if __name__ == "__main__":
     merge.add_argument(
         "-n", "--no-align", action="store_true", help="Don't align participants?"
     )
+
+    check_help = "Detects and checks preCICE profiling output files for correctness or completeness."
+    check = subparsers.add_parser(
+        "check", help=check_help.splitlines()[0], description=check_help
+    )
+    check.add_argument(
+        "files",
+        nargs="*",
+        help="The profiling files to process, directories to search, or nothing to autodetect",
+    )
     args = parser.parse_args()
 
     dispatcher = {
@@ -930,6 +1001,7 @@ if __name__ == "__main__":
             ns.unit,
         ),
         "merge": lambda ns: mergeCommand(ns.files, ns.output, not ns.no_align),
+        "check": lambda ns: checkCommand(ns.files),
     }
 
     def showHelp(ns):
