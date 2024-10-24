@@ -405,7 +405,7 @@ void ParticipantImpl::advance(
         reinitialize();
       }
     } else {
-      PRECICE_ASSERT(_meshLock.checkAll(), "Remeshing is only allowed when reaching the end of the time window.");
+      PRECICE_CHECK(_meshLock.checkAll(), "The time window needs to end after remeshing.");
     }
   }
 
