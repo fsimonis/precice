@@ -93,7 +93,9 @@ target_sources(testprecice
     tests/quasi-newton/serial/TestQN8.cpp
     tests/quasi-newton/serial/TestQN9.cpp
     tests/remeshing/ReadAfterReset.cpp
+    tests/remeshing/ResetAfterSubcycling.cpp
     tests/remeshing/ResetWhileIterating.cpp
+    tests/remeshing/SubcylingAfterReset.cpp
     tests/remeshing/parallel/explicit/changed-mapping/RemeshBoth.cpp
     tests/remeshing/parallel/explicit/changed-mapping/RemeshBoth2LI.cpp
     tests/remeshing/parallel/explicit/changed-mapping/RemeshBothSerial.cpp

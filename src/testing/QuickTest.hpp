@@ -81,6 +81,12 @@ struct QuickTest {
     return *this;
   }
 
+  QuickTest &advance(double dt)
+  {
+    interface.advance(dt);
+    return *this;
+  }
+
   QuickTest &write(const std::vector<double> &data)
   {
     interface.writeData(meshName, writeDataName, vertexIDs, data);
