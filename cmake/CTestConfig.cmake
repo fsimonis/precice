@@ -150,39 +150,39 @@ endfunction(add_precice_test_run_solverdummies)
 
 enable_testing()
 
+# Autodiscovery of CTest
 if(NOT PRECICE_FEATURE_MPI_COMMUNICATION)
   message("Tests require MPICommunication to be enabled.")
+else()
+
+  # This file is automatically loaded by CTEST and needs to exist to prevent strange errors
+  set(ctest_tests_file "${preCICE_BINARY_DIR}/ctest_tests.cmake")
+  if(NOT EXISTS "${ctest_tests_file}")
+    file(WRITE "${ctest_tests_file}" "")
+  endif()
+  set_property(DIRECTORY
+    APPEND PROPERTY TEST_INCLUDE_FILES "${ctest_tests_file}"
+  )
+
+  # Custom command that generates the tests list after the testprecice binary is build
+  add_custom_command(
+    TARGET testprecice POST_BUILD
+    COMMAND "${CMAKE_COMMAND}"
+    -D "TEST_EXECUTABLE=$<TARGET_FILE:testprecice>"
+    -D "TEST_FILE=${ctest_tests_file}"
+    -D "TEST_DIR=${PRECICE_TEST_DIR}"
+    -D "MPI_CXX_LIBRARY_VERSION_STRING=${MPI_CXX_LIBRARY_VERSION_STRING}"
+    -D "MPIEXEC_EXECUTABLE=${MPIEXEC_EXECUTABLE}"
+    -D "MPIEXEC_NUMPROC_FLAG=${MPIEXEC_NUMPROC_FLAG}"
+    -D "PRECICE_CTEST_MPI_FLAGS=${PRECICE_CTEST_MPI_FLAGS}"
+    -D "MPIEXEC_PREFLAGS=${MPIEXEC_PREFLAGS}"
+    -D "MPIEXEC_POSTFLAGS=${MPIEXEC_POSTFLAGS}"
+    -P "${preCICE_SOURCE_DIR}/cmake/discover_tests.cmake"
+    COMMENT "Generating list of tests"
+    BYPRODUCTS "${preCICE_BINARY_DIR}/tests.txt"
+    VERBATIM)
+
 endif()
-
-# Autodiscovery of CTest
-
-# This file is automatically loaded by CTEST and needs to exist to prevent strange errors
-set(ctest_tests_file "${preCICE_BINARY_DIR}/ctest_tests.cmake")
-if(NOT EXISTS "${ctest_tests_file}")
-  file(WRITE "${ctest_tests_file}" "")
-endif()
-set_property(DIRECTORY
-  APPEND PROPERTY TEST_INCLUDE_FILES "${ctest_tests_file}"
-)
-
-
-# Custom command that generates the tests list after the testprecice binary is build
-add_custom_command(
-  TARGET testprecice POST_BUILD
-  COMMAND "${CMAKE_COMMAND}"
-  -D "TEST_EXECUTABLE=$<TARGET_FILE:testprecice>"
-  -D "TEST_FILE=${ctest_tests_file}"
-  -D "TEST_DIR=${PRECICE_TEST_DIR}"
-  -D "MPI_CXX_LIBRARY_VERSION_STRING=${MPI_CXX_LIBRARY_VERSION_STRING}"
-  -D "MPIEXEC_EXECUTABLE=${MPIEXEC_EXECUTABLE}"
-  -D "MPIEXEC_NUMPROC_FLAG=${MPIEXEC_NUMPROC_FLAG}"
-  -D "PRECICE_CTEST_MPI_FLAGS=${PRECICE_CTEST_MPI_FLAGS}"
-  -D "MPIEXEC_PREFLAGS=${MPIEXEC_PREFLAGS}"
-  -D "MPIEXEC_POSTFLAGS=${MPIEXEC_POSTFLAGS}"
-  -P "${preCICE_SOURCE_DIR}/cmake/discover_tests.cmake"
-  COMMENT "Generating list of tests"
-  BYPRODUCTS "${preCICE_BINARY_DIR}/tests.txt"
-  VERBATIM)
 
 # Add solverdummy tests
 
