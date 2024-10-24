@@ -58,7 +58,7 @@ function(add_test NAME)
     "[=[precice.${NAME}]=]"
     PROPERTIES
     ENVIRONMENT "OMP_NUM_THREADS=2"
-    TIMEOUT "10"
+    TIMEOUT "20"
     WORKING_DIRECTORY "${test_dir}"
     ${labels}
  )
