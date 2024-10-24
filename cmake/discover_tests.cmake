@@ -21,7 +21,7 @@ function(add_test NAME)
     return()
   endif()
 
-  string(REPLACE "/" "_" test_dir "${NAME}")
+  string(REGEX REPLACE "[/<>]" "_" test_dir "${NAME}")
   set(test_dir "${TEST_DIR}/${test_dir}")
 
   if (NOT EXISTS test_dir)
