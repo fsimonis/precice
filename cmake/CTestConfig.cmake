@@ -25,61 +25,6 @@ else()
 endif()
 mark_as_advanced(PRECICE_TEST_WRAPPER_SCRIPT)
 
-
-function(add_precice_test)
-  cmake_parse_arguments(PARSE_ARGV 0 PAT "PETSC;MPIPORTS;GINKGO;GINKGO_OMP;GINKGO_CUDA;GINKGO_HIP" "NAME;ARGUMENTS;TIMEOUT;LABELS" "")
-  # Check arguments
-  if(NOT PAT_NAME)
-    message(FATAL_ERROR "Argument NAME not passed")
-  endif()
-
-  # We always prefix our tests
-  set(PAT_FULL_NAME "precice.${PAT_NAME}")
-
-  # Are direct dependencies fulfilled?
-  if( (NOT PRECICE_FEATURE_MPI_COMMUNICATION) OR (PAT_PETSC AND NOT PRECICE_FEATURE_PETSC_MAPPING)
-       OR (PAT_GINKGO AND NOT PRECICE_FEATURE_GINKGO_MAPPING)
-       OR (PAT_GINKGO_OMP AND NOT PRECICE_WITH_OPENMP)
-       OR (PAT_GINKGO_CUDA AND NOT PRECICE_WITH_CUDA)
-       OR (PAT_GINKGO_HIP AND NOT PRECICE_WITH_HIP))
-    message(STATUS "Test ${PAT_FULL_NAME} - skipped")
-    return()
-  endif()
-
-  # We need to disable the MPIPorts tests in case we detect Open MPI or Intel MPI
-  if(PAT_MPIPORTS AND (MPI_CXX_LIBRARY_VERSION_STRING MATCHES "Open MPI|Intel"))
-    message(STATUS "Test ${PAT_FULL_NAME} - skipped (unsupported for this MPI)")
-    return()
-  endif()
-  message(STATUS "Test ${PAT_FULL_NAME}")
-
-  # Assemble the command
-  # --map-by=:OVERSUBSCRIBE works for OpenMPI(4+5) and MPICH, but not for Intel which doesn't need a flag
-  set(_precice_oversubscribe "--map-by;:OVERSUBSCRIBE")
-  if(MPI_CXX_LIBRARY_VERSION_STRING MATCHES "Intel")
-     set(_precice_oversubscribe "")
-  endif()
-  add_test(NAME ${PAT_FULL_NAME}
-    COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 4 ${_precice_oversubscribe}  ${PRECICE_CTEST_MPI_FLAGS} ${MPIEXEC_PREFLAGS} $<TARGET_FILE:testprecice> ${MPIEXEC_POSTFLAGS} ${PAT_ARGUMENTS}
-    )
-  unset(_precice_oversubscribe)
-
-  # Generate working directory
-  set(PAT_WDIR "${PRECICE_TEST_DIR}/${PAT_NAME}")
-  file(MAKE_DIRECTORY "${PAT_WDIR}")
-  # Setting properties
-  set_tests_properties(${PAT_FULL_NAME}
-    PROPERTIES
-    WORKING_DIRECTORY "${PAT_WDIR}"
-    ENVIRONMENT "OMP_NUM_THREADS=2"
-    )
-  if(PAT_TIMEOUT)
-    set_tests_properties(${PAT_FULL_NAME} PROPERTIES TIMEOUT ${PAT_TIMEOUT} )
-  endif()
-  set(_labels ${PAT_LABELS})
-  set_tests_properties(${PAT_FULL_NAME} PROPERTIES LABELS "${_labels}")
-endfunction(add_precice_test)
-
 function(add_precice_test_build_solverdummy PAT_LANG)
   # Turn language to lowercase
   string(TOLOWER ${PAT_LANG} PAT_LANG)
@@ -220,6 +165,7 @@ set_property(DIRECTORY
   APPEND PROPERTY TEST_INCLUDE_FILES "${ctest_tests_file}"
 )
 
+
 # Custom command that generates the tests list after the testprecice binary is build
 add_custom_command(
   TARGET testprecice POST_BUILD
@@ -227,6 +173,12 @@ add_custom_command(
   -D "TEST_EXECUTABLE=$<TARGET_FILE:testprecice>"
   -D "TEST_FILE=${ctest_tests_file}"
   -D "TEST_DIR=${PRECICE_TEST_DIR}"
+  -D "MPI_CXX_LIBRARY_VERSION_STRING=${MPI_CXX_LIBRARY_VERSION_STRING}"
+  -D "MPIEXEC_EXECUTABLE=${MPIEXEC_EXECUTABLE}"
+  -D "MPIEXEC_NUMPROC_FLAG=${MPIEXEC_NUMPROC_FLAG}"
+  -D "PRECICE_CTEST_MPI_FLAGS=${PRECICE_CTEST_MPI_FLAGS}"
+  -D "MPIEXEC_PREFLAGS=${MPIEXEC_PREFLAGS}"
+  -D "MPIEXEC_POSTFLAGS=${MPIEXEC_POSTFLAGS}"
   -P "${preCICE_SOURCE_DIR}/cmake/discover_tests.cmake"
   COMMENT "Generating list of tests"
   BYPRODUCTS "${preCICE_BINARY_DIR}/tests.txt"

@@ -16,6 +16,11 @@ function(add_command NAME TEST_NAME)
 endfunction()
 
 function(add_test NAME)
+  if(NAME MATCHES "MPIPorts|MPISinglePorts" AND (MPI_CXX_LIBRARY_VERSION_STRING MATCHES "Open MPI|Intel"))
+    # Test is unsupported by this MPI implementation
+    return()
+  endif()
+
   string(REPLACE "/" "_" test_dir "${NAME}")
   set(test_dir "${TEST_DIR}/${test_dir}")
 
@@ -32,11 +37,23 @@ function(add_test NAME)
     list(PREPEND labels LABELS)
   endif()
 
+  # --map-by=:OVERSUBSCRIBE works for OpenMPI(4+5) and MPICH, but not for Intel which doesn't need a flag
+  set(_oversubscribe_FLAG "--map-by;:OVERSUBSCRIBE")
+  if(MPI_CXX_LIBRARY_VERSION_STRING MATCHES "Intel")
+    set(_oversubscribe_FLAG "")
+  endif()
+
   add_command(add_test
     "[=[precice.${NAME}]=]"
-    "/usr/bin/mpiexec" "-n" "4" "--map-by" ":OVERSUBSCRIBE"
-   ${_TEST_EXECUTABLE} "--run_test=${NAME}" "--log_level=message"
- )
+    ${MPIEXEC_EXECUTABLE}
+    ${MPIEXEC_NUMPROC_FLAG}
+    4
+    ${_oversubscribe_FLAG}
+    ${PRECICE_CTEST_MPI_FLAGS}
+    ${MPIEXEC_PREFLAGS}
+    ${_TEST_EXECUTABLE} "--run_test=${NAME}" "--log_level=message"
+    ${MPIEXEC_POSTFLAGS}
+  )
   add_command(set_tests_properties
     "[=[precice.${NAME}]=]"
     PROPERTIES
