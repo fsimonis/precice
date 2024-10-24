@@ -152,7 +152,7 @@ enable_testing()
 
 # Autodiscovery of CTest
 if(NOT PRECICE_FEATURE_MPI_COMMUNICATION)
-  message("Tests require MPICommunication to be enabled.")
+  message(STATUS "Unit and integrationtests require MPI to be enabled.")
 else()
 
   # This file is automatically loaded by CTEST and needs to exist to prevent strange errors
