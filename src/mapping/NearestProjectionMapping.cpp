@@ -79,7 +79,7 @@ void NearestProjectionMapping::computeMapping()
   // This safety margin results in a candidate set which forms the base for the
   // local nearest projection and counters the loss of detail due to bounding box generation.
   // @TODO Add a configuration option for this factor
-  constexpr int nnearest = 4;
+  constexpr int nnearest = 10;
 
   utils::statistics::DistanceAccumulator distanceStatistics;
   std::size_t                            toTriangles{0}, toEdges{0}, toVertices{0};

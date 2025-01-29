@@ -357,7 +357,12 @@ ProjectionMatch Index::findTriangleProjection(const Eigen::VectorXd &location, i
   candidates.reserve(n);
   std::ofstream ofs{"projections.yml", std::ios_base::app};
 
-  fmt::print(ofs, "  triangles:\n");
+  auto closest = closestVertex.polation.getWeightedElements().front();
+  fmt::println(ofs, "  vertex:");
+  fmt::println(ofs, "    id: {}", closest.vertexID);
+  fmt::println(ofs, "    coords: {}", _mesh->vertex(closest.vertexID).getCoords());
+  fmt::println(ofs, "    dist: {}", closestVertex.polation.distance());
+  fmt::println(ofs, "  triangles:");
   for (const auto &match : getClosestTriangles(location, n)) {
     auto polation = mapping::Polation(location, _mesh->triangles()[match.index]);
     fmt::println(ofs, "  - inter: {}", polation.isInterpolation());
