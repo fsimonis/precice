@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <boost/iterator/function_output_iterator.hpp>
 #include <boost/range/irange.hpp>
+#include <fstream>
 #include <utility>
 
 #include "logging/LogMacros.hpp"
@@ -319,12 +320,23 @@ ProjectionMatch Index::findEdgeProjection(const Eigen::VectorXd &location, int n
 {
   std::vector<ProjectionMatch> candidates;
   candidates.reserve(n);
+  std::ofstream ofs{"projections.yml", std::ios_base::app};
+  fmt::print(ofs, "  edges:\n");
   for (const auto &match : getClosestEdges(location, n)) {
     auto polation = mapping::Polation(location, _mesh->edges()[match.index]);
+    fmt::println(ofs, "  - inter: {}", polation.isInterpolation());
+    fmt::println(ofs, "    dist: {}", polation.distance());
+    fmt::println(ofs, "    elements:");
+    for (auto &e : polation.getWeightedElements()) {
+      fmt::println(ofs, "    - id: {}", e.vertexID);
+      fmt::println(ofs, "      weight: {}", e.weight);
+      fmt::println(ofs, "      coords: {}", _mesh->vertex(e.vertexID).getCoords());
+    }
     if (polation.isInterpolation()) {
       candidates.emplace_back(std::move(polation));
     }
   }
+  ofs << std::flush;
 
   // Could not find edge projection element, fall back to vertex projection
   if (candidates.empty()) {
@@ -343,12 +355,24 @@ ProjectionMatch Index::findTriangleProjection(const Eigen::VectorXd &location, i
 {
   std::vector<ProjectionMatch> candidates;
   candidates.reserve(n);
+  std::ofstream ofs{"projections.yml", std::ios_base::app};
+
+  fmt::print(ofs, "  triangles:\n");
   for (const auto &match : getClosestTriangles(location, n)) {
     auto polation = mapping::Polation(location, _mesh->triangles()[match.index]);
+    fmt::println(ofs, "  - inter: {}", polation.isInterpolation());
+    fmt::println(ofs, "    dist: {}", polation.distance());
+    fmt::println(ofs, "    elements:");
+    for (auto &e : polation.getWeightedElements()) {
+      fmt::println(ofs, "    - id: {}", e.vertexID);
+      fmt::println(ofs, "      weight: {}", e.weight);
+      fmt::println(ofs, "      coords: {}", _mesh->vertex(e.vertexID).getCoords());
+    }
     if (polation.isInterpolation()) {
       candidates.emplace_back(std::move(polation));
     }
   }
+  ofs << std::flush;
 
   // Could not find triangle projection element, fall back to edge projection
   if (candidates.empty()) {

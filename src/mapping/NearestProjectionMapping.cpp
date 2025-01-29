@@ -2,6 +2,7 @@
 
 #include <Eigen/Core>
 #include <algorithm>
+#include <fstream>
 #include <memory>
 #include <ostream>
 #include <utility>
@@ -85,12 +86,23 @@ void NearestProjectionMapping::computeMapping()
 
   _interpolations.clear();
   _interpolations.reserve(fVertices.size());
+  std::ofstream ofs{"projections.yml", std::ios_base::app};
 
   auto &index = searchSpace->index();
   for (const auto &fVertex : fVertices) {
     // Nearest projection element is edge for 2d if exists, if not, it is the nearest vertex
     // Nearest projection element is triangle for 3d if exists, if not the edge and at the worst case it is the nearest vertex
+    fmt::print(ofs, "- origin: {}\n  coords: [{}]\n", fVertex.getID(), fVertex.getCoords());
+    ofs << std::flush;
     auto match = index.findNearestProjection(fVertex.getCoords(), nnearest);
+    fmt::println(ofs, "  pick:");
+    fmt::println(ofs, "    dist: {}", match.polation.distance());
+    fmt::println(ofs, "    elements:");
+    for (auto &e : match.polation.getWeightedElements()) {
+      fmt::println(ofs, "    - id: {}", e.vertexID);
+      fmt::println(ofs, "      weight: {}", e.weight);
+      fmt::println(ofs, "      coords: {}", searchSpace->vertex(e.vertexID).getCoords());
+    }
     distanceStatistics(match.polation.distance());
     switch (match.polation.nElements()) {
     case 1:
