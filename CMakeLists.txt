@@ -394,11 +394,11 @@ print_section("TARGETS & PACKAGES")
 # The main library and tests link against this.
 add_library(preciceCore OBJECT)
 set_target_properties(preciceCore PROPERTIES
-  CXX_STANDARD ${PRECICE_CXX_STANDARD}
   CXX_STANDARD_REQUIRED Yes
   CXX_EXTENSIONS No
   POSITION_INDEPENDENT_CODE YES
   )
+target_compile_features(preciceCore PUBLIC "cxx_std_${PRECICE_CXX_STANDARD}")
 
 if(PRECICE_HIDE_SYMBOLS)
   set_target_properties(preciceCore PROPERTIES
@@ -660,10 +660,10 @@ if (PRECICE_BUILD_TOOLS)
       precice
       )
     set_target_properties(${TARGET} PROPERTIES
-      CXX_STANDARD ${PRECICE_CXX_STANDARD}
       CXX_STANDARD_REQUIRED Yes
       CXX_EXTENSIONS No
       )
+    target_compile_features(${TARGET} PUBLIC "cxx_std_${PRECICE_CXX_STANDARD}")
   endmacro()
 
   precice_add_tool(precice-tools "src/drivers/main.cpp")
@@ -682,11 +682,11 @@ IF (BUILD_TESTING)
     preciceCore
     )
   set_target_properties(testprecice PROPERTIES
-    CXX_STANDARD ${PRECICE_CXX_STANDARD}
     CXX_STANDARD_REQUIRED Yes
     CXX_EXTENSIONS No
     ENABLE_EXPORTS Yes
     )
+    target_compile_features(testprecice PUBLIC "cxx_std_${PRECICE_CXX_STANDARD}")
   target_include_directories(testprecice PRIVATE
     ${preCICE_SOURCE_DIR}/src
     ${preCICE_SOURCE_DIR}/tests
@@ -749,10 +749,10 @@ if(PRECICE_BUILD_BENCHMARKS)
     benchmark::benchmark
     )
   set_target_properties(precice-bench PROPERTIES
-    CXX_STANDARD ${PRECICE_CXX_STANDARD}
     CXX_STANDARD_REQUIRED Yes
     CXX_EXTENSIONS No
     )
+  target_compile_features(precice-bench PUBLIC "cxx_std_${PRECICE_CXX_STANDARD}")
   target_include_directories(precice-bench PRIVATE
     ${preCICE_SOURCE_DIR}/src
     ${preCICE_SOURCE_DIR}/benchmark
